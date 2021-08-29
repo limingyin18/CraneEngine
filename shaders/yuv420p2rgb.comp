@@ -1,0 +1,85 @@
+#version 450 core
+
+layout(set = 0, binding = 0) readonly buffer InputBuffer
+{
+    uint buf[];
+} yuv;
+
+layout(set = 0, binding = 1) buffer OutputBuffer
+{
+    uint buf[];
+} rgb;
+
+layout (local_size_x_id = 0, local_size_y_id = 1) in;
+
+layout (constant_id = 2) const uint INPUT_ROW_SIZE = 1280;
+layout (constant_id = 3) const uint INPUT_COL_SIZE = 960;
+
+// This value is 2 ^ 18 - 1, and is used to clamp the RGB values before their
+// ranges
+// are normalized to eight bits.
+const int kMaxChannelValue = 262143;
+
+uint YUV2RGBA(int nY, int nU, int nV)
+{
+    nY -= 16;
+    nU -= 128;
+    nV -= 128;
+    if (nY < 0) nY = 0;
+
+    // This is the floating point equivalent. We do the conversion in integer
+    // because some Android devices do not have floating point in hardware.
+    // nR = (int)(1.164 * nY + 1.596 * nV);
+    // nG = (int)(1.164 * nY - 0.813 * nV - 0.391 * nU);
+    // nB = (int)(1.164 * nY + 2.018 * nU);
+
+    int nR = int(1192 * nY + 1634 * nV);
+    int nG = int(1192 * nY - 833 * nV - 400 * nU);
+    int nB = int(1192 * nY + 2066 * nU);
+
+    nR = min(kMaxChannelValue, max(0, nR));
+    nG = min(kMaxChannelValue, max(0, nG));
+    nB = min(kMaxChannelValue, max(0, nB));
+
+    nR = (nR >> 10) & 0xff;
+    nG = (nG >> 10) & 0xff;
+    nB = (nB >> 10) & 0xff;
+
+    return 0xff000000 | (nR << 16) | (nG << 8) | nB;
+}
+
+void main()
+{
+    uint x = gl_GlobalInvocationID.x;
+    uint y = gl_GlobalInvocationID.y;
+    uint block_y = INPUT_ROW_SIZE/gl_WorkGroupSize.y;
+    uint block_x = INPUT_COL_SIZE/gl_WorkGroupSize.x;
+
+    uint offset_Y = y*block_y*INPUT_COL_SIZE+x*block_x;
+    uint offset_U = INPUT_ROW_SIZE*INPUT_COL_SIZE + y*INPUT_COL_SIZE*block_y/4 + x*block_x/2;
+    uint offset_V = INPUT_ROW_SIZE*INPUT_COL_SIZE + INPUT_ROW_SIZE * INPUT_COL_SIZE/4 + 
+                    y*INPUT_COL_SIZE*block_y/4 + x*block_x/2;
+
+    for(uint j = 0; j < block_y; ++j)
+    {
+        for(uint i = 0; i < block_x; ++i)
+        {
+            uint indexY = offset_Y + j*INPUT_COL_SIZE+i;
+            uint Y = yuv.buf[indexY/4];
+                 Y = Y & (0xff000000u >> (8*(3-(indexY%4))));
+                 Y = Y  >> 8*((indexY%4));
+
+            uint indexU = offset_U + (j/2)*INPUT_COL_SIZE/2 + i/2;
+            uint U = yuv.buf[indexU/4];
+                 U = U & (0xff000000u >> (8*(3-(indexU%4))));
+                 U = U >> 8*((indexU%4));
+
+            uint indexV = offset_V + (j/2)*INPUT_COL_SIZE/2 + i/2;
+            uint V = yuv.buf[indexV/4];
+                V = V & (0xff000000u >> (8*(3-(indexV%4))));
+                V = V >> 8*((indexV%4));
+
+            rgb.buf[y*block_y*INPUT_COL_SIZE+x*block_x+ j*INPUT_COL_SIZE+i] = YUV2RGBA(int(Y), int(U), int(V));
+        }
+    }
+}

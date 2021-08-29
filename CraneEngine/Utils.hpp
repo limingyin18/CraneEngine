@@ -4,7 +4,7 @@
 #include <string>
 #include <fstream>
 
-namespace CraneVision
+namespace Crane
 {
 	class Loader
 	{

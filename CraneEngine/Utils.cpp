@@ -1,8 +1,8 @@
 #include "Utils.hpp"
 
-using namespace CraneVision;
+using namespace Crane;
 
-std::vector<char> CraneVision::Loader::readFile(const std::string& filename)
+std::vector<char> Crane::Loader::readFile(const std::string& filename)
 {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
