@@ -10,6 +10,9 @@
     <CustomBuild Include="C:\project\CraneEngine\shaders\build\CMakeFiles\d1a97343177579683b0983fa125d4bbe\basic.vert.spv.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
+    <CustomBuild Include="C:\project\CraneEngine\shaders\build\CMakeFiles\d1a97343177579683b0983fa125d4bbe\cull.comp.spv.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
     <CustomBuild Include="C:\project\CraneEngine\shaders\build\CMakeFiles\d1a97343177579683b0983fa125d4bbe\ifft2.comp.spv.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>

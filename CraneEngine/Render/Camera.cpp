@@ -29,9 +29,8 @@ void Camera::computeTransformation()
                .matrix();
     */
 
-    view = (AngleAxis<float>(3.14f, Vector3f(0.0f, 0.0f, 1.0f)) * 
-            AngleAxis<float>(-rotation[1], up) *
-            AngleAxis<float>(-rotation[0], right) * 
+    view = (AngleAxis<float>(rotation[1], up) *
+            AngleAxis<float>(rotation[0], right) * 
             Translation<float, 3>(-target)
             )
             .matrix();
@@ -51,8 +50,10 @@ void Camera::rotate(float x, float y)
 {
     rotation[0] += cameraRotateSpeed * x;
     rotation[1] += cameraRotateSpeed * y;
-    right = AngleAxis<float>(rotation[1], up).matrix()* Vector3f(-1.f, 0.f, 0.f);
-    front = up.cross(-right);
+    right = AngleAxis<float>(-rotation[1], up).matrix()* Vector3f(1.f, 0.f, 0.f);
+    right.normalize();
+    front = up.cross(right);
+    front.normalize();
 }
 
 void Camera::focus(float d)

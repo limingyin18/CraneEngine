@@ -16,16 +16,22 @@ layout (push_constant) uniform constants
 	mat4 projView;
 }camera;
 
-layout (set = 0, binding = 1) uniform UniformBufferModel
+layout (set = 0, binding = 1) readonly buffer BufferModel
 {
-	mat4 model;
-}model;
+	mat4 bufferModel[];
+};
+
+layout (set = 0, binding = 2) readonly buffer BufferInstance
+{
+	uint bufferInstance[];
+};
 
 void main()
 {
-	gl_Position = camera.projView * model.model *vec4(position, 1.0f);
-    posFrag = vec3(model.model * vec4(position, 1.0));
+    mat4 model = bufferModel[bufferInstance[gl_InstanceIndex]]; 
+	gl_Position = camera.projView * model *vec4(position, 1.0f);
+    posFrag = vec3(model * vec4(position, 1.0));
     colorFrag = colorVert;
     texFrag = tex;
-    normalFrag = mat3(transpose(inverse(model.model))) * normal;
+    normalFrag = mat3(transpose(inverse(model))) * normal;
 }

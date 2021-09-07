@@ -136,9 +136,8 @@ void PipelinePass::addShader(std::vector<char>& shaderCode, vk::ShaderStageFlagB
 	spvReflectDestroyShaderModule(&module);
 }
 
-void Crane::PipelinePass::buildLayout()
+void Crane::PipelinePass::buildDescriptorSetLayout()
 {
-	LOGI("创建描述符布局");
 	setLayouts.resize(bindings.size());
 	descriptorSetLayouts.resize(bindings.size());
 	for (size_t i = 0; i < bindings.size(); ++i)
@@ -151,21 +150,37 @@ void Crane::PipelinePass::buildLayout()
 		setLayouts[i] = device.createDescriptorSetLayoutUnique(descriptorSetLayoutCreateInfo);
 		descriptorSetLayouts[i] = setLayouts[i].get();
 	}
+}
 
-	LOGI("创建管线布局");
+void Crane::PipelinePass::buildPipelineLayout()
+{
 	vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo{
 		.setLayoutCount = (uint32_t)descriptorSetLayouts.size(),
 		.pSetLayouts = descriptorSetLayouts.data(),
 		.pushConstantRangeCount = (uint32_t)pushConstantRanges.size(),
 		.pPushConstantRanges = pushConstantRanges.data() };
-	layout = device.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
+	pipelineLayout = device.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
 }
 
-void Crane::Material::buildSets()
+void Crane::Material::buildDescriptorSets()
 {
 	vk::DescriptorSetAllocateInfo descriptorSetAllocateInfo{
 			.descriptorPool = descriptorPool,
 			.descriptorSetCount = static_cast<uint32_t>(pipelinePass->descriptorSetLayouts.size()),
 			.pSetLayouts = pipelinePass->descriptorSetLayouts.data() };
 	descriptorSets = pipelinePass->device.allocateDescriptorSets(descriptorSetAllocateInfo);
+}
+
+void Crane::PipelinePassCompute::buildPipeline(vk::PipelineCache pipelineCache)
+{
+	vk::PipelineShaderStageCreateInfo computeShaderStageCreateInfo{ .stage = vk::ShaderStageFlagBits::eCompute,
+	.module = shaderModules[0].get(), .pName = "main" };
+	vk::ComputePipelineCreateInfo computePipelineCreateInfo{ .stage = computeShaderStageCreateInfo,
+		.layout = pipelineLayout.get(), };
+	pipeline = device.createComputePipelineUnique(pipelineCache, computePipelineCreateInfo);
+}
+
+void Crane::PipelinePassGraphics::buildPipeline(PipelineBuilder& pipelineBuilder)
+{
+	pipeline = pipelineBuilder.build(pipelineShaderStageCreateInfos, pipelineLayout.get(), renderPass);
 }

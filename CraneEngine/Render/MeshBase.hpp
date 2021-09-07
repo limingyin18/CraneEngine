@@ -46,4 +46,10 @@ namespace Crane
         explicit Cube(int n);
     };
 
+    class Chessboard : public MeshBase
+    {
+    public:
+        Chessboard(uint32_t n, uint32_t m);
+    };
+
 }

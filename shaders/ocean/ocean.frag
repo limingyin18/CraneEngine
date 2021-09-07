@@ -26,14 +26,13 @@ layout(set = 0, binding = 0) uniform  SceneData{
 
 void main()
 {
-    vec3 norm = normalize(normalFrag);
+    float Kdiffuse = 0.91f;
+
     vec3 lightDir = normalize(-sceneData.sunlightDirection.xyz);
-    vec3 lightColor = sceneData.sunlightColor.xyz;
-    float diffuse = max(dot(norm, lightDir), 0.0);
 
     float reflectivity;
     float nSnell = 1.34f;
-    float costhetai = abs(dot(lightDir, norm));
+    float costhetai = abs(dot(lightDir, normalFrag));
     float thetai = acos(costhetai);
     float sinthetat = sin(thetai)/nSnell;
     float thetat = asin(sinthetat);
@@ -53,13 +52,15 @@ void main()
     float ambient = 0.1f;
 
     float specular = 0.0f;
+    float diffuse = max(dot(normalFrag, lightDir), 0.0);
     if(diffuse > 0.01f)
     {
         vec3 viewDir = normalize(camera.pos.xyz - posFrag);
-        vec3 reflectDir = reflect(-lightDir, norm);
+        vec3 reflectDir = reflect(-lightDir, normalFrag);
         specular = pow(max(dot(viewDir, reflectDir), 0.0), 32) * 0.01f;
     }
 
-    colorFragOut = vec4((ambient + reflectivity + specular) * lightColor, 1.0f);
-    //colorFragOut = vec4((ambient + reflectivity) * lightColor, 1.0f);
+    colorFragOut = vec4(sceneData.ambientColor.xyz + 
+        reflectivity * vec3(0.69f, 0.84f, 1.f) + (1-reflectivity) * vec3(0.0f, 0.2f, 0.3f) +
+        specular * sceneData.sunlightColor.xyz, 1.0f);
 }

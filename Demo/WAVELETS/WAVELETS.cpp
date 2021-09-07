@@ -1,4 +1,4 @@
-#include "OCEAN.hpp"
+#include "WAVELETS.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -15,7 +15,7 @@ constexpr complex<float> WIND_DIRECTION = { 1.f, 1.f };
 constexpr float CHOPPY_FACTOR = 1.0f;
 
 
-OCEAN::OCEAN(shared_ptr<SDL_Window> win) : SDL2_IMGUI_BASE(win), ocean{ N, M }, oceanAmpl(N, M, LX, LZ, AMPLITUDE, WIND_SPEED, WIND_DIRECTION, CHOPPY_FACTOR)
+WAVELETS::WAVELETS(shared_ptr<SDL_Window> win) : SDL2_IMGUI_BASE(win), ocean{ N, M }, waveletsAmpl(N, M, LX, LZ, AMPLITUDE, WIND_SPEED, WIND_DIRECTION, CHOPPY_FACTOR)
 {
 	//preferPresentMode = vk::PresentModeKHR::eFifo;
 
@@ -23,12 +23,12 @@ OCEAN::OCEAN(shared_ptr<SDL_Window> win) : SDL2_IMGUI_BASE(win), ocean{ N, M }, 
 	camera.rotation[0] = -0.2f;
 }
 
-OCEAN::~OCEAN()
+WAVELETS::~WAVELETS()
 {
 	device->waitIdle();
 }
 
-void OCEAN::updateApp()
+void WAVELETS::updateApp()
 {
 	updateEngine();
 
@@ -37,7 +37,7 @@ void OCEAN::updateApp()
 	computeQueue.waitIdle();
 }
 
-void OCEAN::setImgui()
+void WAVELETS::setImgui()
 {
 	static size_t count = 0;
 
@@ -50,7 +50,7 @@ void OCEAN::setImgui()
 	ImGui::End();
 }
 
-void OCEAN::bindIff2SSBO(Material& material, vk::DescriptorBufferInfo& info)
+void WAVELETS::bindIff2SSBO(Material& material, vk::DescriptorBufferInfo& info)
 {
 	vk::WriteDescriptorSet writeDescriptorSet0{
 		.dstSet = material.descriptorSets[0],
@@ -71,7 +71,7 @@ void OCEAN::bindIff2SSBO(Material& material, vk::DescriptorBufferInfo& info)
 		material.writeDescriptorSets.data(), 0, nullptr);
 }
 
-void OCEAN::createOceanSSBO(Buffer& buff, vk::DescriptorBufferInfo& info, uint32_t binding)
+void WAVELETS::createOceanSSBO(Buffer& buff, vk::DescriptorBufferInfo& info, uint32_t binding)
 {
 	size_t size = N * M * 2 * 4;
 	buff.create(*vmaAllocator, size, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY, VmaAllocationCreateFlagBits{});
@@ -86,7 +86,7 @@ void OCEAN::createOceanSSBO(Buffer& buff, vk::DescriptorBufferInfo& info, uint32
 	materialAmpl.writeDescriptorSets.push_back(writeDescriptorSet);
 }
 
-void OCEAN::createOceanUniform(Buffer& buff, vk::DescriptorBufferInfo& info, uint32_t binding)
+void WAVELETS::createOceanUniform(Buffer& buff, vk::DescriptorBufferInfo& info, uint32_t binding)
 {
 	size_t size = 4;
 	buff.create(*vmaAllocator, size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
@@ -101,7 +101,7 @@ void OCEAN::createOceanUniform(Buffer& buff, vk::DescriptorBufferInfo& info, uin
 	materialAmpl.writeDescriptorSets.push_back(writeDescriptorSet);
 }
 
-void OCEAN::createAssetApp()
+void WAVELETS::createAssetApp()
 {
 	LOGI("创建应用资产");
 
@@ -216,7 +216,7 @@ void OCEAN::createAssetApp()
 		.pBufferInfo = &h_tlide_0Info };
 		materialAmpl.writeDescriptorSets.push_back(writeDescriptorSet);
 
-		h_tlide_0.update(oceanAmpl.h_tlide_0.data());
+		h_tlide_0.update(waveletsAmpl.h_tlide_0.data());
 	}
 
 	{
@@ -231,7 +231,7 @@ void OCEAN::createAssetApp()
 		.pBufferInfo = &h_tlide_0_conjInfo };
 		materialAmpl.writeDescriptorSets.push_back(writeDescriptorSet);
 
-		h_tlide_0_conj.update(oceanAmpl.h_tlide_0_conj.data());
+		h_tlide_0_conj.update(waveletsAmpl.h_tlide_0_conj.data());
 	}
 
 
@@ -356,7 +356,7 @@ void OCEAN::createAssetApp()
 	lambda.create(*vmaAllocator, 4, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 	lambdaInfo.buffer = lambda.buffer;
 	lambdaInfo.range = lambda.size;
-	lambda.update(&oceanAmpl.lambda);
+	lambda.update(&waveletsAmpl.lambda);
 
 	vk::WriteDescriptorSet writeDescriptorSetOcean0{
 	.dstSet = materialOcean.descriptorSets[0],
@@ -440,31 +440,7 @@ void OCEAN::createAssetApp()
 	materialOcean.writeDescriptorSets.push_back(writeDescriptorSetOcean8);
 	renderables.emplace_back(&ocean, &materialOcean);
 
-	materialOcean1.descriptorPool = descriptorPool.get();
-	materialOcean1.pipelinePass = &pipelinePassOcean;
-	materialOcean1.buildSets();
-	materialOcean1.writeDescriptorSets = materialOcean.writeDescriptorSets;
-	index = 0;
-	for (const auto& r : renderables)
-	{
-		index += r.mesh->data.size();
-	}
-	indexB1.create(*vmaAllocator, 4, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-	indexB1.update(&index);
-	indexBInfo1.buffer = indexB1.buffer;
-	indexBInfo1.range = indexB1.size;
-	materialOcean1.writeDescriptorSets.back().pBufferInfo = &indexBInfo1;
-	renderables.emplace_back(&ocean, &materialOcean1);
-	materialOcean1.writeDescriptorSets[0].dstSet = materialOcean1.descriptorSets[0];
-	materialOcean1.writeDescriptorSets[1].dstSet = materialOcean1.descriptorSets[0];
-	materialOcean1.writeDescriptorSets[2].dstSet = materialOcean1.descriptorSets[0];
-	materialOcean1.writeDescriptorSets[3].dstSet = materialOcean1.descriptorSets[1];
-	materialOcean1.writeDescriptorSets[4].dstSet = materialOcean1.descriptorSets[1];
-	materialOcean1.writeDescriptorSets[5].dstSet = materialOcean1.descriptorSets[1];
-	materialOcean1.writeDescriptorSets[6].dstSet = materialOcean1.descriptorSets[1];
-	materialOcean1.writeDescriptorSets[7].dstSet = materialOcean1.descriptorSets[1];
-	materialOcean1.writeDescriptorSets[8].dstSet = materialOcean1.descriptorSets[0];
-	renderables.back().transformMatrix.block<3, 1>(0, 3) = Eigen::Vector3f(200.f, 0.f, 0.f);
+
 
 
 	vk::CommandPoolCreateInfo commandPoolCreateInfo{ .queueFamilyIndex = computeQueueFamilyIndex };

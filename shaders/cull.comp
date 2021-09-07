@@ -1,0 +1,186 @@
+#version 450
+
+layout (local_size_x = 1024) in;
+
+layout (push_constant) uniform constantsOffset
+{
+	uint offset;
+};
+
+struct DrawCullData
+{
+	mat4 view;
+	float fov;
+	float aspect;
+	float znear, zfar;
+
+	uint drawCount;
+};
+
+layout(set = 0,binding = 5) readonly buffer  constants{   
+   DrawCullData cullData;
+};
+
+//layout(set = 0,binding = 4) uniform sampler2D depthPyramid;
+
+struct ObjectData{
+	mat4 model;
+	vec4 spherebounds;
+}; 
+//all object matrices
+layout(std140,set = 0, binding = 0) readonly buffer ObjectBuffer{   
+
+	ObjectData objects[];
+} objectBuffer;
+
+struct DrawCommand
+{
+	
+	uint    indexCount;
+    uint    instanceCount;
+    uint    firstIndex;
+    int     vertexOffset;
+    uint    firstInstance;
+};
+//draw indirect buffer
+layout(set = 0, binding = 1)  buffer InstanceBuffer{   
+
+	DrawCommand Draws[];
+} drawBuffer;
+
+struct GPUInstance {
+	uint batchID;
+	uint objectID;
+};
+//draw indirect buffer
+layout(set = 0, binding = 2) readonly buffer InstanceBuffer2{   
+
+	GPUInstance Instances[];
+} compactInstanceBuffer;
+
+//draw indirect buffer
+layout(set = 0, binding = 3)  buffer InstanceBuffer3{   
+
+	uint IDs[];
+} finalInstanceBuffer;
+
+/*
+// 2D Polyhedral Bounds of a Clipped, Perspective-Projected 3D Sphere. Michael Mara, Morgan McGuire. 2013
+bool projectSphere(vec3 C, float r, float znear, float P00, float P11, out vec4 aabb)
+{
+	if (C.z < r + znear)
+		return false;
+
+	vec2 cx = -C.xz;
+	vec2 vx = vec2(sqrt(dot(cx, cx) - r * r), r);
+	vec2 minx = mat2(vx.x, vx.y, -vx.y, vx.x) * cx;
+	vec2 maxx = mat2(vx.x, -vx.y, vx.y, vx.x) * cx;
+
+	vec2 cy = -C.yz;
+	vec2 vy = vec2(sqrt(dot(cy, cy) - r * r), r);
+	vec2 miny = mat2(vy.x, vy.y, -vy.y, vy.x) * cy;
+	vec2 maxy = mat2(vy.x, -vy.y, vy.y, vy.x) * cy;
+
+	aabb = vec4(minx.x / minx.y * P00, miny.x / miny.y * P11, maxx.x / maxx.y * P00, maxy.x / maxy.y * P11);
+	aabb = aabb.xwzy * vec4(0.5f, -0.5f, 0.5f, -0.5f) + vec4(0.5f); // clip space -> uv space
+
+	return true;
+}
+*/
+
+bool IsVisible(uint objectIndex)
+{
+	uint index = objectIndex;
+
+	vec4 sphereBounds = objectBuffer.objects[index].spherebounds;
+	mat4 modelMatrix = objectBuffer.objects[index].model;
+
+	vec3 center = sphereBounds.xyz;
+	vec4 centerMV = cullData.view * modelMatrix * vec4(center,1.f);
+	center = centerMV.xyz / centerMV.w;
+	center.z *= -1;
+	float radius = sphereBounds.w;
+	
+
+	// z
+	if(center.z > cullData.zfar + radius || center.z < cullData.znear - radius)
+		return false;
+
+
+	float h = center.z * 2.f * tan(cullData.fov/2.f);
+	float d = radius / cos(cullData.fov/2.f);
+	// y
+	if(-h/2.f - d> center.y || center.y > h/2.f + d)
+		return false;
+
+	
+	// x
+	float w = h * cullData.aspect;
+	d = d * cullData.aspect;
+	if(-w/2.f - d > center.x || center.x > w/2.f + d)
+		return false;
+
+    /*
+	//flip Y because we access depth texture that way
+	center.y *= -1;
+
+	if(visible && cullData.occlusionEnabled != 0)
+	{
+		vec4 aabb;
+		if (projectSphere(center, radius, cullData.znear, cullData.P00, cullData.P11, aabb))
+		{
+			float width = (aabb.z - aabb.x) * cullData.pyramidWidth;
+			float height = (aabb.w - aabb.y) * cullData.pyramidHeight;
+
+			float level = floor(log2(max(width, height)));
+
+			// Sampler is set up to do min reduction, so this computes the minimum depth of a 2x2 texel quad
+			
+			float depth = textureLod(depthPyramid, (aabb.xy + aabb.zw) * 0.5, level).x;
+			float depthSphere =cullData.znear / (center.z - radius);
+
+			visible = visible && depthSphere >= depth;
+		}
+	}*/
+
+	return true;
+}
+/*
+bool IsVisibleAABB(uint objectIndex)
+{
+	uint index = objectIndex;
+
+	vec4 sphereBounds = objectBuffer.objects[index].spherebounds;
+
+	vec3 center = sphereBounds.xyz;
+	//center = (cullData.view * vec4(center,1.f)).xyz;
+	float radius = sphereBounds.w;
+	
+	bool visible = true;
+
+	vec3 aabbmin = vec3(cullData.aabbmin_x,cullData.aabbmin_y,cullData.aabbmin_z) + vec3(radius);
+	vec3 aabbmax = vec3(cullData.aabbmax_x,cullData.aabbmax_y,cullData.aabbmax_z) - vec3(radius);
+
+	visible =visible&& (center.x > aabbmin.x) && (center.x < aabbmax.x);
+	visible =visible&& (center.y > aabbmin.y) && (center.y < aabbmax.y);
+	visible =visible&& (center.z > aabbmin.z) && (center.z < aabbmax.z);
+
+	return visible;
+}*/
+
+void main() 
+{		
+	uint gID = gl_GlobalInvocationID.x + offset;
+	if(gID < cullData.drawCount)
+	{
+		uint objectID = compactInstanceBuffer.Instances[gID].objectID;
+
+		if(IsVisible(objectID))
+		{
+			uint batchIndex = compactInstanceBuffer.Instances[gID].batchID;
+			uint countIndex = atomicAdd(drawBuffer.Draws[batchIndex].instanceCount,1);
+			uint instanceIndex = drawBuffer.Draws[batchIndex].firstInstance + countIndex;
+			finalInstanceBuffer.IDs[instanceIndex] = objectID;
+		}
+	}
+}

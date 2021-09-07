@@ -8,23 +8,18 @@
 
 class BASIC : public SDL2_IMGUI_BASE
 {
-
 private:
-	Eigen::Vector3f model1{0.f, 5.f, -5.f};
-	Crane::Plane cloak{11, 11};
+	Crane::Image imageAnime;
+	vk::UniqueImageView imageViewAnime;
+	vk::DescriptorImageInfo descriptorImageInfoAnime;
 
-	Crane::Plane floorEnv{2, 2};
-	Eigen::Vector3f model0{0.f, 0.f, 0.f};
-	Crane::MaterialPhong materialPhong; 
+	Crane::PipelinePassGraphics pipelinePassPhong;
 
-	Crane::Cube cube{ 2 };
+	Crane::Chessboard chessboard{ 11, 11 };
+	Crane::Material materialPhongChessboard; 
 
-	CranePhysics::PositionBasedDynamics pbd;
-
-	std::vector<Crane::Cube> particles;
-
-	Crane::Image textureImage;
-	vk::UniqueImageView textureImageView;
+	Crane::Cube box{ 2 };
+	Crane::Material materialPhongBox; 
 
 
 	void createAssetApp() override;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <random>
 
 #include "Render/Render.hpp"
 #include "Input.hpp"
@@ -38,5 +39,8 @@ namespace Crane
             std::chrono::system_clock::now();
         float dtAll = 0.0f;
         float dt = 0.0f;
+
+        std::default_random_engine rand_generator;
+        std::normal_distribution<float> normal_dist{0.f, 1.f};
     };
 }

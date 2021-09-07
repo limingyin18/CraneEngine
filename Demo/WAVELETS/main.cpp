@@ -5,14 +5,14 @@
 #include <SDL2/SDL.h>
 #include <imgui.h>
 
-#include "BASIC.hpp"
+#include "WAVELETS.hpp"
 
 using namespace std;
 
 static const int WIDTH = 1280;
 static const int HEIGHT = 720;
 
-static const string TITLE = "SDL2 Testing";
+static const string TITLE = "WAVELETS";
 
 void processInputEvent(SDL_Event &event, Crane::Input &input);
 
@@ -38,9 +38,8 @@ int main(int argc, char **argv)
 
     try
     {
-        BASIC app(window);
+        WAVELETS app(window);
         app.init();
-	    LOGI("初始化完成");
         SDL_Event event;
         do
         {

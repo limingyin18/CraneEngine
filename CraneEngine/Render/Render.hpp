@@ -45,6 +45,34 @@ namespace Crane
 			Eigen::Matrix4f projView;
 		};
 
+		struct IndirectBatch 
+		{
+			RenderableBase* renderable;
+			uint32_t first;
+			uint32_t count;
+		};
+		struct FlatBatch
+		{
+			uint32_t batchID;
+			uint32_t objectID;
+		};
+
+		struct ObjectData
+		{
+			Eigen::Matrix4f model;
+			Eigen::Vector4f spherebound;
+		};
+
+		struct DrawCullData
+		{
+			Eigen::Matrix4f view;
+			float fov;
+			float aspect;
+			float znear, zfar;
+
+			uint32_t drawCount;
+		};
+
 	public:
 		Render();
 
@@ -93,9 +121,6 @@ namespace Crane
 		void buildRenderable();
 
 		void createDescriptorPool();
-		void createPipelineCache();
-		void createGraphicsPipeline();
-		void createComputePipeline();
 
 		void createCommandPool();
 		void allocateCommandBuffer();
@@ -105,6 +130,10 @@ namespace Crane
 
 		void updateCameraBuffer();
 		void updateSceneParameters();
+
+		void updateCullData();
+
+		void compactDraws();
 
 		vk::CommandBuffer beginSingleTimeCommands();
 		void endSingleTimeCommands(vk::CommandBuffer cmdBuffer);
@@ -135,8 +164,8 @@ namespace Crane
 		uint32_t graphicsQueueFamilyIndex, presentQueueFamilyIndex, computeQueueFamilyIndex;
 		vk::Queue graphicsQueue, presentQueue, computeQueue;
 
-		vk::UniqueCommandPool commandPool;
-		std::vector<vk::UniqueCommandBuffer> commandBuffer;
+		vk::UniqueCommandPool commandPool, commandPoolCompute;
+		std::vector<vk::UniqueCommandBuffer> commandBuffer, commandBuffersCompute;
 
 		std::unique_ptr<VmaAllocator, void(*)(VmaAllocator*)> vmaAllocator;
 
@@ -165,6 +194,7 @@ namespace Crane
 		vk::UniqueSampler textureSampler;
 		Image imageBlank, imageLilac;
 		vk::UniqueImageView imageViewBlank, imageViewLilac;
+		vk::DescriptorImageInfo descriptorImageInfoBlank, descriptorImageInfoLilac;
 
 		// renderable
 		std::vector<RenderableBase> renderables;
@@ -183,6 +213,7 @@ namespace Crane
 		std::vector<uint8_t> modelMatrix;
 		Buffer modelMatrixBuffer;
 		vk::DescriptorBufferInfo modelMatrixBufferDescriptorInfo;
+
 
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
@@ -203,11 +234,33 @@ namespace Crane
 		uint32_t currBuffIndex = 0;
 
 		std::array<vk::PipelineStageFlags, 1> waitPipelineStageFlags;
-		vk::SubmitInfo submitInfo;
+		vk::SubmitInfo submitInfo, submitInfoCompute;
 		vk::PresentInfoKHR presentInfo;
 		bool drawGUIFlag = true;
 
-		std::unordered_map<PipelineType, PipelinePass> pipelinePasss;
 		PipelineBuilder pipelineBuilder;
+
+		PipelinePassCompute pipelinePassCull;
+		Material materialCull;
+
+		std::vector<IndirectBatch> draws;
+		std::vector<FlatBatch> drawsFlat;
+		Buffer bufferDrawsFlat;
+		vk::DescriptorBufferInfo descriptorBufferDrawsFlat;
+
+		Buffer bufferCullObjCandidate;
+		vk::DescriptorBufferInfo descriptorBufferInfoCullObjCandidate;
+
+		DrawCullData drawCullData;
+		Buffer bufferDrawCullData;
+		vk::DescriptorBufferInfo descriptorBufferInfoCullData;
+
+		Buffer bufferIndirect;
+		vk::DescriptorBufferInfo descriptorBufferInfoIndirect;
+
+		Buffer bufferInstanceID;
+		vk::DescriptorBufferInfo descriptorBufferInfoInstanceID;
+
+
 	};
 }

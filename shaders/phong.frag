@@ -43,5 +43,5 @@ void main()
     vec4 specular = sceneData.sunlightColor * spec * baseColor;
 
     // result
-    colorFragOut = ambient + diffuse + specular;
+    colorFragOut = vec4(colorFrag, 1.0f) * (ambient + diffuse + specular);
 }

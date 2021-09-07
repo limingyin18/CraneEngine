@@ -50,33 +50,40 @@ namespace Crane
 	};
 
 
-	enum class PipelineType
-	{
-		BASIC = 0,
-		PHONG,
-		COMPUTE
-	};
-
 	class PipelinePass
 	{
 	public:
-		PipelineType pipelineType;
 		vk::Device device;
+
 		vk::UniquePipeline pipeline;
-		vk::UniquePipelineLayout layout;
+		vk::UniquePipelineLayout pipelineLayout;
 
 		std::vector<vk::UniqueShaderModule> shaderModules;
 		std::vector<vk::PipelineShaderStageCreateInfo> pipelineShaderStageCreateInfos;
 
 		std::vector<vk::PushConstantRange> pushConstantRanges;
 		std::unordered_map<uint32_t, std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding>> bindings;
+
 		std::vector<vk::UniqueDescriptorSetLayout> setLayouts;
 		std::vector<vk::DescriptorSetLayout> descriptorSetLayouts;
 
+		void addShader(std::vector<char>& shaderCode, vk::ShaderStageFlagBits);
+		void buildDescriptorSetLayout();
+		void buildPipelineLayout();
+	};
+
+	class PipelinePassCompute : public PipelinePass
+	{
+	public:
+		void buildPipeline(vk::PipelineCache pipelineCache);
+	};
+
+	class PipelinePassGraphics : public PipelinePass
+	{
+	public:
 		vk::RenderPass renderPass;
 
-		void addShader(std::vector<char>& shaderCode, vk::ShaderStageFlagBits);
-		void buildLayout();
+		void buildPipeline(PipelineBuilder& pipelineBuilder);
 	};
 
 	class Material
@@ -88,19 +95,7 @@ namespace Crane
 		vk::DescriptorPool descriptorPool;
 
 		PipelinePass* pipelinePass;
-		void buildSets();
-	};
 
-	class MaterialPhong : public Material
-	{
-	public:
-		vk::ImageView imageView;
-		vk::DescriptorImageInfo imageInfo;
-	};
-
-	class MaterialCompute : public Material
-	{
-	public:
-		std::vector<Crane::Buffer> buffers;
+		void buildDescriptorSets();
 	};
 }

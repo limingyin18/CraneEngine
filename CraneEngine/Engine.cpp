@@ -7,6 +7,8 @@ Engine::Engine() : Render()
 {
 	camera.cameraMoveSpeed = 0.025f;
 	camera.cameraRotateSpeed = 0.5f;
+
+    rand_generator.seed(static_cast<unsigned>(time(nullptr)));
 }
 
 void Engine::updateEngine()

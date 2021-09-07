@@ -6,15 +6,15 @@
 
 #include "SDL2_IMGUI_BASE.hpp"
 
-#include "OceanAmpl.hpp"
+#include "WaveletsAmpl.hpp"
 
-class OCEAN : public SDL2_IMGUI_BASE
+class WAVELETS : public SDL2_IMGUI_BASE
 {
 private:
 	Crane::Plane ocean;
-	Crane::Buffer indexB, indexB1;
-	vk::DescriptorBufferInfo indexBInfo, indexBInfo1;
-	Crane::OceanAmpl oceanAmpl;
+	Crane::Buffer indexB;
+	vk::DescriptorBufferInfo indexBInfo;
+	Crane::WaveletsAmpl waveletsAmpl;
 
 	Crane::PipelinePass amplPipelinePass;
 	Crane::Material materialAmpl;
@@ -38,7 +38,7 @@ private:
 
 
 	Crane::PipelinePass pipelinePassOcean;
-	Crane::Material materialOcean, materialOcean1;
+	Crane::Material materialOcean;
 	Crane::Buffer lambda;
 	vk::DescriptorBufferInfo lambdaInfo;
 
@@ -58,10 +58,10 @@ private:
 	void setImgui() override;
 
 public:
-	explicit OCEAN(std::shared_ptr<SDL_Window> win);
-	~OCEAN();
-	OCEAN(const OCEAN &rhs) = delete;
-	OCEAN(OCEAN &&rhs) = delete;
-	OCEAN &operator=(const OCEAN &rhs) = delete;
-	OCEAN &operator=(OCEAN &&rhs) = delete;
+	explicit WAVELETS(std::shared_ptr<SDL_Window> win);
+	~WAVELETS();
+	WAVELETS(const WAVELETS &rhs) = delete;
+	WAVELETS(WAVELETS &&rhs) = delete;
+	WAVELETS &operator=(const WAVELETS &rhs) = delete;
+	WAVELETS &operator=(WAVELETS &&rhs) = delete;
 };

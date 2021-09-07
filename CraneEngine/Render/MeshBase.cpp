@@ -106,7 +106,7 @@ void MeshBase::recomputeNormals(vector<Vertex> &data)
     }
 }
 
-Plane::Plane(unsigned nx, unsigned nz)
+Plane::Plane(uint32_t nx, uint32_t nz)
 {
     assert(nx > 1 && nz > 1);
     data.reserve((nx) * (nz));
@@ -151,26 +151,26 @@ Cube::Cube(int n)
 
     const float dx = 2.0f / (n - 1);
 
-    // bottom
+    // top
     for (int i = 0; i < n; ++i)
     {
-        for (int j = 0; j < n; ++j)
+        for (int j = n - 1; j >= 0; --j)
         {
             data.emplace_back(Vector3f{-1.0f + i * dx, 1.0f, -1.0f + j * dx},
-                              Vector3f{0.0f, -1.0f, 0.0f},
+                              Vector3f{0.0f, 1.0f, 0.0f},
                               Vector3f{1.0f, 1.0f, 1.0f},
                               Vector2f{1.0f - static_cast<float>(i) / static_cast<float>(n-1),
                                        1.0f - static_cast<float>(j) / static_cast<float>(n-1)});
         }
     }
 
-    // top
+    // bottom
     for (int i = 0; i < n; ++i)
     {
-        for (int j = n - 1; j >= 0; --j)
+        for (int j = 0; j < n; ++j)
         {
             data.emplace_back(Vector3f{-1.0f + i * dx, -1.0f, -1.0f + j * dx},
-                              Vector3f{0.0f, 1.0f, 0.0f},
+                              Vector3f{0.0f, -1.0f, 0.0f},
                               Vector3f{1.0f, 1.0f, 1.0f},
                               Vector2f{1.0f - static_cast<float>(i) / static_cast<float>(n-1),
                                        static_cast<float>(j) / static_cast<float>(n-1)});
@@ -238,13 +238,70 @@ Cube::Cube(int n)
             {
                 const unsigned I = i * n + j + k * n * n;
                 indices.emplace_back(I);
-                indices.emplace_back(I + 1);
                 indices.emplace_back(I + n);
+                indices.emplace_back(I + 1);
 
                 indices.emplace_back(I + n);
-                indices.emplace_back(I + 1);
                 indices.emplace_back(I + n + 1);
+                indices.emplace_back(I + 1);
             }
+        }
+    }
+}
+
+Crane::Chessboard::Chessboard(uint32_t nx, uint32_t nz)
+{
+    assert(nx > 1 && nz > 1);
+    data.reserve(4 *(nx -1) * (nz -1));
+    indices.reserve(6 * (nx - 1) * (nz - 1));
+
+    const float dx = 2.0f / (nx - 1);
+    const float dz = 2.0f / (nz - 1);
+
+    Vector3f gray{ 150.f, 150.f, 150.f };
+    gray = gray / 255.f;
+    Vector3f white{ 225.f, 225.f, 225.f };
+    white = white / 255.f;
+
+    for (uint32_t i = 0; i < nx - 1; ++i)
+    {
+        Vector3f c1 = i % 2 ? gray : white;
+        Vector3f c2 = i % 2 ? white : gray;
+        for (uint32_t j = 0; j < nz - 1; ++j)
+        {
+            Vector3f cc = j%2 ? c1 : c2;
+            data.emplace_back(Vector3f{ -1.0f + i * dx, 0.0f, -1.0f + j * dz },
+                Vector3f{ 0.0f, 1.0f, 0.0f },
+                cc,
+                Vector2f{ static_cast<float>(i) / static_cast<float>(nx - 1),
+                         static_cast<float>(j) / static_cast<float>(nz - 1) });
+
+            data.emplace_back(Vector3f{ -1.0f + i * dx, 0.0f, -1.0f + (j+1) * dz },
+                Vector3f{ 0.0f, 1.0f, 0.0f },
+                cc,
+                Vector2f{ static_cast<float>(i) / static_cast<float>(nx - 1),
+                         static_cast<float>(j+1) / static_cast<float>(nz - 1) });
+
+            data.emplace_back(Vector3f{ -1.0f + (i+1) * dx, 0.0f, -1.0f + j * dz },
+                Vector3f{ 0.0f, 1.0f, 0.0f },
+                cc,
+                Vector2f{ static_cast<float>(i+1) / static_cast<float>(nx - 1),
+                         static_cast<float>(j) / static_cast<float>(nz - 1) });
+
+            data.emplace_back(Vector3f{ -1.0f + (i+1) * dx, 0.0f, -1.0f + (j+1) * dz },
+                Vector3f{ 0.0f, 1.0f, 0.0f },
+                cc,
+                Vector2f{ static_cast<float>(i+1) / static_cast<float>(nx - 1),
+                         static_cast<float>(j+1) / static_cast<float>(nz - 1) });
+
+            const unsigned I = (i * (nz-1) + j)*4;
+            indices.emplace_back(I);
+            indices.emplace_back(I + 2);
+            indices.emplace_back(I + 1);
+
+            indices.emplace_back(I + 1);
+            indices.emplace_back(I + 2);
+            indices.emplace_back(I + 2 + 1);
         }
     }
 }

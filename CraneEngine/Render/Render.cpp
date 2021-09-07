@@ -4,6 +4,7 @@
 #include "Render.hpp"
 
 using namespace std;
+using namespace Eigen;
 using namespace Crane;
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE;
@@ -65,6 +66,7 @@ Render::Render() : vmaAllocator{ nullptr,[](VmaAllocator* vma) {vmaDestroyAlloca
 		VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
 		VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME,
 		VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,
+		VK_KHR_MAINTENANCE1_EXTENSION_NAME,
 	};
 
 	// set default clear values
@@ -92,19 +94,13 @@ void Render::init()
 	createRenderPass();
 	createFrameBuffers();
 
+	buildPipelineBuilder();
+
 	allocateCommandBuffer();
 
 	createSynchronization();
 
-	createPipelineCache();
-
-	buildPipelineBuilder();
-
 	createAsset();
-
-	createGraphicsPipeline();
-
-	LOGI("初始化完成");
 }
 
 void Crane::Render::update()
@@ -119,6 +115,30 @@ void Crane::Render::update()
 
 	updateCameraBuffer();
 	updateSceneParameters();
+
+	updateCullData();
+
+	vector<vk::DrawIndexedIndirectCommand> debug(draws.size());
+	VmaAllocationInfo allocInfo;
+	vmaGetAllocationInfo(*vmaAllocator, bufferIndirect.bufferMemory, &allocInfo);
+	auto bufferIndirectP = static_cast<vk::DrawIndexedIndirectCommand*>(allocInfo.pMappedData);
+	for (uint32_t i = 0, firstIndex = 0; i < draws.size(); ++i)
+	{
+		bufferIndirectP[i].instanceCount = 0;
+	}
+
+	computeQueue.submit(1, &submitInfoCompute, vk::Fence{});
+	computeQueue.waitIdle();
+
+
+	vector<DrawCullData> debug5(1);
+	VmaAllocationInfo allocInfo5;
+	vmaGetAllocationInfo(*vmaAllocator, bufferDrawCullData.bufferMemory, &allocInfo5);
+	memcpy(debug5.data(), allocInfo5.pMappedData,
+		sizeof(DrawCullData)*debug5.size());
+
+	memcpy(debug.data(), allocInfo.pMappedData,
+		sizeof(vk::DrawIndexedIndirectCommand)*draws.size());
 
 	draw();
 
@@ -143,36 +163,32 @@ void Crane::Render::draw()
 		.pClearValues = clearValues };
 	commandBuffer[currBuffIndex]->beginRenderPass(rpBeginInfo, vk::SubpassContents::eInline);
 
-	for (uint32_t j = 0, firstIndex = 0; j < renderables.size(); j++)
+	// begin
 	{
-		const auto& rb = renderables[j];
-		commandBuffer[currBuffIndex]->bindPipeline(vk::PipelineBindPoint::eGraphics, rb.material->pipelinePass->pipeline.get());
-		switch (rb.material->pipelinePass->pipelineType)
+		vk::Pipeline pipelineLast = nullptr;
+		commandBuffer[currBuffIndex]->bindVertexBuffers(uint32_t(0), 1, (vk::Buffer*)&vertBuff.buffer, vertOffsets);
+		commandBuffer[currBuffIndex]->bindIndexBuffer(indexBuffer.buffer, 0, vk::IndexType::eUint32);
+		for (uint32_t i = 0; i < draws.size(); ++i)
 		{
-		case PipelineType::BASIC:
-			commandBuffer[currBuffIndex]->draw(3, 1, 0, 0);
-			break;
-		default:
-		{
-			if (vertBuff.buffer != nullptr && indexBuffer.buffer != nullptr)
+			IndirectBatch& draw = draws[i];
+			vk::Pipeline pipelineNew = draw.renderable->material->pipelinePass->pipeline.get();
+			vk::PipelineLayout pipelineLayout = draw.renderable->material->pipelinePass->pipelineLayout.get();
+			vk::DescriptorSet* descriptorSetP = draw.renderable->material->descriptorSets.data();
+			if (pipelineNew != pipelineLast)
 			{
-				commandBuffer[currBuffIndex]->bindVertexBuffers(uint32_t(0), 1, (vk::Buffer*)&vertBuff.buffer, vertOffsets);
-				commandBuffer[currBuffIndex]->bindIndexBuffer(indexBuffer.buffer, 0, vk::IndexType::eUint32);
+				commandBuffer[currBuffIndex]->bindPipeline(vk::PipelineBindPoint::eGraphics, pipelineNew);
+
+				commandBuffer[currBuffIndex]->pushConstants(pipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
+					0, sizeof(cameraPushConstants[currBuffIndex]), &cameraPushConstants[currBuffIndex]);
 			}
-			commandBuffer[currBuffIndex]->pushConstants(rb.material->pipelinePass->layout.get(), vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
-				0, sizeof(cameraPushConstants[currBuffIndex]), &cameraPushConstants[currBuffIndex]);
 
-			vector<uint32_t> offsets{ sceneParametersUniformOffset * currBuffIndex, j * modelMatrixOffset };
-			commandBuffer[currBuffIndex]->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, rb.material->pipelinePass->layout.get(), 0, 2, rb.material->descriptorSets.data(), 2, offsets.data());
-
-			commandBuffer[currBuffIndex]->drawIndexed(renderables[j].mesh->indices.size(), 1, firstIndex, 0, 0);
-
-			firstIndex += renderables[j].mesh->indices.size();
-
-			break;
-		}
+			vector<uint32_t> offsets{ sceneParametersUniformOffset * currBuffIndex };
+			commandBuffer[currBuffIndex]->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, 0, 2, descriptorSetP, offsets.size(), offsets.data());
+			VkDeviceSize offsetIndirect = i * sizeof(vk::DrawIndexedIndirectCommand);
+			commandBuffer[currBuffIndex]->drawIndexedIndirect(bufferIndirect.buffer, offsetIndirect, 1, sizeof(vk::DrawIndexedIndirectCommand));
 		}
 	}
+	// end
 
 	commandBuffer[currBuffIndex]->endRenderPass();
 	commandBuffer[currBuffIndex]->end();
@@ -292,6 +308,25 @@ void Render::createLogicalDevice()
 
 	validataDeviceExtensions();
 
+	vk::PhysicalDeviceFeatures features{ .multiDrawIndirect = true, .samplerAnisotropy = true };
+	auto supportedFeatures = physicalDevice.getFeatures();
+	if (!supportedFeatures.multiDrawIndirect)
+	{
+		LOGE("feature not availabe:");
+		LOGE("\tmultuDrawIndirect");
+		throw runtime_error("feature required not availiable");
+	}
+	if (!supportedFeatures.samplerAnisotropy)
+	{
+		LOGE("feature not availabe:");
+		LOGE("\tsamplerAnisotropy");
+		throw runtime_error("feature required not availiable");
+	}
+
+	LOGI("启用特性:");
+	LOGI("\tmultiDrawIndirect");
+	LOGI("\tsamplerAnisotropy");
+
 	// 指定队列信息
 
 	float queuePriorities[1] = { 0.f };
@@ -316,7 +351,6 @@ void Render::createLogicalDevice()
 
 	// 指定设备创建信息
 
-	vk::PhysicalDeviceFeatures features{ .samplerAnisotropy = true };
 	vk::DeviceCreateInfo ci{ .queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()),
 	.pQueueCreateInfos = queueCreateInfos.data(),
 	.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size()),
@@ -455,7 +489,7 @@ void Render::createSwapchain()
 
 	// 指定交换创建信息
 	vk::SwapchainCreateInfoKHR swapchainCreateInfo{ .surface = surface.get(),
-													.minImageCount = surfCapabilities.minImageCount+1,
+													.minImageCount = surfCapabilities.minImageCount + 1,
 													.imageFormat = swapchainImageFormat,
 													.imageColorSpace = formats[0].colorSpace,
 													.imageExtent = {.width = width, .height = height},
@@ -662,8 +696,9 @@ void Render::buildPipelineBuilder()
 	pipelineBuilder.device = device.get();
 
 	pipelineBuilder.viewport = vk::Viewport{
+		.y = (float)height,
 		.width = (float)width,
-		.height = (float)height,
+		.height = -(float)height,
 		.minDepth = 0.f,
 		.maxDepth = 1.f };
 	pipelineBuilder.scissor = vk::Rect2D{
@@ -682,25 +717,35 @@ void Render::createAsset()
 	createCameraPushConstant();
 	createSceneParametersUniformBuffer();
 
-	vk::SamplerCreateInfo samplerInfo{
-	.magFilter = vk::Filter::eLinear,
-	.minFilter = vk::Filter::eLinear,
-	.mipmapMode = vk::SamplerMipmapMode::eLinear,
-	.addressModeU = vk::SamplerAddressMode::eRepeat,
-	.addressModeV = vk::SamplerAddressMode::eRepeat,
-	.addressModeW = vk::SamplerAddressMode::eRepeat,
-	.anisotropyEnable = VK_TRUE,
-	.maxAnisotropy = physicalDevice.getProperties().limits.maxSamplerAnisotropy,
-	.compareEnable = VK_FALSE,
-	.compareOp = vk::CompareOp::eAlways,
-	.borderColor = vk::BorderColor::eIntOpaqueBlack,
-	.unnormalizedCoordinates = VK_FALSE };
+	LOGI("创建sampler")
+		vk::SamplerCreateInfo samplerInfo{
+		.magFilter = vk::Filter::eLinear,
+		.minFilter = vk::Filter::eLinear,
+		.mipmapMode = vk::SamplerMipmapMode::eLinear,
+		.addressModeU = vk::SamplerAddressMode::eRepeat,
+		.addressModeV = vk::SamplerAddressMode::eRepeat,
+		.addressModeW = vk::SamplerAddressMode::eRepeat,
+		.anisotropyEnable = VK_TRUE,
+		.maxAnisotropy = physicalDevice.getProperties().limits.maxSamplerAnisotropy,
+		.compareEnable = VK_FALSE,
+		.compareOp = vk::CompareOp::eAlways,
+		.borderColor = vk::BorderColor::eIntOpaqueBlack,
+		.unnormalizedCoordinates = VK_FALSE };
 	textureSampler = device->createSamplerUnique(samplerInfo);
 
-	vector<uint8_t> blankPiexls{ 255, 255, 255, 255 };
+	LOGI("创建颜色")
+		vector<uint8_t> blankPiexls{ 255, 255, 255, 255 };
 	vector<uint8_t> lilacPiexls{ 179, 153, 255, 255 };
 	std::tie(imageBlank, imageViewBlank) = createTextureImage(1, 1, 4, blankPiexls.data());
 	std::tie(imageLilac, imageViewLilac) = createTextureImage(1, 1, 4, lilacPiexls.data());
+
+	descriptorImageInfoBlank.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+	descriptorImageInfoBlank.imageView = imageViewBlank.get();
+	descriptorImageInfoBlank.sampler = textureSampler.get();
+
+	descriptorImageInfoBlank.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+	descriptorImageInfoBlank.imageView = imageViewBlank.get();
+	descriptorImageInfoBlank.sampler = textureSampler.get();
 
 	createAssetApp();
 
@@ -726,11 +771,11 @@ void Render::createSceneParametersUniformBuffer()
 {
 	LOGI("创建场景参数缓冲");
 
-	sceneParameters.ambientColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+	sceneParameters.ambientColor = { 0.1f, 0.1f, 0.1f, 1.0f };
 	sceneParameters.fogColor = { 0.2f, 0.2f, 0.2f, 1.0f };
 	sceneParameters.fogDistances = { 0.2f, 0.2f, 0.2f, 1.0f };
 	sceneParameters.sunlightColor = { 0.9f, 0.9f, 0.9f, 1.0f };
-	sceneParameters.sunlightDirection = { -0.5f, -1.0f, -0.5f, 1.0f };
+	sceneParameters.sunlightDirection = { -0.25f, -1.0f, -0.25f, 1.0f };
 
 	vector<SceneParameters> sceneParametersData(swapchainImages.size(), sceneParameters);
 	sceneParametersUniformOffset = padUniformBufferSize(sizeof(SceneParameters), physicalDevice.getProperties());
@@ -747,34 +792,39 @@ void Render::createSceneParametersUniformBuffer()
 
 void Render::buildRenderable()
 {
-	LOGI("构建可渲染对象")
+	LOGI("构建可渲染对象");
 
-		modelMatrixOffset = padUniformBufferSize(sizeof(Eigen::Matrix4f), physicalDevice.getProperties());
+	compactDraws();
+
+	modelMatrixOffset = padUniformBufferSize(sizeof(Eigen::Matrix4f), physicalDevice.getProperties());
 	const size_t modelMatrixBufferSize = renderables.size() * modelMatrixOffset;
 	modelMatrix.resize(modelMatrixBufferSize);
 	auto modelMatrixPtr = modelMatrix.data();
 
 	uint32_t offset = 0;
-	for (auto& v : renderables)
+	for (auto& d : draws)
 	{
+		auto& v = renderables[d.first];
 		for (size_t i = 0; i < v.mesh->data.size(); i++)
 			vertices.push_back(v.mesh->data[i]);
 		for (size_t i = 0; i < v.mesh->indices.size(); i++)
 			indices.push_back(offset + v.mesh->indices[i]);
-
 		offset += v.mesh->data.size();
 
-		*(reinterpret_cast<Eigen::Matrix4f*>(modelMatrixPtr)) = v.transformMatrix;
-		modelMatrixPtr = modelMatrixPtr + modelMatrixOffset;
+		for (uint32_t i = 0; i < d.count; ++i)
+		{
+			*(reinterpret_cast<Eigen::Matrix4f*>(modelMatrixPtr)) = renderables[d.first + i].transformMatrix;
+			modelMatrixPtr = modelMatrixPtr + modelMatrixOffset;
+		}
 	}
 
 	modelMatrixBuffer.create(*vmaAllocator, modelMatrixBufferSize,
-		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 	modelMatrixBuffer.update(modelMatrix.data());
 
 	modelMatrixBufferDescriptorInfo.buffer = modelMatrixBuffer.buffer;
 	modelMatrixBufferDescriptorInfo.offset = 0;
-	modelMatrixBufferDescriptorInfo.range = sizeof(Eigen::Matrix4f);
+	modelMatrixBufferDescriptorInfo.range = modelMatrixBufferSize;
 
 
 	for (const auto& v : renderables)
@@ -814,6 +864,46 @@ void Render::buildRenderable()
 		vkCmdCopyBuffer(cmdBuffIndex, stagingBuffer.buffer, indexBuffer.buffer, 1, &copyRegion);
 		endSingleTimeCommands(cmdBuffIndex);
 	}
+
+	LOGI("创建间接绘制缓冲");
+	{
+		bufferIndirect.create(*vmaAllocator, draws.size() * sizeof(vk::DrawIndexedIndirectCommand),
+			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+
+		VmaAllocationInfo allocInfo;
+		vmaGetAllocationInfo(*vmaAllocator, bufferIndirect.bufferMemory, &allocInfo);
+		auto bufferIndirectP = static_cast<vk::DrawIndexedIndirectCommand*>(allocInfo.pMappedData);
+		for (uint32_t i = 0, firstIndex = 0; i < draws.size(); ++i)
+		{
+			bufferIndirectP[i].firstIndex = firstIndex;
+			bufferIndirectP[i].firstInstance = draws[i].first;
+			bufferIndirectP[i].indexCount = renderables[draws[i].first].mesh->indices.size();
+			bufferIndirectP[i].instanceCount = 0;
+			bufferIndirectP[i].vertexOffset = 0;
+
+			firstIndex += bufferIndirectP[i].indexCount;
+		}
+		descriptorBufferInfoIndirect.buffer = bufferIndirect.buffer;
+		descriptorBufferInfoIndirect.range = bufferIndirect.size;
+	}
+
+	device->updateDescriptorSets(materialCull.writeDescriptorSets.size(),
+		materialCull.writeDescriptorSets.data(), 0, nullptr);
+
+	// record command
+	vk::CommandBufferBeginInfo commandBufferBeginInfo{};
+	commandBuffersCompute[0]->begin(commandBufferBeginInfo);
+
+	commandBuffersCompute[0]->bindPipeline(vk::PipelineBindPoint::eCompute, materialCull.pipelinePass->pipeline.get());
+	commandBuffersCompute[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute,
+		materialCull.pipelinePass->pipelineLayout.get(), 0, materialCull.descriptorSets.size(), materialCull.descriptorSets.data(), 0, nullptr);
+	for (uint32_t i = 0; i < ceil(renderables.size() / 1000.f); ++i)
+	{
+		commandBuffersCompute[0]->pushConstants(materialCull.pipelinePass->pipelineLayout.get(), vk::ShaderStageFlagBits::eCompute, 0, sizeof(uint32_t), &i);
+		commandBuffersCompute[0]->dispatch(1, 1, 1);
+	}
+
+	commandBuffersCompute[0]->end();
 }
 
 void Render::createDescriptorPool()
@@ -827,56 +917,16 @@ void Render::createDescriptorPool()
 	descriptorPool = device->createDescriptorPoolUnique(descriptorPoolCreateInfo);
 }
 
-void Render::createPipelineCache()
-{
-	LOGI("创建管线缓存");
-	vk::PipelineCacheCreateInfo pipelineCacheCreateInfo{};
-	pipelineCache = device->createPipelineCacheUnique(pipelineCacheCreateInfo);
-}
-
-void Render::createGraphicsPipeline()
-{
-	LOGI("创建图形管线");
-
-	for (auto& [name, pipelinePass] : pipelinePasss)
-	{
-		switch (name)
-		{
-		case PipelineType::BASIC:
-			pipelineBuilder.vi.setVertexAttributeDescriptionCount(0);
-			pipelineBuilder.vi.setVertexBindingDescriptionCount(0);
-			break;
-		default:
-			pipelineBuilder.vi.setVertexAttributeDescriptionCount(pipelineBuilder.vertexInputAttributeDescriptions.size());
-			pipelineBuilder.vi.setVertexBindingDescriptionCount(pipelineBuilder.vertexInputBindingDescriptions.size());
-			break;
-		}
-		pipelinePass.pipeline = pipelineBuilder.build(pipelinePass.pipelineShaderStageCreateInfos, pipelinePass.layout.get(), pipelinePass.renderPass);
-	}
-}
-
-void Render::createComputePipeline()
-{
-	LOGI("创建计算管线");
-	/*
-	vk::PipelineShaderStageCreateInfo computeShaderStageCreateInfo{ .stage = vk::ShaderStageFlagBits::eCompute,
-		.module = computeShader.get(), .pName = "main", .pSpecializationInfo = &specializationInfo };
-
-	vk::ComputePipelineCreateInfo computePipelineCreateInfo{ .stage = computeShaderStageCreateInfo,
-		.layout = pipelineLayout.get(), };
-
-	pipeline = device->createComputePipelineUnique(pipelineCache.get(), computePipelineCreateInfo);
-	*/
-}
-
 void Render::createCommandPool()
 {
 	LOGI("创建命令池");
 
 	vk::CommandPoolCreateInfo commandPoolCreateInfo{ .flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
 	.queueFamilyIndex = graphicsQueueFamilyIndex };
-
 	commandPool = device->createCommandPoolUnique(commandPoolCreateInfo);
+
+	vk::CommandPoolCreateInfo commandPoolCreateInfoCompute{ .queueFamilyIndex = computeQueueFamilyIndex };
+	commandPoolCompute = device->createCommandPoolUnique(commandPoolCreateInfoCompute);
 }
 
 void Render::allocateCommandBuffer()
@@ -885,8 +935,11 @@ void Render::allocateCommandBuffer()
 
 	vk::CommandBufferAllocateInfo commandBufferAllocateInfo{ .commandPool = commandPool.get(),
 		.level = vk::CommandBufferLevel::ePrimary, .commandBufferCount = static_cast<uint32_t>(swapchainImages.size()) };
-
 	commandBuffer = device->allocateCommandBuffersUnique(commandBufferAllocateInfo);
+
+	vk::CommandBufferAllocateInfo commandBufferAllocateInfoCompute{ .commandPool = commandPoolCompute.get(),
+		.level = vk::CommandBufferLevel::ePrimary, .commandBufferCount = 1 };
+	commandBuffersCompute = device->allocateCommandBuffersUnique(commandBufferAllocateInfoCompute);
 }
 
 void Crane::Render::createSynchronization()
@@ -933,6 +986,10 @@ void Crane::Render::createSynchronization()
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = &swapchain.get();
 	presentInfo.waitSemaphoreCount = 1;
+
+	// set cull submit info
+	submitInfoCompute.commandBufferCount = commandBuffersCompute.size();
+	submitInfoCompute.pCommandBuffers = &commandBuffersCompute[0].get();
 }
 
 void Crane::Render::updateCameraBuffer()
@@ -951,6 +1008,94 @@ void Crane::Render::updateSceneParameters()
 	memcpy(static_cast<uint8_t*>(allocInfo.pMappedData) +
 		(sceneParametersUniformOffset * currBuffIndex),
 		&sceneParameters, sizeof(SceneParameters));
+}
+
+void Crane::Render::updateCullData()
+{
+	drawCullData.view = camera.view;//get_view_matrix();
+
+	bufferDrawCullData.update(&drawCullData);
+}
+
+void Crane::Render::compactDraws()
+{
+	IndirectBatch firstDraw;
+	firstDraw.renderable = &renderables[0];
+	firstDraw.first = 0;
+	firstDraw.count = 1;
+
+	draws.push_back(firstDraw);
+	drawsFlat.resize(renderables.size());
+
+	vector<ObjectData> cullObjCandidates(renderables.size());
+	for (uint32_t i = 0; i < renderables.size(); ++i)
+	{
+		cullObjCandidates[i].model = renderables[i].transformMatrix;
+		cullObjCandidates[i].spherebound = renderables[i].SphereBound();
+	}
+
+	for (int i = 1; i < renderables.size(); i++)
+	{
+		//compare the mesh and material with the end of the vector of draws
+		bool sameMesh = renderables[i].mesh == draws.back().renderable->mesh;
+		bool sameMaterial = renderables[i].material == draws.back().renderable->material;
+
+		if (sameMesh && sameMaterial)
+		{
+			//all matches, add count
+			draws.back().count++;
+		}
+		else
+		{
+			//add new draw
+			IndirectBatch newDraw;
+			newDraw.renderable = &renderables[i];
+			newDraw.first = i;
+			newDraw.count = 1;
+
+			draws.push_back(newDraw);
+		}
+		drawsFlat[i].batchID = draws.size() - 1;
+		drawsFlat[i].objectID = i;
+	}
+
+	bufferDrawsFlat.create(*vmaAllocator, sizeof(FlatBatch) * drawsFlat.size(),
+		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	bufferDrawsFlat.update(drawsFlat.data());
+	descriptorBufferDrawsFlat.buffer = bufferDrawsFlat.buffer;
+	descriptorBufferDrawsFlat.range = bufferDrawsFlat.size;
+
+	bufferCullObjCandidate.create(*vmaAllocator, sizeof(ObjectData) * cullObjCandidates.size(),
+		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	bufferCullObjCandidate.update(cullObjCandidates.data());
+	descriptorBufferInfoCullObjCandidate.buffer = bufferCullObjCandidate.buffer;
+	descriptorBufferInfoCullObjCandidate.range = bufferCullObjCandidate.size;
+
+
+	drawCullData.view = camera.view;
+	drawCullData.fov = camera.fov;
+	drawCullData.aspect = camera.aspect;
+	drawCullData.znear = camera.near_;
+	drawCullData.zfar = camera.far_;
+	drawCullData.drawCount = static_cast<uint32_t>(renderables.size());
+
+	bufferDrawCullData.create(*vmaAllocator, sizeof(DrawCullData),
+		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	bufferDrawCullData.update(&drawCullData);
+	descriptorBufferInfoCullData.buffer = bufferDrawCullData.buffer;
+	descriptorBufferInfoCullData.range = bufferDrawCullData.size;
+
+	bufferInstanceID.create(*vmaAllocator, sizeof(uint32_t)*renderables.size(),
+		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	vector<uint32_t> instaces(renderables.size());
+	for (uint32_t i = 0; i < renderables.size(); ++i)
+	{
+		instaces[i] = i;
+	}
+	bufferInstanceID.update(instaces.data());
+	descriptorBufferInfoInstanceID.buffer = bufferInstanceID.buffer;
+	descriptorBufferInfoInstanceID.range = bufferInstanceID.size;
+
 }
 
 vk::CommandBuffer Render::beginSingleTimeCommands()
