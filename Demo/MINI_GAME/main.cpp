@@ -5,7 +5,7 @@
 #include <SDL2/SDL.h>
 #include <imgui.h>
 
-#include "CLOTH.hpp"
+#include "MINI_GAME.hpp"
 
 using namespace std;
 
@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 
     try
     {
-        CLOTH clothApp(window);
+        MINI_GAME clothApp(window);
         clothApp.init();
         SDL_Event event;
         do

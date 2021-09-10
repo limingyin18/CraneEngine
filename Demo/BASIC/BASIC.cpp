@@ -24,12 +24,13 @@ void BASIC::setImgui()
 {
 	static size_t count = 0;
 
-	ImGui::Begin("Information", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar);
+	ImGui::Begin("Information", nullptr, ImGuiWindowFlags_NoScrollbar);
 	ImGui::SetWindowPos(ImVec2{ 0.f, 0.f });
 	ImGui::Text("count:\t%d", count++);
 	ImGui::Text("FPS:\t%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::Text("camera position: %5.1f %5.1f %5.1f", camera.getCameraPos().x(), camera.getCameraPos().y(), camera.getCameraPos().z());
 	ImGui::Text("camera rotation: %5.1f %5.1f %5.1f", camera.rotation.x(), camera.rotation.y(), camera.rotation.z());
+
 	ImGui::End();
 }
 
@@ -170,7 +171,7 @@ void BASIC::createAssetApp()
 	}
 	renderables.emplace_back(&box, &materialPhongBox);
 
-	for (uint32_t i = 0; i < 10000*10; ++i)
+	for (uint32_t i = 0; i < 10000*1; ++i)
 	{
 		renderables.emplace_back(&box, &materialPhongBox);
 		
@@ -194,7 +195,7 @@ void BASIC::createAssetApp()
 		materialCull.pipelinePass = &pipelinePassCull;
 		materialCull.buildDescriptorSets();
 
-		
+
 		// cull data
 		vk::WriteDescriptorSet writeDescriptorSet0B5{
 			.dstSet = materialCull.descriptorSets[0],

@@ -2,11 +2,6 @@
 
 layout (local_size_x = 1024) in;
 
-layout (push_constant) uniform constantsOffset
-{
-	uint offset;
-};
-
 struct DrawCullData
 {
 	mat4 view;
@@ -106,14 +101,12 @@ bool IsVisible(uint objectIndex)
 	if(center.z > cullData.zfar + radius || center.z < cullData.znear - radius)
 		return false;
 
-
 	float h = center.z * 2.f * tan(cullData.fov/2.f);
 	float d = radius / cos(cullData.fov/2.f);
 	// y
 	if(-h/2.f - d> center.y || center.y > h/2.f + d)
 		return false;
 
-	
 	// x
 	float w = h * cullData.aspect;
 	d = d * cullData.aspect;
@@ -170,7 +163,7 @@ bool IsVisibleAABB(uint objectIndex)
 
 void main() 
 {		
-	uint gID = gl_GlobalInvocationID.x + offset;
+	uint gID = gl_GlobalInvocationID.x;
 	if(gID < cullData.drawCount)
 	{
 		uint objectID = compactInstanceBuffer.Instances[gID].objectID;

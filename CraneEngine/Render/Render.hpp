@@ -143,6 +143,7 @@ namespace Crane
 
 		std::tuple<Image, vk::UniqueImageView> createTextureImage(uint32_t texWidth, uint32_t texHeight,
 			uint32_t texChannels, void* pixels);
+		
 
 	protected:
 		std::string appName;
@@ -160,6 +161,7 @@ namespace Crane
 		vk::UniqueDebugUtilsMessengerEXT debugMessenger;
 		vk::UniqueSurfaceKHR surface;
 		vk::PhysicalDevice physicalDevice;
+		vk::PhysicalDeviceProperties physicalDeviceProperties;
 		vk::UniqueDevice device;
 		uint32_t graphicsQueueFamilyIndex, presentQueueFamilyIndex, computeQueueFamilyIndex;
 		vk::Queue graphicsQueue, presentQueue, computeQueue;
@@ -200,14 +202,15 @@ namespace Crane
 		std::vector<RenderableBase> renderables;
 		std::unordered_map<std::string, std::shared_ptr<MeshBase>> loadMeshs;
 		std::unordered_map<std::string, Image> loadImages;
-		std::unordered_map<std::string, std::shared_ptr<vk::ImageView>> loadImageViews;
-		std::vector<vk::DescriptorImageInfo> descriptorImageInfos;
+		std::unordered_map<std::string, vk::UniqueImageView> loadImageViews;
+		std::unordered_map<std::string, vk::DescriptorImageInfo> descriptorImageInfos;
 		std::unordered_map<std::string, Image> normalImages;
-		std::unordered_map<std::string, std::shared_ptr<vk::ImageView>> normalImageViews;
+		std::unordered_map<std::string, vk::UniqueImageView> normalImageViews;
 		std::vector<vk::DescriptorImageInfo> descriptorImageInfosNormal;
 		std::unordered_map<std::string, Image> metallicImages;
-		std::unordered_map<std::string, std::shared_ptr<vk::ImageView>> metallicImageViews;
+		std::unordered_map<std::string, vk::UniqueImageView> metallicImageViews;
 		std::vector<vk::DescriptorImageInfo> descriptorImageInfosMetallic;
+		std::unordered_map<std::string, Material> materials;
 
 		uint32_t modelMatrixOffset;
 		std::vector<uint8_t> modelMatrix;

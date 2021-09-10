@@ -180,6 +180,8 @@ void Crane::Render::draw()
 
 				commandBuffer[currBuffIndex]->pushConstants(pipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
 					0, sizeof(cameraPushConstants[currBuffIndex]), &cameraPushConstants[currBuffIndex]);
+
+				pipelineLast = pipelineNew;
 			}
 
 			vector<uint32_t> offsets{ sceneParametersUniformOffset * currBuffIndex };
@@ -400,6 +402,8 @@ void Render::getPhysicalDevice()
 	}
 	if (physicalDevice.operator VkPhysicalDevice() == nullptr)
 		throw runtime_error("no discrete gpu");
+
+	physicalDeviceProperties = physicalDevice.getProperties();
 }
 
 void Render::getQueueFamilyIndex()
@@ -743,9 +747,9 @@ void Render::createAsset()
 	descriptorImageInfoBlank.imageView = imageViewBlank.get();
 	descriptorImageInfoBlank.sampler = textureSampler.get();
 
-	descriptorImageInfoBlank.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-	descriptorImageInfoBlank.imageView = imageViewBlank.get();
-	descriptorImageInfoBlank.sampler = textureSampler.get();
+	descriptorImageInfoLilac.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+	descriptorImageInfoLilac.imageView = imageViewLilac.get();
+	descriptorImageInfoLilac.sampler = textureSampler.get();
 
 	createAssetApp();
 
@@ -897,11 +901,8 @@ void Render::buildRenderable()
 	commandBuffersCompute[0]->bindPipeline(vk::PipelineBindPoint::eCompute, materialCull.pipelinePass->pipeline.get());
 	commandBuffersCompute[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute,
 		materialCull.pipelinePass->pipelineLayout.get(), 0, materialCull.descriptorSets.size(), materialCull.descriptorSets.data(), 0, nullptr);
-	for (uint32_t i = 0; i < ceil(renderables.size() / 1000.f); ++i)
-	{
-		commandBuffersCompute[0]->pushConstants(materialCull.pipelinePass->pipelineLayout.get(), vk::ShaderStageFlagBits::eCompute, 0, sizeof(uint32_t), &i);
-		commandBuffersCompute[0]->dispatch(1, 1, 1);
-	}
+
+	commandBuffersCompute[0]->dispatch(renderables.size() / 1024+1, 1, 1);
 
 	commandBuffersCompute[0]->end();
 }
@@ -1027,13 +1028,6 @@ void Crane::Render::compactDraws()
 	draws.push_back(firstDraw);
 	drawsFlat.resize(renderables.size());
 
-	vector<ObjectData> cullObjCandidates(renderables.size());
-	for (uint32_t i = 0; i < renderables.size(); ++i)
-	{
-		cullObjCandidates[i].model = renderables[i].transformMatrix;
-		cullObjCandidates[i].spherebound = renderables[i].SphereBound();
-	}
-
 	for (int i = 1; i < renderables.size(); i++)
 	{
 		//compare the mesh and material with the end of the vector of draws
@@ -1065,6 +1059,16 @@ void Crane::Render::compactDraws()
 	descriptorBufferDrawsFlat.buffer = bufferDrawsFlat.buffer;
 	descriptorBufferDrawsFlat.range = bufferDrawsFlat.size;
 
+	vector<ObjectData> cullObjCandidates(renderables.size());
+	for (auto& d : draws)
+	{
+		Vector4f spherebound = renderables[d.first].SphereBound();
+		for (uint32_t i = d.first; i < d.count; ++i)
+		{
+			cullObjCandidates[i].model = renderables[i].transformMatrix;
+			cullObjCandidates[i].spherebound = spherebound;
+		}
+	}
 	bufferCullObjCandidate.create(*vmaAllocator, sizeof(ObjectData) * cullObjCandidates.size(),
 		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 	bufferCullObjCandidate.update(cullObjCandidates.data());
@@ -1095,7 +1099,6 @@ void Crane::Render::compactDraws()
 	bufferInstanceID.update(instaces.data());
 	descriptorBufferInfoInstanceID.buffer = bufferInstanceID.buffer;
 	descriptorBufferInfoInstanceID.range = bufferInstanceID.size;
-
 }
 
 vk::CommandBuffer Render::beginSingleTimeCommands()

@@ -34,6 +34,8 @@ namespace Crane
         void updateInput();
         Input input;
 
+        bool load_prefab(assets::PrefabInfo prefab, Eigen::Matrix4f root, std::vector<Crane::RenderableBase>& renderables, PipelinePassGraphics &pipelinePassGraphics);
+
     protected:
         std::chrono::time_point<std::chrono::system_clock> mTime =
             std::chrono::system_clock::now();

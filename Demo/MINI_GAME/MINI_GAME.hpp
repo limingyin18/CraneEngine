@@ -6,7 +6,7 @@
 
 #include "SDL2_IMGUI_BASE.hpp"
 
-class CLOTH : public SDL2_IMGUI_BASE
+class MINI_GAME : public SDL2_IMGUI_BASE
 {
 private:
 	Crane::PipelinePassGraphics pipelinePassPhong;
@@ -28,10 +28,10 @@ private:
 	void setImgui() override;
 
 public:
-	explicit CLOTH(std::shared_ptr<SDL_Window> win);
-	~CLOTH();
-	CLOTH(const CLOTH &rhs) = delete;
-	CLOTH(CLOTH &&rhs) = delete;
-	CLOTH &operator=(const CLOTH &rhs) = delete;
-	CLOTH &operator=(CLOTH &&rhs) = delete;
+	explicit MINI_GAME(std::shared_ptr<SDL_Window> win);
+	~MINI_GAME();
+	MINI_GAME(const MINI_GAME &rhs) = delete;
+	MINI_GAME(MINI_GAME &&rhs) = delete;
+	MINI_GAME &operator=(const MINI_GAME &rhs) = delete;
+	MINI_GAME &operator=(MINI_GAME &&rhs) = delete;
 };

@@ -43,11 +43,11 @@ namespace CranePhysics
 
         ParticleCollider* getCollider() override
         {
-            auto *collider = new ParticleCollider(this);
-            return collider;
+            return &collider;
         };
 
         float radius = 1.0f;
+        ParticleCollider collider;
     };
 
     using Sphere = Particle;
@@ -63,11 +63,13 @@ namespace CranePhysics
 
         CubeCollider* getCollider() override
         {
-            return new CubeCollider(this);
+            return &collider;
         };
 
         float width = 1.0f;
         float height = 1.0f;
         float depth = 1.0f;
+
+        CubeCollider collider;
     };
 }

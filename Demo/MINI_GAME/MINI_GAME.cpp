@@ -1,27 +1,28 @@
-#include "CLOTH.hpp"
+#include "MINI_GAME.hpp"
 
 using namespace std;
 using namespace Eigen;
 using namespace CranePhysics;
 using namespace Crane;
 
-CLOTH::CLOTH(shared_ptr<SDL_Window> win) : SDL2_IMGUI_BASE(win)
+MINI_GAME::MINI_GAME(shared_ptr<SDL_Window> win) : SDL2_IMGUI_BASE(win)
 {
 	preferPresentMode = vk::PresentModeKHR::eFifo;
 	camera.target = Vector3f{ 0.f, 1.0f, 0.f };
 	camera.rotation[0] = -0.0f;
-	camera.cameraMoveSpeed = 1.f;
+	camera.cameraMoveSpeed = 0.1f;
 }
 
-CLOTH::~CLOTH()
+MINI_GAME::~MINI_GAME()
 {
 	vkDeviceWaitIdle(device.get());
 }
 
-void CLOTH::updateApp()
+void MINI_GAME::updateApp()
 {
 	updateEngine();
 
+	renderables[2].transformMatrix.block<3, 1>(0, 3) = Vector3f{ 10*sin(dtAll), 0.f, 10*cos(dtAll) };
 	// physics update
 	pbd.dt = dt;
 	//pbd.rigidbodies[1]->rotation *= Quaternionf(AngleAxisf(1.f*dt, Vector3f(1.0f, 1.0f, 1.0f).normalized()));
@@ -29,6 +30,7 @@ void CLOTH::updateApp()
 	float drag = 1.f;
 	float lift = 1.f;
 
+	/*
 	for(size_t i = 0; i < cloak.indices.size(); i = i + 3)
 	{
 		size_t indexA = cloak.indices[i];
@@ -83,9 +85,23 @@ void CLOTH::updateApp()
 			vertices[offset++] = v.mesh->data[i];
 	}
 	vertBuff.update(vertices.data());
+	*/
+	//for(size_t i = 0; i < renderables.size(); ++i)
+//{
+//	Matrix4f t = (Translation3f(pbd.rigidbodies[i]->position) * pbd.rigidbodies[i]->rotation).matrix();
+//	renderables[i].transformMatrix = t;
+//}
+
+	auto modelMatrixPtr = modelMatrix.data();
+	for (auto& v : renderables)
+	{
+		*(reinterpret_cast<Eigen::Matrix4f*>(modelMatrixPtr)) = v.transformMatrix;
+		modelMatrixPtr += modelMatrixOffset;
+	}
+	modelMatrixBuffer.update(modelMatrix.data());
 }
 
-void CLOTH::setImgui()
+void MINI_GAME::setImgui()
 {
 	static size_t count = 0;
 
@@ -98,7 +114,7 @@ void CLOTH::setImgui()
 	ImGui::End();
 }
 
-void CLOTH::createAssetApp()
+void MINI_GAME::createAssetApp()
 {
 	LOGI("创建应用资产");
 
@@ -274,6 +290,168 @@ void CLOTH::createAssetApp()
 		renderables.emplace_back(&cloak, &materialPhongCloak);
 		renderables.back().transformMatrix.block<3, 1>(0, 3) = modelCloak;
 	}
+
+	LOGI("读取罗马士兵模型")
+	{
+		/*
+		assets::AssetFile file;
+		if (!assets::load_binaryfile((string("assets/RomanSoldier/") + "Roman-Soldier.pfb").c_str(), file))
+			throw std::runtime_error(string("Error when loading mesh "));
+		assets::PrefabInfo prefabInfo = assets::read_prefab_info(&file);
+
+		load_prefab(prefabInfo, Eigen::Matrix4f::Identity(), renderables, pipelinePassPhong);
+		*/
+
+		string name = "Roman-Soldier";
+		assets::AssetFile file;
+		if (!assets::load_binaryfile((string("assets/RomanSoldier/") + "Roman-Soldier.mesh").c_str(), file))
+			throw std::runtime_error(string("Error when loading mesh "));
+		assets::MeshInfo meshInfo = assets::read_mesh_info(&file);
+
+		if (loadMeshs.find(name) == loadMeshs.end())
+		{
+			loadMeshs[name] = make_shared<MeshBase>();
+			loadMeshs[name]->data.resize(meshInfo.vertexBuferSize / sizeof(Vertex));
+			loadMeshs[name]->indices.resize(meshInfo.indexBuferSize / sizeof(uint32_t));
+			assets::unpack_mesh(&meshInfo, file.binaryBlob.data(), file.binaryBlob.size(),
+				reinterpret_cast<char*>(loadMeshs[name]->data.data()),
+				reinterpret_cast<char*>(loadMeshs[name]->indices.data()));
+
+			materials[name].descriptorPool = descriptorPool.get();
+			materials[name].pipelinePass = &pipelinePassPhong;
+			materials[name].buildDescriptorSets();
+
+			// 场景参数
+			vk::WriteDescriptorSet writeDescriptorSet0B0{
+				.dstSet = materials[name].descriptorSets[0],
+				.dstBinding = 0,
+				.descriptorCount = 1,
+				.descriptorType = vk::DescriptorType::eUniformBufferDynamic,
+				.pBufferInfo = &sceneParameterBufferDescriptorInfo };
+			materials[name].writeDescriptorSets.push_back(writeDescriptorSet0B0);
+
+			// instance
+			vk::WriteDescriptorSet writeDescriptorSet0B2{
+				.dstSet = materials[name].descriptorSets[0],
+				.dstBinding = 2,
+				.descriptorCount = 1,
+				.descriptorType = vk::DescriptorType::eStorageBuffer,
+				.pBufferInfo = &descriptorBufferInfoInstanceID };
+			materials[name].writeDescriptorSets.push_back(writeDescriptorSet0B2);
+
+			// 模型位姿
+			vk::WriteDescriptorSet writeDescriptorSet0B1{
+			.dstSet = materials[name].descriptorSets[0],
+			.dstBinding = 1,
+			.descriptorCount = 1,
+			.descriptorType = vk::DescriptorType::eStorageBuffer,
+			.pBufferInfo = &modelMatrixBufferDescriptorInfo };
+			materials[name].writeDescriptorSets.push_back(writeDescriptorSet0B1);
+		}
+
+		vk::WriteDescriptorSet writeDescriptorSet1B0{
+			.dstSet = materials[name].descriptorSets[1],
+			.dstBinding = 0,
+			.descriptorCount = 1,
+			.descriptorType = vk::DescriptorType::eCombinedImageSampler,
+			.pImageInfo = &descriptorImageInfoBlank };
+		materials[name].writeDescriptorSets.push_back(writeDescriptorSet1B0);
+		loadMeshs[name].get()->setVertices([](uint32_t i, Vertex& v) {v.color = { 1.f, 1.f, 1.f }; });
+		loadMeshs[name].get()->recomputeNormals(loadMeshs[name].get()->data);
+
+		for (uint32_t i = 0; i < 1 * 1; ++i)
+		{
+			renderables.emplace_back(loadMeshs[name].get(), &materials[name]);
+
+			float x = 0 * normal_dist(rand_generator);
+			float y = 0 * normal_dist(rand_generator);
+			float z = 0 * normal_dist(rand_generator);
+
+			renderables.back().transformMatrix.block<3, 1>(0, 3) = Vector3f{ x, y, z };
+		}
+	}
+
+	LOGI("读取龙模型")
+	{
+		string name = "Dragon";
+		assets::AssetFile file;
+		if (!assets::load_binaryfile((string("assets/") + "stanfordDragon.mesh").c_str(), file))
+			throw std::runtime_error(string("Error when loading mesh "));
+		assets::MeshInfo meshInfo = assets::read_mesh_info(&file);
+
+		if (loadMeshs.find(name) == loadMeshs.end())
+		{
+			loadMeshs[name] = make_shared<MeshBase>();
+			loadMeshs[name]->data.resize(meshInfo.vertexBuferSize / sizeof(Vertex));
+			loadMeshs[name]->indices.resize(meshInfo.indexBuferSize / sizeof(uint32_t));
+			assets::unpack_mesh(&meshInfo, file.binaryBlob.data(), file.binaryBlob.size(),
+				reinterpret_cast<char*>(loadMeshs[name]->data.data()),
+				reinterpret_cast<char*>(loadMeshs[name]->indices.data()));
+
+			materials[name].descriptorPool = descriptorPool.get();
+			materials[name].pipelinePass = &pipelinePassPhong;
+			materials[name].buildDescriptorSets();
+
+			// 场景参数
+			vk::WriteDescriptorSet writeDescriptorSet0B0{
+				.dstSet = materials[name].descriptorSets[0],
+				.dstBinding = 0,
+				.descriptorCount = 1,
+				.descriptorType = vk::DescriptorType::eUniformBufferDynamic,
+				.pBufferInfo = &sceneParameterBufferDescriptorInfo };
+			materials[name].writeDescriptorSets.push_back(writeDescriptorSet0B0);
+
+			// instance
+			vk::WriteDescriptorSet writeDescriptorSet0B2{
+				.dstSet = materials[name].descriptorSets[0],
+				.dstBinding = 2,
+				.descriptorCount = 1,
+				.descriptorType = vk::DescriptorType::eStorageBuffer,
+				.pBufferInfo = &descriptorBufferInfoInstanceID };
+			materials[name].writeDescriptorSets.push_back(writeDescriptorSet0B2);
+
+			// 模型位姿
+			vk::WriteDescriptorSet writeDescriptorSet0B1{
+			.dstSet = materials[name].descriptorSets[0],
+			.dstBinding = 1,
+			.descriptorCount = 1,
+			.descriptorType = vk::DescriptorType::eStorageBuffer,
+			.pBufferInfo = &modelMatrixBufferDescriptorInfo };
+			materials[name].writeDescriptorSets.push_back(writeDescriptorSet0B1);
+		}
+
+		vk::WriteDescriptorSet writeDescriptorSet1B0{
+			.dstSet = materials[name].descriptorSets[1],
+			.dstBinding = 0,
+			.descriptorCount = 1,
+			.descriptorType = vk::DescriptorType::eCombinedImageSampler,
+			.pImageInfo = &descriptorImageInfoBlank };
+		materials[name].writeDescriptorSets.push_back(writeDescriptorSet1B0);
+		loadMeshs[name].get()->setVertices([](uint32_t i, Vertex& v) {v.color = { 1.f, 1.f, 1.f }; });
+		loadMeshs[name].get()->recomputeNormals(loadMeshs[name].get()->data);
+
+		for (uint32_t i = 0; i < 1 * 1; ++i)
+		{
+			renderables.emplace_back(loadMeshs[name].get(), &materials[name]);
+
+			float x = 0 * normal_dist(rand_generator);
+			float y = 5.f + 0 * normal_dist(rand_generator);
+			float z = -5.f * normal_dist(rand_generator);
+			renderables.back().transformMatrix(0, 0) = 10.f;
+			renderables.back().transformMatrix(1, 1) = 10.f;
+			renderables.back().transformMatrix(2, 2) = 10.f;
+			renderables.back().transformMatrix.block<3, 1>(0, 3) = Vector3f{ x, y, z };
+
+			Eigen::Matrix4f rot = (
+				AngleAxis<float>(90, Vector3f{ 1, 0, 0 }) *
+				Translation<float, 3>(-Vector3f{ 0, 0, 0 })
+				)
+				.matrix();
+
+			renderables.back().transformMatrix =  renderables.back().transformMatrix * rot;
+		}
+	}
+
 
 	// physics
 	auto cube0 = std::make_shared<CranePhysics::Cube>();
