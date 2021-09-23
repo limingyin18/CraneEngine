@@ -1,7 +1,6 @@
-project(MINI_GAME LANGUAGES CXX)
+project(HAIR LANGUAGES CXX)
 
 file(GLOB src "*.cpp" "*.hpp")
-message(${src})
 add_executable(${PROJECT_NAME} ${src})
 target_link_libraries(${PROJECT_NAME} PUBLIC
     imgui

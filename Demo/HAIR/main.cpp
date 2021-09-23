@@ -5,14 +5,14 @@
 #include <SDL2/SDL.h>
 #include <imgui.h>
 
-#include "MINI_GAME.hpp"
+#include "HAIR.hpp"
 
 using namespace std;
 
 static const int WIDTH = 1280;
 static const int HEIGHT = 720;
 
-static const string TITLE = "MINI GAME";
+static const string TITLE = "HAIR";
 
 void processInputEvent(SDL_Event &event, Crane::Input &input);
 
@@ -31,20 +31,18 @@ int main(int argc, char **argv)
 
     try
     {
-        MINI_GAME miniGame(window);
-        miniGame.init();
+        HAIR clothApp(window);
+        clothApp.init();
         SDL_Event event;
         do
         {
             while (SDL_PollEvent(&event) != 0)
             {
-                processInputEvent(event, miniGame.input);
+                processInputEvent(event, clothApp.input);
 
                 ImGui_ImplSDL2_ProcessEvent(&event);
-                if (event.type == SDL_QUIT)
-                    break;
             }
-            miniGame.update();
+            clothApp.update();
         } while (event.type != SDL_QUIT);
     }
     catch (const exception &e)

@@ -4,6 +4,7 @@
 #include <random>
 
 #include "Render/Render.hpp"
+#include "Actor.hpp"
 #include "Input.hpp"
 #include "Utils.hpp"
 #include "Physics/PositionBasedDynamics.hpp"

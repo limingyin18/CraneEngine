@@ -24,6 +24,7 @@ namespace CranePhysics
         void externalForceIntegral();
         void generateCollisionConstraint();
         void internalForceIntegral();
+        void updateVelocity();
     };
 
     

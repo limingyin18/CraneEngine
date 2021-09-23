@@ -3,29 +3,40 @@
 #include <memory>
 #include <string>
 #include <fstream>
+#include <numeric>
 
 #include "SDL2_IMGUI_BASE.hpp"
+#include "Actor.hpp"
 
 class MINI_GAME : public SDL2_IMGUI_BASE
 {
 private:
 	Crane::PipelinePassGraphics pipelinePassPhong;
+	Crane::MaterialBuilderPhong materialBuilderPhong;
 
-	Crane::Chessboard chessboard{ 11, 11 };
-	Crane::Material materialPhongChessboard; 
-	Eigen::Vector3f modelChessboard{0.f, 0.f, 0.f};
+	Crane::Actor chessboard;
 
-	Crane::Plane cloak{11, 11};
-	Crane::Material materialPhongCloak; 
-	Eigen::Vector3f modelCloak{0.f, 5.f, -5.f};
+	Crane::Actor cloak;
+
+	Crane::Actor dragon;
+
+	const uint32_t soldierCount = 10;
+	std::vector<Crane::Actor> soldiers;
+	std::vector<Eigen::Vector3f> targetPos;
 
 	CranePhysics::PositionBasedDynamics pbd;
-
 
 	void createAssetApp() override;
 	void updateApp() override;
 
+	void updateAI();
+
 	void setImgui() override;
+
+	void createChessboard();
+	void createCloak();
+	void createDragon();
+	void createSoldiers();
 
 public:
 	explicit MINI_GAME(std::shared_ptr<SDL_Window> win);

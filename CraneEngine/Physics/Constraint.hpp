@@ -13,6 +13,7 @@ namespace CranePhysics
         virtual ~Constraint() = default;
 
         virtual void solveConstraint() = 0;
+        virtual void solveVelocity() {};
     };
 
     class Stretching : public Constraint
@@ -81,6 +82,7 @@ namespace CranePhysics
     public:
         ParticleRigidbodyCollisionConstraint(Particle &p, Rigidbody &rb, Eigen::Vector3f cN, float pt);
         void solveConstraint() override;
+        void solveVelocity() override;
 
         Particle &particle;
         Rigidbody &rigidbody;
@@ -88,4 +90,16 @@ namespace CranePhysics
         float penetration;
     };
 
+    class ParticleCubeCollisionConstraint : public Constraint
+    {
+    public:
+        ParticleCubeCollisionConstraint(Particle &p, Cube &rb, Eigen::Vector3f cN, float pt);
+        void solveConstraint() override;
+        void solveVelocity() override;
+
+        Particle &particle;
+        Cube &cube;
+        Eigen::Vector3f contactNormal;
+        float penetration;
+    };
 }

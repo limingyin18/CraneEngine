@@ -1,4 +1,4 @@
-#include "Engine.hpp"
+﻿#include "Engine.hpp"
 
 using namespace std;
 using namespace Crane;
@@ -74,6 +74,7 @@ void Engine::updateInput()
 
 bool Engine::load_prefab(assets::PrefabInfo prefab, Eigen::Matrix4f root, vector<RenderableBase>& renderables, PipelinePassGraphics& pipelinePassGraphics)
 {
+	/*
 	std::unordered_map<uint64_t, Eigen::Matrix4f> node_worldmats;
 
 	std::vector<std::pair<uint64_t, Eigen::Matrix4f>> pending_nodes;
@@ -294,6 +295,7 @@ bool Engine::load_prefab(assets::PrefabInfo prefab, Eigen::Matrix4f root, vector
 			}
 		}
 	}
+	*/
 
 	/*
 			{

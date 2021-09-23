@@ -10,22 +10,37 @@ class CLOTH : public SDL2_IMGUI_BASE
 {
 private:
 	Crane::PipelinePassGraphics pipelinePassPhong;
+	Crane::MaterialBuilderPhong materialBuilderPhong;
 
-	Crane::Chessboard chessboard{ 11, 11 };
-	Crane::Material materialPhongChessboard; 
-	Eigen::Vector3f modelChessboard{0.f, 0.f, 0.f};
+	Crane::Actor chessboard;
 
-	Crane::Plane cloak{11, 11};
-	Crane::Material materialPhongCloak; 
-	Eigen::Vector3f modelCloak{0.f, 5.f, -5.f};
+	Crane::Actor cloak;
+	uint32_t offsetCloak = 0;
+
+	Crane::Actor dragon;
+
+	Crane::Actor soldier;
+
+	Crane::Actor cubeTest;
+
+	Crane::Actor sphereTest;
 
 	CranePhysics::PositionBasedDynamics pbd;
-
 
 	void createAssetApp() override;
 	void updateApp() override;
 
 	void setImgui() override;
+
+	void createChessboard();
+
+	void createCloak();
+	void createCubeTest();
+	void createSphereTest();
+
+	void createDragon();
+
+	void createSoldiers();
 
 public:
 	explicit CLOTH(std::shared_ptr<SDL_Window> win);

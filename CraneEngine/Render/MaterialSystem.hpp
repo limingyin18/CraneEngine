@@ -86,16 +86,33 @@ namespace Crane
 		void buildPipeline(PipelineBuilder& pipelineBuilder);
 	};
 
+	
 	class Material
 	{
 	public:
-		std::vector<vk::WriteDescriptorSet> writeDescriptorSets;
+		std::unordered_map<uint32_t, std::unordered_map<uint32_t, vk::WriteDescriptorSet>> writeDescriptorSets;
 		std::vector<vk::DescriptorSet> descriptorSets;
 
-		vk::DescriptorPool descriptorPool;
+		PipelinePass* pipelinePass = nullptr;
+	};
 
+	class MaterialBuilder
+	{
+	public:
+		vk::DescriptorPool descriptorPool;
 		PipelinePass* pipelinePass;
 
-		void buildDescriptorSets();
+		virtual Material build();
+	};
+
+	class MaterialBuilderPhong : public MaterialBuilder
+	{
+	public:
+		Material build() override;
+
+		vk::DescriptorBufferInfo *sceneParameterBufferDescriptorInfo; // 场景参数
+		vk::DescriptorBufferInfo *modelMatrixBufferDescriptorInfo;	 // 模型位姿
+		vk::DescriptorBufferInfo *descriptorBufferInfoInstanceID;	 // 模型实例
+		vk::DescriptorImageInfo *descriptorImageInfoBlank;			 // 模型纹理
 	};
 }

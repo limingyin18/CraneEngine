@@ -11,7 +11,7 @@ using namespace Eigen;
 namespace CranePhysics
 {
     /**
-     * åˆšä½“
+     * ¸ÕÌå
      */
     class Rigidbody
     {
@@ -33,7 +33,7 @@ namespace CranePhysics
     };
 
     /**
-     * ç²’å­/çƒä½“
+     * Á£×Ó/ÇòÌå
      */
     class Particle : public Rigidbody
     {
@@ -53,7 +53,7 @@ namespace CranePhysics
     using Sphere = Particle;
 
     /**
-     * é•¿æ–¹ä½“
+     * ³¤·½Ìå
      */
     class Cube : public Rigidbody
     {

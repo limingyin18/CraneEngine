@@ -5,30 +5,30 @@
 namespace CranePhysics
 {
     /**
-     * @brief çƒä½“ä¸é•¿æ–¹ä½“ç›¸äº¤æµ‹è¯•
+     * @brief ÇòÌåÓë³¤·½ÌåÏà½»²âÊÔ
      * 
-     * @param bmin - é•¿æ–¹ä½“æœ€å°ç‚¹
-     * @param bmax - é•¿æ–¹ä½“æœ€å¤§ç‚¹
-     * @param c - é•¿æ–¹ä½“ä¸­å¿ƒ
-     * @param t - é•¿æ–¹ä½“æ—‹è½¬
-     * @param p - çƒä½“ä¸­å¿ƒ
-     * @param r - çƒä½“åŠå¾„
+     * @param bmin - ³¤·½Ìå×îĞ¡µã
+     * @param bmax - ³¤·½Ìå×î´óµã
+     * @param c - ³¤·½ÌåÖĞĞÄ
+     * @param t - ³¤·½ÌåĞı×ª
+     * @param p - ÇòÌåÖĞĞÄ
+     * @param r - ÇòÌå°ë¾¶
      * 
-     * @return - æ¥è§¦ç‚¹æ³•çº¿ï¼Œç©¿é€æ·±åº¦
+     * @return - ½Ó´¥µã·¨Ïß£¬´©Í¸Éî¶È
      */
     std::optional<std::pair<Eigen::Vector3f, float>> SphereCubeIntersect(
         Eigen::Vector3f bmin, Eigen::Vector3f bmax, Eigen::Vector3f c, Eigen::Quaternionf t,
         Eigen::Vector3f p, float r);
 
     /**
-     * @brief çƒä½“ä¸çƒä½“ç›¸äº¤æµ‹è¯•
+     * @brief ÇòÌåÓëÇòÌåÏà½»²âÊÔ
      * 
-     * @param c1 çƒå¿ƒ1
-     * @param r1 åŠå¾„1
-     * @param c2 çƒå¿ƒ2
-     * @param r2 åŠå¾„2
+     * @param c1 ÇòĞÄ1
+     * @param r1 °ë¾¶1
+     * @param c2 ÇòĞÄ2
+     * @param r2 °ë¾¶2
      * 
-     * @return æ¥è§¦ç‚¹æ³•çº¿ï¼Œç©¿é€æ·±åº¦
+     * @return ½Ó´¥µã·¨Ïß£¬´©Í¸Éî¶È
      */
     std::optional<std::pair<Eigen::Vector3f, float>> SphereSphereIntersect(
         Eigen::Vector3f c1, float r1, Eigen::Vector3f c2, float r2);

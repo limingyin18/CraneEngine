@@ -1,6 +1,7 @@
 ﻿// CraneEngine.cpp : Defines the entry point for the application.
 //
 
+#define VMA_IMPLEMENTATION
 #include "Render.hpp"
 
 using namespace std;
@@ -817,7 +818,7 @@ void Render::buildRenderable()
 
 		for (uint32_t i = 0; i < d.count; ++i)
 		{
-			*(reinterpret_cast<Eigen::Matrix4f*>(modelMatrixPtr)) = renderables[d.first + i].transformMatrix;
+			*(reinterpret_cast<Eigen::Matrix4f*>(modelMatrixPtr)) = *renderables[d.first + i].transformMatrix;
 			modelMatrixPtr = modelMatrixPtr + modelMatrixOffset;
 		}
 	}
@@ -833,8 +834,16 @@ void Render::buildRenderable()
 
 	for (const auto& v : renderables)
 	{
-		device->updateDescriptorSets(v.material->writeDescriptorSets.size(),
-			v.material->writeDescriptorSets.data(), 0, nullptr);
+		vector<vk::WriteDescriptorSet> writeDescriptorSets(0);
+		for (auto& [i, s] : v.material->writeDescriptorSets)
+		{
+			for (auto& [j, b] : s)
+			{
+				writeDescriptorSets.push_back(b);
+			}
+		}
+		device->updateDescriptorSets(writeDescriptorSets.size(),
+			writeDescriptorSets.data(), 0, nullptr);
 	}
 
 	LOGI("创建顶点缓冲");
@@ -891,8 +900,16 @@ void Render::buildRenderable()
 		descriptorBufferInfoIndirect.range = bufferIndirect.size;
 	}
 
-	device->updateDescriptorSets(materialCull.writeDescriptorSets.size(),
-		materialCull.writeDescriptorSets.data(), 0, nullptr);
+	vector<vk::WriteDescriptorSet> writeDescriptorSets;
+	for (auto& [i, s] : materialCull.writeDescriptorSets)
+	{
+		for (auto& [j, b] : s)
+		{
+			writeDescriptorSets.push_back(b);
+		}
+	}
+	device->updateDescriptorSets(writeDescriptorSets.size(),
+		writeDescriptorSets.data(), 0, nullptr);
 
 	// record command
 	vk::CommandBufferBeginInfo commandBufferBeginInfo{};
@@ -1059,13 +1076,13 @@ void Crane::Render::compactDraws()
 	descriptorBufferDrawsFlat.buffer = bufferDrawsFlat.buffer;
 	descriptorBufferDrawsFlat.range = bufferDrawsFlat.size;
 
-	vector<ObjectData> cullObjCandidates(renderables.size());
+	cullObjCandidates.resize(renderables.size());
 	for (auto& d : draws)
 	{
 		Vector4f spherebound = renderables[d.first].SphereBound();
 		for (uint32_t i = d.first; i < d.count; ++i)
 		{
-			cullObjCandidates[i].model = renderables[i].transformMatrix;
+			cullObjCandidates[i].model = *renderables[i].transformMatrix;
 			cullObjCandidates[i].spherebound = spherebound;
 		}
 	}

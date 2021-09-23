@@ -7,19 +7,20 @@ using namespace CranePhysics;
 optional<pair<Vector3f, float>> CranePhysics::SphereCubeIntersect(
     Vector3f bmin, Vector3f bmax, Vector3f c, Eigen::Quaternionf t, Vector3f p, float r)
 {
-    // è½¬æ¢åœ†å¿ƒpåˆ°é•¿æ–¹ä½“åæ ‡ç³»
+    // ×ª»»Ô²ĞÄpµ½³¤·½Ìå×ø±êÏµ
     Vector3f pc = p - c;
     Quaternionf pcQ = t.inverse() * Quaternionf(0, pc.x(), pc.y(), pc.z()) * t;
     Vector3f p1{pcQ.x(), pcQ.y(), pcQ.z()};
 
-    // é•¿æ–¹ä½“ä¸Šæœ€æ¥è¿‘åœ†å¿ƒçš„ç‚¹q
+    // ³¤·½ÌåÉÏ×î½Ó½üÔ²ĞÄµÄµãq
     Vector3f q1 = p1.cwiseMax(bmin).cwiseMin(bmax);
 
-    // è½¬æ¢æœ€è¿‘ç‚¹qåˆ°ä¸–ç•Œåæ ‡ç³»
+    // ×ª»»×î½üµãqµ½ÊÀ½ç×ø±êÏµ
     Quaternionf qQ = t * Quaternionf(0, q1.x(), q1.y(), q1.z()) * t.inverse();
     Vector3f q{qQ.x(), qQ.y(), qQ.z()};
+    q += c;
 
-    // çƒå¿ƒåˆ°é•¿æ–¹ä½“çš„æœ€çŸ­çŸ¢é‡
+    // ³¤·½Ìåµ½Ô²ĞÄµÄ×î¶ÌÊ¸Á¿
     Vector3f u = p - q;
 
     if (u.squaredNorm() <= r * r)

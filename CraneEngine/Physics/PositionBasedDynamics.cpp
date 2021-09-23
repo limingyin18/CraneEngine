@@ -20,7 +20,7 @@ void PositionBasedDynamics::externalForceIntegral()
 {
     for (auto rb : rigidbodies)
     {
-        // é‡åŠ›
+        // ÖØÁ¦
         if (rb->invMass > 0.f)
         {
             rb->velocity[1] += -dt * g;
@@ -37,6 +37,19 @@ void PositionBasedDynamics::internalForceIntegral()
         {
             c->solveConstraint();
         }
+    }
+}
+
+void PositionBasedDynamics::updateVelocity()
+{
+    for (auto rb : rigidbodies)
+    {
+        rb->velocity = (rb->position - rb->positionPrime) / dt;
+    }
+
+    for (auto& c : constraints)
+    {
+        c->solveVelocity();
     }
 }
 
@@ -57,14 +70,13 @@ void PositionBasedDynamics::run()
     int n = constraints.size();
     generateCollisionConstraint();
     internalForceIntegral();
+    updateVelocity();
 
     while (constraints.size() > n)
         constraints.pop_back();
 
     for (auto rb : rigidbodies)
     {
-        rb->velocity = (rb->position - rb->positionPrime) / dt;
-
         rb->velocityPrime = rb->velocity;
         rb->positionPrime = rb->position;
     }

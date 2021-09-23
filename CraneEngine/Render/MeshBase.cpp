@@ -4,11 +4,6 @@ using namespace std;
 using namespace Crane;
 using namespace Eigen;
 
-Vertex::Vertex(Eigen::Vector3f pos, Eigen::Vector3f n, Eigen::Vector3f c, Eigen::Vector2f u)
-    : position(pos), normal(n), color(c), uv(u)
-{
-}
-
 vector<vk::VertexInputBindingDescription> Vertex::GetVertexInputBindingDescription()
 {
     vector<vk::VertexInputBindingDescription> bindings;
@@ -70,17 +65,13 @@ vk::PipelineInputAssemblyStateCreateFlags Vertex::GetPipelineInputAssemblyStateC
 void MeshBase::setVertices(function<void(unsigned, Vertex &)> const &fun)
 {
     for (unsigned i = 0; i < data.size(); ++i)
-    {
         fun(i, data[i]);
-    }
 }
 
-void MeshBase::recomputeNormals(vector<Vertex> &data)
+void MeshBase::recomputeNormals()
 {
     for (auto &d : data)
-    {
         d.normal = {0.f, 0.f, 0.f};
-    }
 
     for (unsigned i = 0; i < indices.size();)
     {
@@ -95,15 +86,13 @@ void MeshBase::recomputeNormals(vector<Vertex> &data)
         // This does weighted area based on triangle area
         auto n = (v2 - v1).cross(v3 - v1);
 
-        data[id1].normal = data[id1].normal + n;
-        data[id2].normal = data[id2].normal + n;
-        data[id3].normal = data[id3].normal + n;
+        data[id1].normal += n;
+        data[id2].normal += n;
+        data[id3].normal += n;
     }
 
     for (auto &d : data)
-    {
         d.normal.normalize();
-    }
 }
 
 Plane::Plane(uint32_t nx, uint32_t nz)
@@ -249,7 +238,7 @@ Cube::Cube(int n)
     }
 }
 
-Crane::Chessboard::Chessboard(uint32_t nx, uint32_t nz)
+Chessboard::Chessboard(uint32_t nx, uint32_t nz)
 {
     assert(nx > 1 && nz > 1);
     data.reserve(4 *(nx -1) * (nz -1));
@@ -302,6 +291,74 @@ Crane::Chessboard::Chessboard(uint32_t nx, uint32_t nz)
             indices.emplace_back(I + 1);
             indices.emplace_back(I + 2);
             indices.emplace_back(I + 2 + 1);
+        }
+    }
+}
+
+Sphere::Sphere(uint32_t lng, uint32_t lat, float radius)
+{
+    data.reserve((lat + 1) * (lng + 1));
+    for (uint32_t i = 0; i <= lat; ++i)
+    {
+        float angLat = numbers::pi / 2.f - i * numbers::pi / lat;        // starting from pi/2 to -pi/2
+        float xy = radius * cosf(angLat);             // r * cos(u)
+        float z = radius * sinf(angLat);              // r * sin(u)
+
+        // add (sectorCount+1) vertices per stack
+        // the first and last vertices have same position and normal, but different tex coords
+        for (int j = 0; j <= lng; ++j)
+        {
+            float angLng = j * 2 * numbers::pi / lng;           // starting from 0 to 2pi
+
+            // vertex position (x, y, z)
+            float x = xy * cosf(angLng);             // r * cos(u) * cos(v)
+            float y = xy * sinf(angLng);             // r * cos(u) * sin(v)
+
+            // normalized vertex normal (nx, ny, nz)
+            float nx = x / radius;
+            float ny = y / radius;
+            float nz = z / radius;
+
+            // vertex tex coord (s, t) range between [0, 1]
+            float s = (float)j / lng;
+            float t = (float)i / lat;
+
+            data.emplace_back(Vector3f{ x, y, z },
+							  Vector3f{ nx, ny, nz },
+							  Vector3f{ 1.0f, 1.0f, 1.0f },
+							  Vector2f{ s, t });
+        }
+    }
+
+    // generate CCW index list of sphere triangles
+	// k1--k1+1
+	// |  / |
+	// | /  |
+	// k2--k2+1
+    indices.reserve((lat-1)*lng*6);
+    for (uint32_t i = 0; i < lat; ++i)
+    {
+        uint32_t k1 = i * (lng + 1);     // beginning of current stack
+        uint32_t k2 = k1 + lng + 1;      // beginning of next stack
+
+        for (int j = 0; j < lng; ++j, ++k1, ++k2)
+        {
+            // 2 triangles per sector excluding first and last stacks
+            // k1 => k2 => k1+1
+            if (i != 0)
+            {
+                indices.push_back(k1);
+                indices.push_back(k2);
+                indices.push_back(k1 + 1);
+            }
+
+            // k1+1 => k2 => k2+1
+            if (i != (lat - 1))
+            {
+                indices.push_back(k1 + 1);
+                indices.push_back(k2);
+                indices.push_back(k2 + 1);
+            }
         }
     }
 }

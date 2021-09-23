@@ -162,15 +162,6 @@ void Crane::PipelinePass::buildPipelineLayout()
 	pipelineLayout = device.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
 }
 
-void Crane::Material::buildDescriptorSets()
-{
-	vk::DescriptorSetAllocateInfo descriptorSetAllocateInfo{
-			.descriptorPool = descriptorPool,
-			.descriptorSetCount = static_cast<uint32_t>(pipelinePass->descriptorSetLayouts.size()),
-			.pSetLayouts = pipelinePass->descriptorSetLayouts.data() };
-	descriptorSets = pipelinePass->device.allocateDescriptorSets(descriptorSetAllocateInfo);
-}
-
 void Crane::PipelinePassCompute::buildPipeline(vk::PipelineCache pipelineCache)
 {
 	vk::PipelineShaderStageCreateInfo computeShaderStageCreateInfo{ .stage = vk::ShaderStageFlagBits::eCompute,
@@ -183,4 +174,42 @@ void Crane::PipelinePassCompute::buildPipeline(vk::PipelineCache pipelineCache)
 void Crane::PipelinePassGraphics::buildPipeline(PipelineBuilder& pipelineBuilder)
 {
 	pipeline = pipelineBuilder.build(pipelineShaderStageCreateInfos, pipelineLayout.get(), renderPass);
+}
+
+Material Crane::MaterialBuilder::build()
+{
+	Material m;
+	m.pipelinePass = pipelinePass;
+
+	vk::DescriptorSetAllocateInfo descriptorSetAllocateInfo{
+			.descriptorPool = descriptorPool,
+			.descriptorSetCount = static_cast<uint32_t>(pipelinePass->descriptorSetLayouts.size()),
+			.pSetLayouts = pipelinePass->descriptorSetLayouts.data() };
+	m.descriptorSets = pipelinePass->device.allocateDescriptorSets(descriptorSetAllocateInfo);
+
+	for (auto& [i, s] : pipelinePass->bindings)
+	{
+		for (auto& [j, b] : s)
+		{
+			vk::WriteDescriptorSet writeDescriptorSet{
+				.dstSet = m.descriptorSets[i],
+				.dstBinding = b.binding,
+				.descriptorCount = b.descriptorCount,
+				.descriptorType = b.descriptorType};
+			m.writeDescriptorSets[i][j] = writeDescriptorSet;
+		}
+	}
+
+	return m;
+}
+
+Material Crane::MaterialBuilderPhong::build()
+{
+	Material m = MaterialBuilder::build();
+
+	m.writeDescriptorSets[0][0].pBufferInfo = sceneParameterBufferDescriptorInfo; // 场景参数
+	m.writeDescriptorSets[0][1].pBufferInfo = modelMatrixBufferDescriptorInfo;    // 模型位姿
+	m.writeDescriptorSets[0][2].pBufferInfo = descriptorBufferInfoInstanceID;     // 模型实例
+	m.writeDescriptorSets[1][0].pImageInfo = descriptorImageInfoBlank;			 // 模型纹理
+	return m;
 }

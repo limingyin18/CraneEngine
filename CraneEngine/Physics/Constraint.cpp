@@ -88,7 +88,34 @@ ParticleRigidbodyCollisionConstraint::ParticleRigidbodyCollisionConstraint(
 void ParticleRigidbodyCollisionConstraint::solveConstraint()
 {
 	particle.position += penetration * contactNormal;
-	particle.velocity -= (2 * particle.velocity.dot(contactNormal)) * contactNormal;
+}
+
+void ParticleRigidbodyCollisionConstraint::solveVelocity()
+{
+	particle.velocity = particle.velocityPrime - 0.9f*(2 * particle.velocityPrime.dot(contactNormal)) * contactNormal;
+}
+
+ParticleCubeCollisionConstraint::ParticleCubeCollisionConstraint(
+	Particle &p, Cube &rb, Eigen::Vector3f cN, float pt)
+	: particle{p}, cube{rb}, contactNormal{cN}, penetration{pt}
+{
+}
+void ParticleCubeCollisionConstraint::solveConstraint()
+{
+	auto rect = CollisionDetectFunction(particle, cube);
+
+	if (rect.has_value())
+	{
+		Vector3f contactNormal = rect.value().first;
+		contactNormal.normalize();
+		float penetration = rect.value().second;
+		particle.position += penetration * contactNormal;
+	}
+}
+
+void ParticleCubeCollisionConstraint::solveVelocity()
+{
+	particle.velocity = particle.velocityPrime -(2 * particle.velocityPrime.dot(contactNormal)) * contactNormal;
 }
 
 void jacobiRotate(Matrix3f &A, Matrix3f &R, int p, int q)

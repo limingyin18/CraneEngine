@@ -242,6 +242,10 @@ namespace Crane
 		bool drawGUIFlag = true;
 
 		PipelineBuilder pipelineBuilder;
+		MaterialBuilder materialBuilder;
+
+
+		/*cull*/
 
 		PipelinePassCompute pipelinePassCull;
 		Material materialCull;
@@ -251,6 +255,7 @@ namespace Crane
 		Buffer bufferDrawsFlat;
 		vk::DescriptorBufferInfo descriptorBufferDrawsFlat;
 
+		std::vector<ObjectData> cullObjCandidates;
 		Buffer bufferCullObjCandidate;
 		vk::DescriptorBufferInfo descriptorBufferInfoCullObjCandidate;
 
@@ -263,7 +268,5 @@ namespace Crane
 
 		Buffer bufferInstanceID;
 		vk::DescriptorBufferInfo descriptorBufferInfoInstanceID;
-
-
 	};
 }

@@ -22,7 +22,8 @@ void MINI_GAME::updateApp()
 {
 	updateEngine();
 
-	renderables[2].transformMatrix.block<3, 1>(0, 3) = Vector3f{ 10*sin(dtAll), 0.f, 10*cos(dtAll) };
+	updateAI();
+
 	// physics update
 	pbd.dt = dt;
 	//pbd.rigidbodies[1]->rotation *= Quaternionf(AngleAxisf(1.f*dt, Vector3f(1.0f, 1.0f, 1.0f).normalized()));
@@ -95,10 +96,19 @@ void MINI_GAME::updateApp()
 	auto modelMatrixPtr = modelMatrix.data();
 	for (auto& v : renderables)
 	{
-		*(reinterpret_cast<Eigen::Matrix4f*>(modelMatrixPtr)) = v.transformMatrix;
+		*(reinterpret_cast<Eigen::Matrix4f*>(modelMatrixPtr)) = *v.transformMatrix;
 		modelMatrixPtr += modelMatrixOffset;
 	}
 	modelMatrixBuffer.update(modelMatrix.data());
+
+	for (auto& d : draws)
+	{
+		for (uint32_t i = d.first; i < d.count; ++i)
+		{
+			cullObjCandidates[i].model = *renderables[i].transformMatrix;
+		}
+	}
+	bufferCullObjCandidate.update(cullObjCandidates.data());
 }
 
 void MINI_GAME::setImgui()
@@ -114,9 +124,10 @@ void MINI_GAME::setImgui()
 	ImGui::End();
 }
 
+
 void MINI_GAME::createAssetApp()
 {
-	LOGI("创建应用资产");
+	LOGI("create application specific assets");
 
 	SDL2_IMGUI_BASE::createAssetApp();
 
@@ -129,55 +140,15 @@ void MINI_GAME::createAssetApp()
 		pipelinePassCull.buildPipelineLayout();
 		pipelinePassCull.buildPipeline(nullptr);
 
-		materialCull.descriptorPool = descriptorPool.get();
-		materialCull.pipelinePass = &pipelinePassCull;
-		materialCull.buildDescriptorSets();
+		materialBuilder.descriptorPool = descriptorPool.get();
+		materialBuilder.pipelinePass = &pipelinePassCull;
 
-
-		// cull data
-		vk::WriteDescriptorSet writeDescriptorSet0B5{
-			.dstSet = materialCull.descriptorSets[0],
-			.dstBinding = 5,
-			.descriptorCount = 1,
-			.descriptorType = vk::DescriptorType::eStorageBuffer,
-			.pBufferInfo = &descriptorBufferInfoCullData };
-		materialCull.writeDescriptorSets.push_back(writeDescriptorSet0B5);
-
-		// object candidate
-		vk::WriteDescriptorSet writeDescriptorSet0B0{
-			.dstSet = materialCull.descriptorSets[0],
-			.dstBinding = 0,
-			.descriptorCount = 1,
-			.descriptorType = vk::DescriptorType::eStorageBuffer,
-			.pBufferInfo = &descriptorBufferInfoCullObjCandidate };
-		materialCull.writeDescriptorSets.push_back(writeDescriptorSet0B0);
-
-		// draw command
-		vk::WriteDescriptorSet writeDescriptorSet0B1{
-			.dstSet = materialCull.descriptorSets[0],
-			.dstBinding = 1,
-			.descriptorCount = 1,
-			.descriptorType = vk::DescriptorType::eStorageBuffer,
-			.pBufferInfo = &descriptorBufferInfoIndirect };
-		materialCull.writeDescriptorSets.push_back(writeDescriptorSet0B1);
-
-		// flat batch
-		vk::WriteDescriptorSet writeDescriptorSet0B2{
-			.dstSet = materialCull.descriptorSets[0],
-			.dstBinding = 2,
-			.descriptorCount = 1,
-			.descriptorType = vk::DescriptorType::eStorageBuffer,
-			.pBufferInfo = &descriptorBufferDrawsFlat };
-		materialCull.writeDescriptorSets.push_back(writeDescriptorSet0B2);
-
-		// instance id
-		vk::WriteDescriptorSet writeDescriptorSet0B3{
-			.dstSet = materialCull.descriptorSets[0],
-			.dstBinding = 3,
-			.descriptorCount = 1,
-			.descriptorType = vk::DescriptorType::eStorageBuffer,
-			.pBufferInfo = &descriptorBufferInfoInstanceID };
-		materialCull.writeDescriptorSets.push_back(writeDescriptorSet0B3);
+		materialCull = materialBuilder.build();
+		materialCull.writeDescriptorSets[0][0].pBufferInfo = &descriptorBufferInfoCullObjCandidate; // object candidate
+		materialCull.writeDescriptorSets[0][1].pBufferInfo = &descriptorBufferInfoIndirect; // draw command
+		materialCull.writeDescriptorSets[0][2].pBufferInfo = &descriptorBufferDrawsFlat; // flat batch
+		materialCull.writeDescriptorSets[0][3].pBufferInfo = &descriptorBufferInfoInstanceID; // instance id
+		materialCull.writeDescriptorSets[0][5].pBufferInfo = &descriptorBufferInfoCullData; // cull data
 	}
 
 	LOGI("创建冯氏着色模型管线")
@@ -198,262 +169,26 @@ void MINI_GAME::createAssetApp()
 		pipelinePassPhong.buildPipeline(pipelineBuilder);
 	}
 
-	LOGI("创建chessboard")
+	LOGI("创建冯氏着色材质构建工厂")
 	{
-		materialPhongChessboard.descriptorPool = descriptorPool.get();
-		materialPhongChessboard.pipelinePass = &pipelinePassPhong;
-		materialPhongChessboard.buildDescriptorSets();
-
-		// 场景参数
-		vk::WriteDescriptorSet writeDescriptorSet0B0{
-			.dstSet = materialPhongChessboard.descriptorSets[0],
-			.dstBinding = 0,
-			.descriptorCount = 1,
-			.descriptorType = vk::DescriptorType::eUniformBufferDynamic,
-			.pBufferInfo = &sceneParameterBufferDescriptorInfo };
-		materialPhongChessboard.writeDescriptorSets.push_back(writeDescriptorSet0B0);
-
-		// instance
-		vk::WriteDescriptorSet writeDescriptorSet0B2{
-			.dstSet = materialPhongChessboard.descriptorSets[0],
-			.dstBinding = 2,
-			.descriptorCount = 1,
-			.descriptorType = vk::DescriptorType::eStorageBuffer,
-			.pBufferInfo = &descriptorBufferInfoInstanceID };
-		materialPhongChessboard.writeDescriptorSets.push_back(writeDescriptorSet0B2);
-
-		// 模型位姿
-		vk::WriteDescriptorSet writeDescriptorSet0B1{
-		.dstSet = materialPhongChessboard.descriptorSets[0],
-		.dstBinding = 1,
-		.descriptorCount = 1,
-		.descriptorType = vk::DescriptorType::eStorageBuffer,
-		.pBufferInfo = &modelMatrixBufferDescriptorInfo };
-		materialPhongChessboard.writeDescriptorSets.push_back(writeDescriptorSet0B1);
-
-		// 纹理
-		vk::WriteDescriptorSet writeDescriptorSet1B0{
-			.dstSet = materialPhongChessboard.descriptorSets[1],
-			.dstBinding = 0,
-			.descriptorCount = 1,
-			.descriptorType = vk::DescriptorType::eCombinedImageSampler,
-			.pImageInfo = &descriptorImageInfoBlank };
-		materialPhongChessboard.writeDescriptorSets.push_back(writeDescriptorSet1B0);
-
-		chessboard.setVertices([](uint32_t, Vertex& v) {v.position *= 100; });
-		renderables.emplace_back(&chessboard, &materialPhongChessboard);
+		materialBuilderPhong.descriptorPool = descriptorPool.get();
+		materialBuilderPhong.pipelinePass = &pipelinePassPhong;
+		materialBuilderPhong.sceneParameterBufferDescriptorInfo = &sceneParameterBufferDescriptorInfo;
+		materialBuilderPhong.modelMatrixBufferDescriptorInfo = &modelMatrixBufferDescriptorInfo;
+		materialBuilderPhong.descriptorBufferInfoInstanceID = &descriptorBufferInfoInstanceID;
+		materialBuilderPhong.descriptorImageInfoBlank = &descriptorImageInfoBlank;
 	}
 
-	LOGI("创建cloak")
-	{
-		materialPhongCloak.descriptorPool = descriptorPool.get();
-		materialPhongCloak.pipelinePass = &pipelinePassPhong;
-		materialPhongCloak.buildDescriptorSets();
+	createChessboard();
 
-		// 场景参数
-		vk::WriteDescriptorSet writeDescriptorSet0B0{
-			.dstSet = materialPhongCloak.descriptorSets[0],
-			.dstBinding = 0,
-			.descriptorCount = 1,
-			.descriptorType = vk::DescriptorType::eUniformBufferDynamic,
-			.pBufferInfo = &sceneParameterBufferDescriptorInfo };
-		materialPhongCloak.writeDescriptorSets.push_back(writeDescriptorSet0B0);
+	createCloak();
 
-		// instance
-		vk::WriteDescriptorSet writeDescriptorSet0B2{
-			.dstSet = materialPhongCloak.descriptorSets[0],
-			.dstBinding = 2,
-			.descriptorCount = 1,
-			.descriptorType = vk::DescriptorType::eStorageBuffer,
-			.pBufferInfo = &descriptorBufferInfoInstanceID };
-		materialPhongCloak.writeDescriptorSets.push_back(writeDescriptorSet0B2);
+	createDragon();
 
-		// 模型位姿
-		vk::WriteDescriptorSet writeDescriptorSet0B1{
-		.dstSet = materialPhongCloak.descriptorSets[0],
-		.dstBinding = 1,
-		.descriptorCount = 1,
-		.descriptorType = vk::DescriptorType::eStorageBuffer,
-		.pBufferInfo = &modelMatrixBufferDescriptorInfo };
-		materialPhongCloak.writeDescriptorSets.push_back(writeDescriptorSet0B1);
-
-		// 纹理
-		vk::WriteDescriptorSet writeDescriptorSet1B0{
-			.dstSet = materialPhongCloak.descriptorSets[1],
-			.dstBinding = 0,
-			.descriptorCount = 1,
-			.descriptorType = vk::DescriptorType::eCombinedImageSampler,
-			.pImageInfo = &descriptorImageInfoLilac };
-		materialPhongCloak.writeDescriptorSets.push_back(writeDescriptorSet1B0);
-
-
-		renderables.emplace_back(&cloak, &materialPhongCloak);
-		renderables.back().transformMatrix.block<3, 1>(0, 3) = modelCloak;
-	}
-
-	LOGI("读取罗马士兵模型")
-	{
-		/*
-		assets::AssetFile file;
-		if (!assets::load_binaryfile((string("assets/RomanSoldier/") + "Roman-Soldier.pfb").c_str(), file))
-			throw std::runtime_error(string("Error when loading mesh "));
-		assets::PrefabInfo prefabInfo = assets::read_prefab_info(&file);
-
-		load_prefab(prefabInfo, Eigen::Matrix4f::Identity(), renderables, pipelinePassPhong);
-		*/
-
-		string name = "Roman-Soldier";
-		assets::AssetFile file;
-		if (!assets::load_binaryfile((string("assets/RomanSoldier/") + "Roman-Soldier.mesh").c_str(), file))
-			throw std::runtime_error(string("Error when loading mesh "));
-		assets::MeshInfo meshInfo = assets::read_mesh_info(&file);
-
-		if (loadMeshs.find(name) == loadMeshs.end())
-		{
-			loadMeshs[name] = make_shared<MeshBase>();
-			loadMeshs[name]->data.resize(meshInfo.vertexBuferSize / sizeof(Vertex));
-			loadMeshs[name]->indices.resize(meshInfo.indexBuferSize / sizeof(uint32_t));
-			assets::unpack_mesh(&meshInfo, file.binaryBlob.data(), file.binaryBlob.size(),
-				reinterpret_cast<char*>(loadMeshs[name]->data.data()),
-				reinterpret_cast<char*>(loadMeshs[name]->indices.data()));
-
-			materials[name].descriptorPool = descriptorPool.get();
-			materials[name].pipelinePass = &pipelinePassPhong;
-			materials[name].buildDescriptorSets();
-
-			// 场景参数
-			vk::WriteDescriptorSet writeDescriptorSet0B0{
-				.dstSet = materials[name].descriptorSets[0],
-				.dstBinding = 0,
-				.descriptorCount = 1,
-				.descriptorType = vk::DescriptorType::eUniformBufferDynamic,
-				.pBufferInfo = &sceneParameterBufferDescriptorInfo };
-			materials[name].writeDescriptorSets.push_back(writeDescriptorSet0B0);
-
-			// instance
-			vk::WriteDescriptorSet writeDescriptorSet0B2{
-				.dstSet = materials[name].descriptorSets[0],
-				.dstBinding = 2,
-				.descriptorCount = 1,
-				.descriptorType = vk::DescriptorType::eStorageBuffer,
-				.pBufferInfo = &descriptorBufferInfoInstanceID };
-			materials[name].writeDescriptorSets.push_back(writeDescriptorSet0B2);
-
-			// 模型位姿
-			vk::WriteDescriptorSet writeDescriptorSet0B1{
-			.dstSet = materials[name].descriptorSets[0],
-			.dstBinding = 1,
-			.descriptorCount = 1,
-			.descriptorType = vk::DescriptorType::eStorageBuffer,
-			.pBufferInfo = &modelMatrixBufferDescriptorInfo };
-			materials[name].writeDescriptorSets.push_back(writeDescriptorSet0B1);
-		}
-
-		vk::WriteDescriptorSet writeDescriptorSet1B0{
-			.dstSet = materials[name].descriptorSets[1],
-			.dstBinding = 0,
-			.descriptorCount = 1,
-			.descriptorType = vk::DescriptorType::eCombinedImageSampler,
-			.pImageInfo = &descriptorImageInfoBlank };
-		materials[name].writeDescriptorSets.push_back(writeDescriptorSet1B0);
-		loadMeshs[name].get()->setVertices([](uint32_t i, Vertex& v) {v.color = { 1.f, 1.f, 1.f }; });
-		loadMeshs[name].get()->recomputeNormals(loadMeshs[name].get()->data);
-
-		for (uint32_t i = 0; i < 1 * 1; ++i)
-		{
-			renderables.emplace_back(loadMeshs[name].get(), &materials[name]);
-
-			float x = 0 * normal_dist(rand_generator);
-			float y = 0 * normal_dist(rand_generator);
-			float z = 0 * normal_dist(rand_generator);
-
-			renderables.back().transformMatrix.block<3, 1>(0, 3) = Vector3f{ x, y, z };
-		}
-	}
-
-	LOGI("读取龙模型")
-	{
-		string name = "Dragon";
-		assets::AssetFile file;
-		if (!assets::load_binaryfile((string("assets/") + "stanfordDragon.mesh").c_str(), file))
-			throw std::runtime_error(string("Error when loading mesh "));
-		assets::MeshInfo meshInfo = assets::read_mesh_info(&file);
-
-		if (loadMeshs.find(name) == loadMeshs.end())
-		{
-			loadMeshs[name] = make_shared<MeshBase>();
-			loadMeshs[name]->data.resize(meshInfo.vertexBuferSize / sizeof(Vertex));
-			loadMeshs[name]->indices.resize(meshInfo.indexBuferSize / sizeof(uint32_t));
-			assets::unpack_mesh(&meshInfo, file.binaryBlob.data(), file.binaryBlob.size(),
-				reinterpret_cast<char*>(loadMeshs[name]->data.data()),
-				reinterpret_cast<char*>(loadMeshs[name]->indices.data()));
-
-			materials[name].descriptorPool = descriptorPool.get();
-			materials[name].pipelinePass = &pipelinePassPhong;
-			materials[name].buildDescriptorSets();
-
-			// 场景参数
-			vk::WriteDescriptorSet writeDescriptorSet0B0{
-				.dstSet = materials[name].descriptorSets[0],
-				.dstBinding = 0,
-				.descriptorCount = 1,
-				.descriptorType = vk::DescriptorType::eUniformBufferDynamic,
-				.pBufferInfo = &sceneParameterBufferDescriptorInfo };
-			materials[name].writeDescriptorSets.push_back(writeDescriptorSet0B0);
-
-			// instance
-			vk::WriteDescriptorSet writeDescriptorSet0B2{
-				.dstSet = materials[name].descriptorSets[0],
-				.dstBinding = 2,
-				.descriptorCount = 1,
-				.descriptorType = vk::DescriptorType::eStorageBuffer,
-				.pBufferInfo = &descriptorBufferInfoInstanceID };
-			materials[name].writeDescriptorSets.push_back(writeDescriptorSet0B2);
-
-			// 模型位姿
-			vk::WriteDescriptorSet writeDescriptorSet0B1{
-			.dstSet = materials[name].descriptorSets[0],
-			.dstBinding = 1,
-			.descriptorCount = 1,
-			.descriptorType = vk::DescriptorType::eStorageBuffer,
-			.pBufferInfo = &modelMatrixBufferDescriptorInfo };
-			materials[name].writeDescriptorSets.push_back(writeDescriptorSet0B1);
-		}
-
-		vk::WriteDescriptorSet writeDescriptorSet1B0{
-			.dstSet = materials[name].descriptorSets[1],
-			.dstBinding = 0,
-			.descriptorCount = 1,
-			.descriptorType = vk::DescriptorType::eCombinedImageSampler,
-			.pImageInfo = &descriptorImageInfoBlank };
-		materials[name].writeDescriptorSets.push_back(writeDescriptorSet1B0);
-		loadMeshs[name].get()->setVertices([](uint32_t i, Vertex& v) {v.color = { 1.f, 1.f, 1.f }; });
-		loadMeshs[name].get()->recomputeNormals(loadMeshs[name].get()->data);
-
-		for (uint32_t i = 0; i < 1 * 1; ++i)
-		{
-			renderables.emplace_back(loadMeshs[name].get(), &materials[name]);
-
-			float x = 0 * normal_dist(rand_generator);
-			float y = 5.f + 0 * normal_dist(rand_generator);
-			float z = -5.f * normal_dist(rand_generator);
-			renderables.back().transformMatrix(0, 0) = 10.f;
-			renderables.back().transformMatrix(1, 1) = 10.f;
-			renderables.back().transformMatrix(2, 2) = 10.f;
-			renderables.back().transformMatrix.block<3, 1>(0, 3) = Vector3f{ x, y, z };
-
-			Eigen::Matrix4f rot = (
-				AngleAxis<float>(90, Vector3f{ 1, 0, 0 }) *
-				Translation<float, 3>(-Vector3f{ 0, 0, 0 })
-				)
-				.matrix();
-
-			renderables.back().transformMatrix =  renderables.back().transformMatrix * rot;
-		}
-	}
-
+	createSoldiers();
 
 	// physics
+	/*
 	auto cube0 = std::make_shared<CranePhysics::Cube>();
 	cube0->invMass = 0.f;
 	cube0->position = modelChessboard;
@@ -473,7 +208,6 @@ void MINI_GAME::createAssetApp()
 		pbd.rigidbodies.push_back(particle);
 	}
 
-	/*
 	for (uint32_t i = 0; i < 11; ++i)
 	{
 		for (uint32_t j = 1; j < 11; ++j)
@@ -481,7 +215,7 @@ void MINI_GAME::createAssetApp()
 			float d = (pbd.rigidbodies[2+i]->position - pbd.rigidbodies[2+j * 11 + i]->position).norm();
 			pbd.constraints.emplace_back(std::make_shared<LongRangeAttachmentConstraint>(*pbd.rigidbodies[2+i+(j-1)*11], *pbd.rigidbodies[2+j*11+i], d, 1.0f));
 		}
-	}*/
+	}
 
 	float compress = 1.0f, stretch = 1.0f;
 	for (uint32_t i = 0; i < cloak.indices.size(); i = i + 3)
@@ -503,7 +237,6 @@ void MINI_GAME::createAssetApp()
 		pbd.constraints.emplace_back(std::make_shared<Stretching>(b, c, distBC, compress, stretch));
 	}
 
-	/*
 	vector<Vector3f> box1Vertex(box1.data.size());
 	for (uint32_t i = 0; i < box1.data.size(); ++i)
 		box1Vertex[i] = box1.data[i].position;

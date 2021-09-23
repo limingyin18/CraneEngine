@@ -18,7 +18,7 @@ namespace CranePhysics
     std::optional<std::pair<Eigen::Vector3f, float>> CollisionDetectFunction(const Particle &a, const Particle &b);
 
     /**
-     * ç¢°æ’å™¨æ¥å£
+     * Åö×²Æ÷½Ó¿Ú
      */
     class Collider
     {
@@ -33,7 +33,7 @@ namespace CranePhysics
     };
 
     /**
-     * çƒä½“ç¢°æ’å™¨
+     * ÇòÌåÅö×²Æ÷
      */
     class ParticleCollider : public Collider
     {
@@ -51,7 +51,7 @@ namespace CranePhysics
     };
 
     /**
-     * é•¿æ–¹ä½“ç¢°æ’å™¨
+     * ³¤·½ÌåÅö×²Æ÷
      */
     class CubeCollider : public Collider
     {

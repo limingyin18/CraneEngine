@@ -9,7 +9,7 @@ namespace Crane
 {
 	struct RenderableBase
 	{
-		RenderableBase(MeshBase* m = nullptr, Material* ma = {}, Eigen::Matrix4f t = Eigen::Matrix4f::Identity())
+		RenderableBase(MeshBase* m = nullptr, Material* ma = nullptr, Eigen::Matrix4f *t = nullptr)
 			: mesh{ m }, material{ ma }, transformMatrix{ t } {};
 
 		// ritter
@@ -105,7 +105,7 @@ namespace Crane
 
 		MeshBase* mesh;
 		Material* material;
-		Eigen::Matrix4f transformMatrix = Eigen::Matrix4f::Identity();
+		Eigen::Matrix4f *transformMatrix;
 
 	};
 }

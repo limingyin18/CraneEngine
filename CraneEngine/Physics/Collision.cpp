@@ -21,9 +21,10 @@ void ParticleCollider::ColliderDispatch(CubeCollider *B, PositionBasedDynamics &
     if (rect.has_value())
     {
         Vector3f contactNormal = rect.value().first;
+        contactNormal.normalize();
         float penetration = rect.value().second;
         pbd.constraints.emplace_back(
-            std::make_shared<ParticleRigidbodyCollisionConstraint>(
+            std::make_shared<ParticleCubeCollisionConstraint>(
                 *rb1, *rb2, contactNormal, penetration));
     }
 }
@@ -38,6 +39,7 @@ void ParticleCollider::ColliderDispatch(ParticleCollider *B, PositionBasedDynami
     if (rect.has_value())
     {
         Vector3f contactNormal = rect.value().first;
+        contactNormal.normalize();
         float penetration = rect.value().second;
         pbd.constraints.emplace_back(
             std::make_shared<ParticleRigidbodyCollisionConstraint>(
@@ -57,9 +59,10 @@ void CubeCollider::ColliderDispatch(ParticleCollider *B, PositionBasedDynamics &
     if (rect.has_value())
     {
         Vector3f contactNormal = rect.value().first;
+        contactNormal.normalize();
         float penetration = rect.value().second;
         pbd.constraints.emplace_back(
-            std::make_shared<ParticleRigidbodyCollisionConstraint>(
+            std::make_shared<ParticleCubeCollisionConstraint>(
                 *rb1, *rb2, contactNormal, penetration));
     }
 }
