@@ -10,32 +10,17 @@ layout (location = 1) out vec2 texFrag;
 layout (location = 2) out vec3 normalFrag;
 layout (location = 3) out vec3 posFrag;
 
-layout (set = 1, binding = 0) coherent buffer block0
-{
-    vec2 h[];
-};
+layout(set = 1, binding = 0) uniform sampler2D heightTex;
 
-layout (set = 1, binding = 1) coherent buffer block1
-{
-    vec2 normalX[];
-};
+layout(set = 1, binding = 1) uniform sampler2D normalXTex;
 
-layout (set = 1, binding = 2) coherent buffer block2
-{
-    vec2 normalZ[];
-};
+layout(set = 1, binding = 2) uniform sampler2D normalZTex;
 
-layout (set = 1, binding = 3) coherent buffer block3
-{
-    vec2 dx[];
-};
+layout(set = 1, binding = 3) uniform sampler2D dxTex;
 
-layout (set = 1, binding = 4) coherent buffer block4
-{
-    vec2 dz[];
-};
+layout(set = 1, binding = 4) uniform sampler2D dzTex;
 
-layout (set = 0, binding = 2) uniform bufferLambda 
+layout (set = 1, binding = 5) uniform bufferLambda 
 {
     float lambda;
 };
@@ -46,23 +31,32 @@ layout (push_constant) uniform constants
 	mat4 projView;
 }camera;
 
-layout (set = 0, binding = 1) uniform UniformBufferModel
+layout (set = 0, binding = 1) readonly buffer BufferModel
 {
-	mat4 model;
-}model;
+	mat4 bufferModel[];
+};
 
-layout (set = 0, binding = 3) uniform indexBuffer
+layout (set = 0, binding = 2) readonly buffer BufferInstance
 {
-    int index;
+	uint bufferInstance[];
 };
 
 void main()
 {
-    vec3 pos = position + vec3(-lambda*dx[gl_VertexIndex-index].x, h[gl_VertexIndex-index].x, -lambda*dz[gl_VertexIndex-index].x);
-    gl_Position =  camera.projView * model.model* vec4(pos.x, pos.y, pos.z, 1.0);
-    posFrag = vec3(model.model* vec4(pos.x, pos.y, pos.z, 1.0));
+    mat4 model = bufferModel[bufferInstance[gl_InstanceIndex]]; 
+
+    vec2 texInv = vec2(1.0f - tex.y, tex.x);
+    vec4 height = texture(heightTex, texInv);
+    vec4 normalX = texture(normalXTex, texInv);
+    vec4 normalZ = texture(normalZTex, texInv);
+    vec4 dx = texture(dxTex, texInv);
+    vec4 dz = texture(dzTex, texInv);
+
+    vec3 pos = position + vec3(-lambda*dx.x, height.x, -lambda*dz.x);
+    gl_Position =  camera.projView * model* vec4(pos.x, pos.y, pos.z, 1.0);
+    posFrag = vec3(model* vec4(pos.x, pos.y, pos.z, 1.0));
     colorFrag = colorVert;
     texFrag = tex;
-    normalFrag = vec3(normalX[gl_VertexIndex-index].x, 1.0f, normalZ[gl_VertexIndex-index].x);
-    normalFrag = normalize(normalFrag);
+    normalFrag = vec3(normalX.x, 1.0f, normalZ.x);
+    normalFrag = normalize(mat3(transpose(inverse(model))) *(normalFrag));
 }

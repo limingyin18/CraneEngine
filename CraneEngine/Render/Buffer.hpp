@@ -4,8 +4,10 @@
 #include <vector>
 #include <stdexcept>
 
-#include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
+#define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
+#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
+#include <vulkan/vulkan.hpp>
 
 namespace Crane
 {
@@ -60,5 +62,7 @@ namespace Crane
         uint32_t size = 0;
         VkBuffer buffer = VK_NULL_HANDLE;
         VmaAllocation bufferMemory = VK_NULL_HANDLE;
+
+        vk::DescriptorBufferInfo descriptorBufferInfo;
     };
 }

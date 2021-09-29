@@ -11,6 +11,58 @@ Engine::Engine() : Render()
 	rand_generator.seed(static_cast<unsigned>(time(nullptr)));
 }
 
+void Crane::Engine::initEngine()
+{
+	LOGI("创建剔除管线相关")
+	{
+		pipelinePassCull.device = device.get();
+		auto shaderCodeCull = Loader::readFile("shaders/cull.comp.spv.");
+		pipelinePassCull.addShader(shaderCodeCull, vk::ShaderStageFlagBits::eCompute);
+		pipelinePassCull.buildDescriptorSetLayout();
+		pipelinePassCull.buildPipelineLayout();
+		pipelinePassCull.buildPipeline(nullptr);
+
+		materialBuilderCull.descriptorPool = descriptorPool.get();
+		materialBuilderCull.pipelinePass = &pipelinePassCull;
+
+		materialBuilderCull.descriptorInfos[0][0].first = &descriptorBufferInfoCullObjCandidate;
+		materialBuilderCull.descriptorInfos[0][0].first = &descriptorBufferInfoCullObjCandidate; // object candidate
+		materialBuilderCull.descriptorInfos[0][1].first = &descriptorBufferInfoIndirect; // draw command
+		materialBuilderCull.descriptorInfos[0][2].first = &descriptorBufferDrawsFlat; // flat batch
+		materialBuilderCull.descriptorInfos[0][3].first = &descriptorBufferInfoInstanceID; // instance id
+		materialBuilderCull.descriptorInfos[0][5].first = &descriptorBufferInfoCullData; // cull data
+		materialCull = materialBuilderCull.build();
+	}
+
+	LOGI("创建冯氏着色模型管线")
+	{
+		pipelinePassPhong.device = device.get();
+
+		pipelinePassPhong.renderPass = renderPass.get();
+
+		auto vertShaderCode = Loader::readFile("shaders/phong.vert.spv");
+		pipelinePassPhong.addShader(vertShaderCode, vk::ShaderStageFlagBits::eVertex);
+		auto fragShaderCode = Loader::readFile("shaders/phong.frag.spv");
+		pipelinePassPhong.addShader(fragShaderCode, vk::ShaderStageFlagBits::eFragment);
+		pipelinePassPhong.bindings[0][0].descriptorType = vk::DescriptorType::eUniformBufferDynamic;
+
+		pipelinePassPhong.buildDescriptorSetLayout();
+
+		pipelinePassPhong.buildPipelineLayout();
+		pipelinePassPhong.buildPipeline(pipelineBuilder);
+	}
+
+	LOGI("创建冯氏着色材质构建工厂")
+	{
+		materialBuilderPhong.descriptorPool = descriptorPool.get();
+		materialBuilderPhong.pipelinePass = &pipelinePassPhong;
+		materialBuilderPhong.descriptorInfos[0][0].first = &sceneParameterBufferDescriptorInfo;
+		materialBuilderPhong.descriptorInfos[0][1].first = &modelMatrixBufferDescriptorInfo;
+		materialBuilderPhong.descriptorInfos[0][2].first = &descriptorBufferInfoInstanceID;
+		materialBuilderPhong.descriptorInfos[1][0].second = &descriptorImageInfoBlank;
+	}
+}
+
 void Engine::updateEngine()
 {
 	auto timeNow = chrono::system_clock::now();

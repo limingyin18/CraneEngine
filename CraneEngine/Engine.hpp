@@ -31,13 +31,14 @@ namespace Crane
         Engine& operator=(const Engine& rhs) = delete;
         Engine& operator=(Engine&& rhs) = delete;
 
+        void initEngine() override;
         void updateEngine();
         void updateInput();
         Input input;
 
         bool load_prefab(assets::PrefabInfo prefab, Eigen::Matrix4f root, std::vector<Crane::RenderableBase>& renderables, PipelinePassGraphics &pipelinePassGraphics);
 
-    protected:
+    public:
         std::chrono::time_point<std::chrono::system_clock> mTime =
             std::chrono::system_clock::now();
         float dtAll = 0.0f;

@@ -55,8 +55,9 @@ Render::Render() : vmaAllocator{ nullptr,[](VmaAllocator* vma) {vmaDestroyAlloca
 
 	layers = {
 	#ifndef NDEBUG
-		"VK_LAYER_KHRONOS_validation"
+		"VK_LAYER_KHRONOS_validation",
 	#endif
+		"VK_LAYER_KHRONOS_synchronization2"
 	};
 
 	deviceExtensions = {
@@ -101,7 +102,10 @@ void Render::init()
 
 	createSynchronization();
 
+	initEngine();
 	createAsset();
+
+	LOGI("初始化完成");
 }
 
 void Crane::Render::update()
@@ -119,7 +123,6 @@ void Crane::Render::update()
 
 	updateCullData();
 
-	vector<vk::DrawIndexedIndirectCommand> debug(draws.size());
 	VmaAllocationInfo allocInfo;
 	vmaGetAllocationInfo(*vmaAllocator, bufferIndirect.bufferMemory, &allocInfo);
 	auto bufferIndirectP = static_cast<vk::DrawIndexedIndirectCommand*>(allocInfo.pMappedData);
@@ -130,16 +133,6 @@ void Crane::Render::update()
 
 	computeQueue.submit(1, &submitInfoCompute, vk::Fence{});
 	computeQueue.waitIdle();
-
-
-	vector<DrawCullData> debug5(1);
-	VmaAllocationInfo allocInfo5;
-	vmaGetAllocationInfo(*vmaAllocator, bufferDrawCullData.bufferMemory, &allocInfo5);
-	memcpy(debug5.data(), allocInfo5.pMappedData,
-		sizeof(DrawCullData)*debug5.size());
-
-	memcpy(debug.data(), allocInfo.pMappedData,
-		sizeof(vk::DrawIndexedIndirectCommand)*draws.size());
 
 	draw();
 
@@ -167,6 +160,7 @@ void Crane::Render::draw()
 	// begin
 	{
 		vk::Pipeline pipelineLast = nullptr;
+
 		commandBuffer[currBuffIndex]->bindVertexBuffers(uint32_t(0), 1, (vk::Buffer*)&vertBuff.buffer, vertOffsets);
 		commandBuffer[currBuffIndex]->bindIndexBuffer(indexBuffer.buffer, 0, vk::IndexType::eUint32);
 		for (uint32_t i = 0; i < draws.size(); ++i)
@@ -175,6 +169,7 @@ void Crane::Render::draw()
 			vk::Pipeline pipelineNew = draw.renderable->material->pipelinePass->pipeline.get();
 			vk::PipelineLayout pipelineLayout = draw.renderable->material->pipelinePass->pipelineLayout.get();
 			vk::DescriptorSet* descriptorSetP = draw.renderable->material->descriptorSets.data();
+			MeshBase *meshNew = draw.renderable->mesh;
 			if (pipelineNew != pipelineLast)
 			{
 				commandBuffer[currBuffIndex]->bindPipeline(vk::PipelineBindPoint::eGraphics, pipelineNew);
@@ -313,6 +308,7 @@ void Render::createLogicalDevice()
 
 	vk::PhysicalDeviceFeatures features{ .multiDrawIndirect = true, .samplerAnisotropy = true };
 	auto supportedFeatures = physicalDevice.getFeatures();
+	auto supportedFeatures2 = physicalDevice.getFeatures2();
 	if (!supportedFeatures.multiDrawIndirect)
 	{
 		LOGE("feature not availabe:");
@@ -356,6 +352,8 @@ void Render::createLogicalDevice()
 
 	vk::DeviceCreateInfo ci{ .queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()),
 	.pQueueCreateInfos = queueCreateInfos.data(),
+	.enabledLayerCount = static_cast<uint32_t>(layers.size()),
+	.ppEnabledLayerNames = layers.data(),
 	.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size()),
 	.ppEnabledExtensionNames = deviceExtensions.data(),
 	.pEnabledFeatures = &features };
@@ -832,19 +830,9 @@ void Render::buildRenderable()
 	modelMatrixBufferDescriptorInfo.range = modelMatrixBufferSize;
 
 
-	for (const auto& v : renderables)
-	{
-		vector<vk::WriteDescriptorSet> writeDescriptorSets(0);
-		for (auto& [i, s] : v.material->writeDescriptorSets)
-		{
-			for (auto& [j, b] : s)
-			{
-				writeDescriptorSets.push_back(b);
-			}
-		}
-		device->updateDescriptorSets(writeDescriptorSets.size(),
-			writeDescriptorSets.data(), 0, nullptr);
-	}
+	for_each(renderables.begin(), renderables.end(), [](const auto&v) {
+		v.material->update();
+		});
 
 	LOGI("创建顶点缓冲");
 	{
@@ -900,16 +888,8 @@ void Render::buildRenderable()
 		descriptorBufferInfoIndirect.range = bufferIndirect.size;
 	}
 
-	vector<vk::WriteDescriptorSet> writeDescriptorSets;
-	for (auto& [i, s] : materialCull.writeDescriptorSets)
-	{
-		for (auto& [j, b] : s)
-		{
-			writeDescriptorSets.push_back(b);
-		}
-	}
-	device->updateDescriptorSets(writeDescriptorSets.size(),
-		writeDescriptorSets.data(), 0, nullptr);
+	device->updateDescriptorSets(materialCull.writeDescriptorSets.size(),
+		materialCull.writeDescriptorSets.data(), 0, nullptr);
 
 	// record command
 	vk::CommandBufferBeginInfo commandBufferBeginInfo{};
@@ -1163,6 +1143,20 @@ size_t Render::padUniformBufferSize(size_t originalSize, VkPhysicalDevicePropert
 		alignedSize = (alignedSize + minUboAlignment - 1) & ~(minUboAlignment - 1);
 	}
 	return alignedSize;
+}
+
+uint32_t Crane::Render::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+{
+	VkPhysicalDeviceMemoryProperties memProperties;
+	vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+
+	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+		if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+			return i;
+		}
+	}
+
+	throw std::runtime_error("failed to find suitable memory type!");
 }
 
 std::tuple<Image, vk::UniqueImageView> Render::createTextureImage(uint32_t texWidth, uint32_t texHeight, uint32_t texChannels, void* pixels)

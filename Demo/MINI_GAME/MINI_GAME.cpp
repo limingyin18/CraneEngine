@@ -10,7 +10,7 @@ MINI_GAME::MINI_GAME(shared_ptr<SDL_Window> win) : SDL2_IMGUI_BASE(win)
 	preferPresentMode = vk::PresentModeKHR::eFifo;
 	camera.target = Vector3f{ 0.f, 1.0f, 0.f };
 	camera.rotation[0] = -0.0f;
-	camera.cameraMoveSpeed = 0.1f;
+	camera.cameraMoveSpeed = 1.1f;
 }
 
 MINI_GAME::~MINI_GAME()
@@ -21,6 +21,8 @@ MINI_GAME::~MINI_GAME()
 void MINI_GAME::updateApp()
 {
 	updateEngine();
+
+	ocean.update(dtAll);
 
 	updateAI();
 
@@ -131,55 +133,7 @@ void MINI_GAME::createAssetApp()
 
 	SDL2_IMGUI_BASE::createAssetApp();
 
-	LOGI("创建剔除管线")
-	{
-		pipelinePassCull.device = device.get();
-		auto shaderCodeCull = Loader::readFile("shaders/cull.comp.spv.");
-		pipelinePassCull.addShader(shaderCodeCull, vk::ShaderStageFlagBits::eCompute);
-		pipelinePassCull.buildDescriptorSetLayout();
-		pipelinePassCull.buildPipelineLayout();
-		pipelinePassCull.buildPipeline(nullptr);
-
-		materialBuilder.descriptorPool = descriptorPool.get();
-		materialBuilder.pipelinePass = &pipelinePassCull;
-
-		materialCull = materialBuilder.build();
-		materialCull.writeDescriptorSets[0][0].pBufferInfo = &descriptorBufferInfoCullObjCandidate; // object candidate
-		materialCull.writeDescriptorSets[0][1].pBufferInfo = &descriptorBufferInfoIndirect; // draw command
-		materialCull.writeDescriptorSets[0][2].pBufferInfo = &descriptorBufferDrawsFlat; // flat batch
-		materialCull.writeDescriptorSets[0][3].pBufferInfo = &descriptorBufferInfoInstanceID; // instance id
-		materialCull.writeDescriptorSets[0][5].pBufferInfo = &descriptorBufferInfoCullData; // cull data
-	}
-
-	LOGI("创建冯氏着色模型管线")
-	{
-		pipelinePassPhong.device = device.get();
-
-		pipelinePassPhong.renderPass = renderPass.get();
-
-		auto vertShaderCode = Loader::readFile("shaders/phong.vert.spv");
-		pipelinePassPhong.addShader(vertShaderCode, vk::ShaderStageFlagBits::eVertex);
-		auto fragShaderCode = Loader::readFile("shaders/phong.frag.spv");
-		pipelinePassPhong.addShader(fragShaderCode, vk::ShaderStageFlagBits::eFragment);
-		pipelinePassPhong.bindings[0][0].descriptorType = vk::DescriptorType::eUniformBufferDynamic;
-
-		pipelinePassPhong.buildDescriptorSetLayout();
-
-		pipelinePassPhong.buildPipelineLayout();
-		pipelinePassPhong.buildPipeline(pipelineBuilder);
-	}
-
-	LOGI("创建冯氏着色材质构建工厂")
-	{
-		materialBuilderPhong.descriptorPool = descriptorPool.get();
-		materialBuilderPhong.pipelinePass = &pipelinePassPhong;
-		materialBuilderPhong.sceneParameterBufferDescriptorInfo = &sceneParameterBufferDescriptorInfo;
-		materialBuilderPhong.modelMatrixBufferDescriptorInfo = &modelMatrixBufferDescriptorInfo;
-		materialBuilderPhong.descriptorBufferInfoInstanceID = &descriptorBufferInfoInstanceID;
-		materialBuilderPhong.descriptorImageInfoBlank = &descriptorImageInfoBlank;
-	}
-
-	createChessboard();
+	//createChessboard();
 
 	createCloak();
 
@@ -187,6 +141,27 @@ void MINI_GAME::createAssetApp()
 
 	createSoldiers();
 
+	ocean.init(this);
+
+	oceans[0].mesh = ocean.mesh;
+	oceans[0].material = ocean.material;
+	oceans[0].setPosition(Vector3f{ 100.f, 0.f, 0.f });
+	renderables.emplace_back(oceans[0].mesh.get(), oceans[0].material, &oceans[0].transform);
+
+	oceans[1].mesh = ocean.mesh;
+	oceans[1].material = ocean.material;
+	oceans[1].setPosition(Vector3f{ -100.f, 0.f, 0.f });
+	renderables.emplace_back(oceans[1].mesh.get(), oceans[1].material, &oceans[1].transform);
+
+	oceans[2].mesh = ocean.mesh;
+	oceans[2].material = ocean.material;
+	oceans[2].setPosition(Vector3f{ 100.f, 0.f, 200.f });
+	renderables.emplace_back(oceans[2].mesh.get(), oceans[2].material, &oceans[2].transform);
+
+	oceans[3].mesh = ocean.mesh;
+	oceans[3].material = ocean.material;
+	oceans[3].setPosition(Vector3f{ -100.f, 0.f, 200.f });
+	renderables.emplace_back(oceans[3].mesh.get(), oceans[3].material, &oceans[3].transform);
 	// physics
 	/*
 	auto cube0 = std::make_shared<CranePhysics::Cube>();

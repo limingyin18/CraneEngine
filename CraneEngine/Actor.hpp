@@ -7,6 +7,8 @@ namespace Crane
 	class Actor
 	{
 	public:
+		virtual void init(Render* ctx) { context = ctx; };
+		Render* context = nullptr;
 		std::shared_ptr<Crane::MeshBase> mesh = nullptr;
 		Crane::Material *material = nullptr; 
 

@@ -7,12 +7,14 @@
 
 #include "SDL2_IMGUI_BASE.hpp"
 #include "Actor.hpp"
+#include "OCEAN.hpp"
 
 class MINI_GAME : public SDL2_IMGUI_BASE
 {
 private:
-	Crane::PipelinePassGraphics pipelinePassPhong;
-	Crane::MaterialBuilderPhong materialBuilderPhong;
+
+	Crane::OCEAN ocean;
+	std::array<Crane::Actor, 4> oceans;
 
 	Crane::Actor chessboard;
 

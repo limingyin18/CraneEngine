@@ -1,4 +1,4 @@
-# Install script for directory: C:/project/CraneEngine/shaders
+# Install script for directory: C:/Project/CraneEngine/shaders
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/project/CraneEngine/shaders/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Project/CraneEngine/shaders/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

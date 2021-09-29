@@ -106,6 +106,5 @@ namespace Crane
 		MeshBase* mesh;
 		Material* material;
 		Eigen::Matrix4f *transformMatrix;
-
 	};
 }

@@ -75,7 +75,7 @@ namespace Crane
 	class PipelinePassCompute : public PipelinePass
 	{
 	public:
-		void buildPipeline(vk::PipelineCache pipelineCache);
+		void buildPipeline(vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
 	};
 
 	class PipelinePassGraphics : public PipelinePass
@@ -90,29 +90,21 @@ namespace Crane
 	class Material
 	{
 	public:
-		std::unordered_map<uint32_t, std::unordered_map<uint32_t, vk::WriteDescriptorSet>> writeDescriptorSets;
+		std::vector<vk::WriteDescriptorSet> writeDescriptorSets;
 		std::vector<vk::DescriptorSet> descriptorSets;
 
 		PipelinePass* pipelinePass = nullptr;
+		void update();
 	};
 
 	class MaterialBuilder
 	{
 	public:
 		vk::DescriptorPool descriptorPool;
-		PipelinePass* pipelinePass;
+		PipelinePass* pipelinePass = nullptr;
+
+		std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::pair<vk::DescriptorBufferInfo*, vk::DescriptorImageInfo*>>> descriptorInfos;
 
 		virtual Material build();
-	};
-
-	class MaterialBuilderPhong : public MaterialBuilder
-	{
-	public:
-		Material build() override;
-
-		vk::DescriptorBufferInfo *sceneParameterBufferDescriptorInfo; // 场景参数
-		vk::DescriptorBufferInfo *modelMatrixBufferDescriptorInfo;	 // 模型位姿
-		vk::DescriptorBufferInfo *descriptorBufferInfoInstanceID;	 // 模型实例
-		vk::DescriptorImageInfo *descriptorImageInfoBlank;			 // 模型纹理
 	};
 }

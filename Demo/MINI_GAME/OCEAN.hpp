@@ -4,64 +4,84 @@
 #include <string>
 #include <fstream>
 
-#include "SDL2_IMGUI_BASE.hpp"
+#include "Engine.hpp"
 
 #include "OceanAmpl.hpp"
 
-class OCEAN : public SDL2_IMGUI_BASE
+namespace Crane
 {
-private:
-	Crane::Plane ocean;
-	Crane::Buffer indexB, indexB1;
-	vk::DescriptorBufferInfo indexBInfo, indexBInfo1;
-	Crane::OceanAmpl oceanAmpl;
+	class OCEAN
+	{
+	public:
+		std::shared_ptr<MeshBase> mesh;
+		Material *material;
+	private:
+		// render
 
-	Crane::PipelinePass amplPipelinePass;
-	Crane::Material materialAmpl;
-	Crane::Buffer ampl, normalX, normalZ, dx, dz, h_tlide_0, h_tlide_0_conj;
-	vk::DescriptorBufferInfo amplInfo, normalXInfo, normalZInfo, dxInfo, dzInfo, h_tlide_0Info, h_tlide_0_conjInfo;
-	Crane::Buffer NB, MB, Lx, Lz, t;
-	vk::DescriptorBufferInfo NBInfo, MBInfo, LxInfo, LzInfo, tInfo;
+		Render* context = nullptr;
+		Crane::PipelinePassGraphics pipelinePass;
+		MaterialBuilder materialBuilder;
+		Crane::Buffer lambda;
 
-	Crane::PipelinePass iff2PipelinePass;
-	Crane::Material materialIff2Ampl, materialIff2NormalX, materialIff2NormalZ, materialIff2Dx, materialIff2Dz;
+		void createRender();
 
-	Crane::PipelinePass pipelinePassSign;
-	Crane::Material materialSignAmpl, materialSignNormalX, materialSignNormalZ, materialSignDx, materialSignDz;
+		// ampl
 
-	vk::UniqueCommandPool computeCommandPool;
-	std::vector<vk::UniqueCommandBuffer> computeCommandBuffers;
-	vk::SubmitInfo computeSubmitInfo;
-	void createOceanSSBO(Crane::Buffer& buff, vk::DescriptorBufferInfo& info, uint32_t binding);
-	void createOceanUniform(Crane::Buffer& buff, vk::DescriptorBufferInfo& info, uint32_t binding);
-	void bindIff2SSBO(Crane::Material &material, vk::DescriptorBufferInfo& info);
+		Crane::OceanAmpl oceanAmpl;
+		Crane::PipelinePassCompute amplPipelinePass;
+		Crane::MaterialBuilder materialBuilderAmpl;
+		Crane::Material materialAmpl;
+		Crane::Buffer h_tlide_0, h_tlide_0_conj;
+		Crane::Buffer NB, MB, Lx, Lz, t;
 
-
-	Crane::PipelinePass pipelinePassOcean;
-	Crane::Material materialOcean, materialOcean1;
-	Crane::Buffer lambda;
-	vk::DescriptorBufferInfo lambdaInfo;
-
-	Crane::Plane floorEnv{2, 2};
-	Eigen::Vector3f model0{0.f, 0.f, 0.f};
-	Crane::MaterialPhong materialPhong;
-
-	Crane::Cube cube{ 2 };
-
-	Crane::Image textureImage;
-	vk::UniqueImageView textureImageView;
+		vk::UniqueBuffer bufferAmpl, bufferNormalX, bufferNormalZ, bufferDx, bufferDz;
+		vk::UniqueImage imageAmpl, imageNormalX, imageNormalZ, imageDx, imageDz;
+		vk::UniqueImageView imageViewAmpl, imageViewNormalX, imageViewNormalZ, imageViewDx, imageViewDz;
+		vk::UniqueDeviceMemory deviceMeomoryAmpl, deviceMeomoryNormalX, deviceMeomoryNormalZ, deviceMeomoryDx, deviceMeomoryDz;
+		vk::DescriptorBufferInfo descriptorBufferInfoAmpl, descriptorBufferInfoNormalX, descriptorBufferInfoNormalZ, descriptorBufferInfoDx, descriptorBufferInfoDz;
+		vk::DescriptorImageInfo descriptorImageInfoAmpl, descriptorImageInfoNormalX, descriptorImageInfoNormalZ, descriptorImageInfoDx, descriptorImageInfoDz;
+		void createBufferOcean(vk::UniqueBuffer &buffer, vk::UniqueImage &image, vk::UniqueImageView &imageView, vk::UniqueDeviceMemory &deviceMemory, 
+			vk::DescriptorBufferInfo &descriptorBufferInfo, vk::DescriptorImageInfo &descriptorImageInfo);
 
 
-	void createAssetApp() override;
-	void updateApp() override;
+		void createAmpl();
 
-	void setImgui() override;
+		// ifft2
 
-public:
-	explicit OCEAN(std::shared_ptr<SDL_Window> win);
-	~OCEAN();
-	OCEAN(const OCEAN &rhs) = delete;
-	OCEAN(OCEAN &&rhs) = delete;
-	OCEAN &operator=(const OCEAN &rhs) = delete;
-	OCEAN &operator=(OCEAN &&rhs) = delete;
-};
+		Crane::PipelinePassCompute iff2PipelinePass;
+		Crane::MaterialBuilder materialBuilderIfft2;
+		Crane::Material materialIff2Ampl, materialIff2NormalX, materialIff2NormalZ, materialIff2Dx, materialIff2Dz;
+
+		void createIfft2();
+
+		// sign
+
+		Crane::PipelinePassCompute pipelinePassSign;
+		Crane::MaterialBuilder materialBuilderSign;
+		Crane::Material materialSignAmpl, materialSignNormalX, materialSignNormalZ, materialSignDx, materialSignDz;
+
+		void createSign();
+
+
+		// command
+		vk::UniqueCommandPool computeCommandPool;
+		std::vector<vk::UniqueCommandBuffer> computeCommandBuffers;
+		vk::SubmitInfo computeSubmitInfo;
+
+		vk::Queue computeQueue;
+
+		void createCommand();
+
+
+	public:
+		explicit OCEAN();
+		~OCEAN() = default;
+		OCEAN(const OCEAN& rhs) = delete;
+		OCEAN(OCEAN&& rhs) = delete;
+		OCEAN& operator=(const OCEAN& rhs) = delete;
+		OCEAN& operator=(OCEAN&& rhs) = delete;
+
+		void init(Crane::Render* ctx);
+		void update(float dtAll);
+	};
+}

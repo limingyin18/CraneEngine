@@ -13,6 +13,7 @@ void MINI_GAME::createChessboard()
 	loadMeshs[name]->setVertices([](uint32_t, Vertex& v) {v.position *= 100; });
 	chessboard.mesh = loadMeshs[name];
 
+	materialBuilderPhong.descriptorInfos[1][0].second = &descriptorImageInfoBlank;
 	materials[name] = materialBuilderPhong.build();
 	chessboard.material = &materials[name];
 
@@ -29,8 +30,8 @@ void MINI_GAME::createCloak()
 	loadMeshs[name] = make_shared<Crane::Plane>(11, 11);
 	cloak.mesh = loadMeshs[name];
 
+	materialBuilderPhong.descriptorInfos[1][0].second = &descriptorImageInfoLilac;
 	materials[name] = materialBuilderPhong.build();
-	materials[name].writeDescriptorSets[1][0].pImageInfo = &descriptorImageInfoLilac;			 // Ä£ÐÍÎÆÀí
 	cloak.material = &materials[name];
 
 	cloak.setPosition(modelCloak);
@@ -65,6 +66,7 @@ void MINI_GAME::createDragon()
 
 	if (materials.find(name) == materials.end())
 	{
+		materialBuilderPhong.descriptorInfos[1][0].second = &descriptorImageInfoBlank;
 		materials[name] =  materialBuilderPhong.build();
 	}
 	dragon.material = &materials[name];
@@ -99,6 +101,7 @@ void MINI_GAME::createSoldiers()
 
 	if (materials.find(name) == materials.end())
 	{
+		materialBuilderPhong.descriptorInfos[1][0].second = &descriptorImageInfoBlank;
 		materials[name] = materialBuilderPhong.build();
 	}
 

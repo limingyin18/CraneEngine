@@ -195,21 +195,18 @@ Material Crane::MaterialBuilder::build()
 				.dstSet = m.descriptorSets[i],
 				.dstBinding = b.binding,
 				.descriptorCount = b.descriptorCount,
-				.descriptorType = b.descriptorType};
-			m.writeDescriptorSets[i][j] = writeDescriptorSet;
+				.descriptorType = b.descriptorType,
+				.pImageInfo = descriptorInfos[i][j].second,
+				.pBufferInfo = descriptorInfos[i][j].first};
+			m.writeDescriptorSets.push_back(writeDescriptorSet);
 		}
 	}
 
 	return m;
 }
 
-Material Crane::MaterialBuilderPhong::build()
+void Material::update()
 {
-	Material m = MaterialBuilder::build();
-
-	m.writeDescriptorSets[0][0].pBufferInfo = sceneParameterBufferDescriptorInfo; // 场景参数
-	m.writeDescriptorSets[0][1].pBufferInfo = modelMatrixBufferDescriptorInfo;    // 模型位姿
-	m.writeDescriptorSets[0][2].pBufferInfo = descriptorBufferInfoInstanceID;     // 模型实例
-	m.writeDescriptorSets[1][0].pImageInfo = descriptorImageInfoBlank;			 // 模型纹理
-	return m;
+	pipelinePass->device.updateDescriptorSets(writeDescriptorSets.size(),
+		writeDescriptorSets.data(), 0, nullptr);
 }

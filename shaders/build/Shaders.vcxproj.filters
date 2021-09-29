@@ -1,56 +1,59 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CustomBuild Include="C:\project\CraneEngine\shaders\build\CMakeFiles\d1a97343177579683b0983fa125d4bbe\ampl.comp.spv.rule">
+    <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\ampl.comp.spv.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="C:\project\CraneEngine\shaders\build\CMakeFiles\d1a97343177579683b0983fa125d4bbe\basic.frag.spv.rule">
+    <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\basic.frag.spv.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="C:\project\CraneEngine\shaders\build\CMakeFiles\d1a97343177579683b0983fa125d4bbe\basic.vert.spv.rule">
+    <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\basic.vert.spv.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="C:\project\CraneEngine\shaders\build\CMakeFiles\d1a97343177579683b0983fa125d4bbe\cull.comp.spv.rule">
+    <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\cull.comp.spv.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="C:\project\CraneEngine\shaders\build\CMakeFiles\d1a97343177579683b0983fa125d4bbe\ifft2.comp.spv.rule">
+    <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\ifft2.comp.spv.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="C:\project\CraneEngine\shaders\build\CMakeFiles\d1a97343177579683b0983fa125d4bbe\ocean.frag.spv.rule">
+    <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\ocean.frag.spv.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="C:\project\CraneEngine\shaders\build\CMakeFiles\d1a97343177579683b0983fa125d4bbe\ocean.vert.spv.rule">
+    <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\ocean.vert.spv.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="C:\project\CraneEngine\shaders\build\CMakeFiles\d1a97343177579683b0983fa125d4bbe\pbr.frag.spv.rule">
+    <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\ocean0.vert.spv.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="C:\project\CraneEngine\shaders\build\CMakeFiles\d1a97343177579683b0983fa125d4bbe\pbr.vert.spv.rule">
+    <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\pbr.frag.spv.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="C:\project\CraneEngine\shaders\build\CMakeFiles\d1a97343177579683b0983fa125d4bbe\phong.frag.spv.rule">
+    <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\pbr.vert.spv.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="C:\project\CraneEngine\shaders\build\CMakeFiles\d1a97343177579683b0983fa125d4bbe\phong.vert.spv.rule">
+    <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\phong.frag.spv.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="C:\project\CraneEngine\shaders\build\CMakeFiles\d1a97343177579683b0983fa125d4bbe\sign.comp.spv.rule">
+    <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\phong.vert.spv.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="C:\project\CraneEngine\shaders\build\CMakeFiles\d1a97343177579683b0983fa125d4bbe\yuv420p2rgb.comp.spv.rule">
+    <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\sign.comp.spv.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="C:\project\CraneEngine\shaders\build\CMakeFiles\fd2c6b12372be72577725bd2c9a7cb27\Shaders.rule">
+    <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\yuv420p2rgb.comp.spv.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="C:\project\CraneEngine\shaders\CMakeLists.txt" />
+    <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\a68e1fbf4003b09c8cc6ca0d0b2a8523\Shaders.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Project\CraneEngine\shaders\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="C:\project\CraneEngine\shaders\build\CMakeFiles\Shaders" />
+    <None Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\Shaders" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CMake Rules">
-      <UniqueIdentifier>{2C1233C0-F064-3695-8D40-8D5DE780E6AF}</UniqueIdentifier>
+      <UniqueIdentifier>{A1BFF94B-943F-3F7A-901A-D2F68F643516}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -8,6 +8,7 @@
 #include <stack>
 #include <set>
 #include <tuple>
+#include <execution>
 
 #include <vk_mem_alloc.h>
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
@@ -94,6 +95,8 @@ namespace Crane
 
 		virtual void createAssetApp() = 0;
 
+		virtual void initEngine() = 0;
+
 		void validataInstanceExtensions();
 		void validataInstanceLayers();
 
@@ -144,8 +147,10 @@ namespace Crane
 		std::tuple<Image, vk::UniqueImageView> createTextureImage(uint32_t texWidth, uint32_t texHeight,
 			uint32_t texChannels, void* pixels);
 		
+	public:
+		uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
-	protected:
+	public:
 		std::string appName;
 		std::string engineName;
 		uint32_t apiVersion;
@@ -248,6 +253,7 @@ namespace Crane
 		/*cull*/
 
 		PipelinePassCompute pipelinePassCull;
+		MaterialBuilder materialBuilderCull;
 		Material materialCull;
 
 		std::vector<IndirectBatch> draws;
@@ -268,5 +274,8 @@ namespace Crane
 
 		Buffer bufferInstanceID;
 		vk::DescriptorBufferInfo descriptorBufferInfoInstanceID;
+
+		Crane::PipelinePassGraphics pipelinePassPhong;
+		Crane::MaterialBuilder materialBuilderPhong;
 	};
 }

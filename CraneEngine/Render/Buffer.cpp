@@ -17,6 +17,7 @@ Buffer::Buffer(Buffer&& rhs) noexcept
     buffer = rhs.buffer;
     bufferMemory = rhs.bufferMemory;
     size = rhs.size;
+    descriptorBufferInfo = rhs.descriptorBufferInfo;
 
     rhs.vmaAllocator = nullptr;
     rhs.buffer = VK_NULL_HANDLE;
@@ -45,6 +46,10 @@ void Buffer::create(VmaAllocator alloc, VkDeviceSize size, VkBufferUsageFlags us
     if (vmaCreateBuffer(vmaAllocator, &bufferInfo, &vmaAllocCreateInfo, &buffer, &bufferMemory,
         &vmaAllocInfo) != VK_SUCCESS)
         throw std::runtime_error("failed to create vma buffer");
+
+    descriptorBufferInfo.buffer = buffer;
+    descriptorBufferInfo.offset = 0;
+    descriptorBufferInfo.range = size;
 }
 
 void Buffer::update(const void* srcData)
