@@ -39,3 +39,21 @@ std::optional<std::pair<Eigen::Vector3f, float>> CranePhysics::SphereSphereInter
     else
         return nullopt;
 }
+
+std::optional<std::pair<float, float>> CranePhysics::RaySphereIntersect(const Eigen::Vector3f& originRay, const Eigen::Vector3f& direction, const Eigen::Vector3f& originSphere, float radius)
+{
+    Vector3f oc = originRay - originSphere;
+    float a = direction.dot(direction);
+    float b = oc.dot(direction);
+    float c = oc.dot(oc) - radius * radius;
+    float discriminant = b * b - (a * c);
+	if (discriminant > 0.0f)
+	{
+		float tmp = sqrt(discriminant);
+		float t0 = (-b - tmp) / a;
+		float t1 = (-b + tmp) / a;
+        return pair{ t0, t1 };
+	}
+    else
+        return nullopt;
+}

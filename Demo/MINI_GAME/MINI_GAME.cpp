@@ -134,6 +134,9 @@ void MINI_GAME::createAssetApp()
 	SDL2_IMGUI_BASE::createAssetApp();
 
 	//createChessboard();
+	sky.init(this);
+	renderables.emplace_back(sky.mesh.get(), sky.material, &sky.transform);
+	renderables.back().cullFlag = false;
 
 	createCloak();
 
@@ -239,4 +242,15 @@ void MINI_GAME::createAssetApp()
 	}
 	pbd.mConstraints.emplace_back(std::make_shared<ShapeMatchingConstraint>(pbd, indices.size(), indices));
 	*/
+
+	/*
+	// Render a sequence of images (sunrise to sunset)
+	unsigned nangles = 128;
+	for (unsigned i = 0; i < nangles; ++i) {
+		char filename[1024];
+		sprintf(filename, "./skydome.%04d.ppm", i);
+		float angle = i / float(nangles - 1) * numbers::pi * 0.6;
+		fprintf(stderr, "Rendering image %d, angle = %0.2f\n", i, angle * 180 / numbers::pi);
+		renderSkydome(Vector3f(0, cos(angle), -sin(angle)), filename);
+	}*/
 }

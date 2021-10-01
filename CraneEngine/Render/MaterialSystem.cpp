@@ -18,7 +18,7 @@ PipelineBuilder::PipelineBuilder()
 	rs = vk::PipelineRasterizationStateCreateInfo{
 		.polygonMode = vk::PolygonMode::eFill,
 		.cullMode = vk::CullModeFlagBits::eNone,
-		.frontFace = vk::FrontFace::eClockwise,
+		.frontFace = vk::FrontFace::eCounterClockwise,
 		.lineWidth = 1.0f };
 
 	att_state[0].colorWriteMask = vk::ColorComponentFlagBits::eB |

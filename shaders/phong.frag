@@ -1,5 +1,6 @@
 #version 450 core
 
+
 layout (location = 0) in vec3 colorFrag;
 layout (location = 1) in vec2 texFrag;
 layout (location = 2) in vec3 normalFrag;

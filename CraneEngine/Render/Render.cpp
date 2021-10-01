@@ -169,6 +169,7 @@ void Crane::Render::draw()
 			vk::Pipeline pipelineNew = draw.renderable->material->pipelinePass->pipeline.get();
 			vk::PipelineLayout pipelineLayout = draw.renderable->material->pipelinePass->pipelineLayout.get();
 			vk::DescriptorSet* descriptorSetP = draw.renderable->material->descriptorSets.data();
+			uint32_t descriptorSetCount = draw.renderable->material->descriptorSets.size();
 			MeshBase *meshNew = draw.renderable->mesh;
 			if (pipelineNew != pipelineLast)
 			{
@@ -181,7 +182,7 @@ void Crane::Render::draw()
 			}
 
 			vector<uint32_t> offsets{ sceneParametersUniformOffset * currBuffIndex };
-			commandBuffer[currBuffIndex]->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, 0, 2, descriptorSetP, offsets.size(), offsets.data());
+			commandBuffer[currBuffIndex]->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, 0, descriptorSetCount, descriptorSetP, offsets.size(), offsets.data());
 			VkDeviceSize offsetIndirect = i * sizeof(vk::DrawIndexedIndirectCommand);
 			commandBuffer[currBuffIndex]->drawIndexedIndirect(bufferIndirect.buffer, offsetIndirect, 1, sizeof(vk::DrawIndexedIndirectCommand));
 		}
@@ -778,7 +779,9 @@ void Render::createSceneParametersUniformBuffer()
 	sceneParameters.fogColor = { 0.2f, 0.2f, 0.2f, 1.0f };
 	sceneParameters.fogDistances = { 0.2f, 0.2f, 0.2f, 1.0f };
 	sceneParameters.sunlightColor = { 0.9f, 0.9f, 0.9f, 1.0f };
-	sceneParameters.sunlightDirection = { -0.25f, -1.0f, -0.25f, 1.0f };
+	Eigen::Vector3f sunDirection = {0.f, -0.8f, 0.5f };
+	sunDirection.normalize();
+	sceneParameters.sunlightDirection = { sunDirection.x(), sunDirection.y(), sunDirection.z(), 1.0f };
 
 	vector<SceneParameters> sceneParametersData(swapchainImages.size(), sceneParameters);
 	sceneParametersUniformOffset = padUniformBufferSize(sizeof(SceneParameters), physicalDevice.getProperties());
@@ -1006,96 +1009,6 @@ void Crane::Render::updateSceneParameters()
 	memcpy(static_cast<uint8_t*>(allocInfo.pMappedData) +
 		(sceneParametersUniformOffset * currBuffIndex),
 		&sceneParameters, sizeof(SceneParameters));
-}
-
-void Crane::Render::updateCullData()
-{
-	drawCullData.view = camera.view;//get_view_matrix();
-
-	bufferDrawCullData.update(&drawCullData);
-}
-
-void Crane::Render::compactDraws()
-{
-	IndirectBatch firstDraw;
-	firstDraw.renderable = &renderables[0];
-	firstDraw.first = 0;
-	firstDraw.count = 1;
-
-	draws.push_back(firstDraw);
-	drawsFlat.resize(renderables.size());
-
-	for (int i = 1; i < renderables.size(); i++)
-	{
-		//compare the mesh and material with the end of the vector of draws
-		bool sameMesh = renderables[i].mesh == draws.back().renderable->mesh;
-		bool sameMaterial = renderables[i].material == draws.back().renderable->material;
-
-		if (sameMesh && sameMaterial)
-		{
-			//all matches, add count
-			draws.back().count++;
-		}
-		else
-		{
-			//add new draw
-			IndirectBatch newDraw;
-			newDraw.renderable = &renderables[i];
-			newDraw.first = i;
-			newDraw.count = 1;
-
-			draws.push_back(newDraw);
-		}
-		drawsFlat[i].batchID = draws.size() - 1;
-		drawsFlat[i].objectID = i;
-	}
-
-	bufferDrawsFlat.create(*vmaAllocator, sizeof(FlatBatch) * drawsFlat.size(),
-		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-	bufferDrawsFlat.update(drawsFlat.data());
-	descriptorBufferDrawsFlat.buffer = bufferDrawsFlat.buffer;
-	descriptorBufferDrawsFlat.range = bufferDrawsFlat.size;
-
-	cullObjCandidates.resize(renderables.size());
-	for (auto& d : draws)
-	{
-		Vector4f spherebound = renderables[d.first].SphereBound();
-		for (uint32_t i = d.first; i < d.count; ++i)
-		{
-			cullObjCandidates[i].model = *renderables[i].transformMatrix;
-			cullObjCandidates[i].spherebound = spherebound;
-		}
-	}
-	bufferCullObjCandidate.create(*vmaAllocator, sizeof(ObjectData) * cullObjCandidates.size(),
-		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-	bufferCullObjCandidate.update(cullObjCandidates.data());
-	descriptorBufferInfoCullObjCandidate.buffer = bufferCullObjCandidate.buffer;
-	descriptorBufferInfoCullObjCandidate.range = bufferCullObjCandidate.size;
-
-
-	drawCullData.view = camera.view;
-	drawCullData.fov = camera.fov;
-	drawCullData.aspect = camera.aspect;
-	drawCullData.znear = camera.near_;
-	drawCullData.zfar = camera.far_;
-	drawCullData.drawCount = static_cast<uint32_t>(renderables.size());
-
-	bufferDrawCullData.create(*vmaAllocator, sizeof(DrawCullData),
-		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-	bufferDrawCullData.update(&drawCullData);
-	descriptorBufferInfoCullData.buffer = bufferDrawCullData.buffer;
-	descriptorBufferInfoCullData.range = bufferDrawCullData.size;
-
-	bufferInstanceID.create(*vmaAllocator, sizeof(uint32_t)*renderables.size(),
-		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-	vector<uint32_t> instaces(renderables.size());
-	for (uint32_t i = 0; i < renderables.size(); ++i)
-	{
-		instaces[i] = i;
-	}
-	bufferInstanceID.update(instaces.data());
-	descriptorBufferInfoInstanceID.buffer = bufferInstanceID.buffer;
-	descriptorBufferInfoInstanceID.range = bufferInstanceID.size;
 }
 
 vk::CommandBuffer Render::beginSingleTimeCommands()

@@ -40,6 +40,12 @@
     <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\sign.comp.spv.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
+    <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\sky.frag.spv.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\sky.vert.spv.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
     <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\yuv420p2rgb.comp.spv.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>

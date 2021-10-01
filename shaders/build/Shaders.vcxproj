@@ -833,6 +833,118 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\sky.frag.spv.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating ../spv/sky.frag.spv</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+C:\VulkanSDK\1.2.189.2\Bin\glslangValidator.exe -V C:/Project/CraneEngine/shaders/sky.frag -o C:/Project/CraneEngine/shaders/spv/sky.frag.spv
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Project\CraneEngine\shaders\sky.frag;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Project\CraneEngine\shaders\spv\sky.frag.spv</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating ../spv/sky.frag.spv</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+C:\VulkanSDK\1.2.189.2\Bin\glslangValidator.exe -V C:/Project/CraneEngine/shaders/sky.frag -o C:/Project/CraneEngine/shaders/spv/sky.frag.spv
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Project\CraneEngine\shaders\sky.frag;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Project\CraneEngine\shaders\spv\sky.frag.spv</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Generating ../spv/sky.frag.spv</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+C:\VulkanSDK\1.2.189.2\Bin\glslangValidator.exe -V C:/Project/CraneEngine/shaders/sky.frag -o C:/Project/CraneEngine/shaders/spv/sky.frag.spv
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Project\CraneEngine\shaders\sky.frag;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Project\CraneEngine\shaders\spv\sky.frag.spv</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Generating ../spv/sky.frag.spv</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+C:\VulkanSDK\1.2.189.2\Bin\glslangValidator.exe -V C:/Project/CraneEngine/shaders/sky.frag -o C:/Project/CraneEngine/shaders/spv/sky.frag.spv
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Project\CraneEngine\shaders\sky.frag;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Project\CraneEngine\shaders\spv\sky.frag.spv</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\sky.vert.spv.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating ../spv/sky.vert.spv</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+C:\VulkanSDK\1.2.189.2\Bin\glslangValidator.exe -V C:/Project/CraneEngine/shaders/sky.vert -o C:/Project/CraneEngine/shaders/spv/sky.vert.spv
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Project\CraneEngine\shaders\sky.vert;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Project\CraneEngine\shaders\spv\sky.vert.spv</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating ../spv/sky.vert.spv</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+C:\VulkanSDK\1.2.189.2\Bin\glslangValidator.exe -V C:/Project/CraneEngine/shaders/sky.vert -o C:/Project/CraneEngine/shaders/spv/sky.vert.spv
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Project\CraneEngine\shaders\sky.vert;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Project\CraneEngine\shaders\spv\sky.vert.spv</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Generating ../spv/sky.vert.spv</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+C:\VulkanSDK\1.2.189.2\Bin\glslangValidator.exe -V C:/Project/CraneEngine/shaders/sky.vert -o C:/Project/CraneEngine/shaders/spv/sky.vert.spv
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Project\CraneEngine\shaders\sky.vert;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Project\CraneEngine\shaders\spv\sky.vert.spv</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Generating ../spv/sky.vert.spv</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+C:\VulkanSDK\1.2.189.2\Bin\glslangValidator.exe -V C:/Project/CraneEngine/shaders/sky.vert -o C:/Project/CraneEngine/shaders/spv/sky.vert.spv
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Project\CraneEngine\shaders\sky.vert;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Project\CraneEngine\shaders\spv\sky.vert.spv</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
     <CustomBuild Include="C:\Project\CraneEngine\shaders\build\CMakeFiles\0fe899d314c1ed023aeeb0f401389190\yuv420p2rgb.comp.spv.rule">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating ../spv/yuv420p2rgb.comp.spv</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
@@ -898,7 +1010,7 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Project\CraneEngine\shaders\spv\basic.frag.spv;C:\Project\CraneEngine\shaders\spv\basic.vert.spv;C:\Project\CraneEngine\shaders\spv\cull.comp.spv;C:\Project\CraneEngine\shaders\spv\ampl.comp.spv;C:\Project\CraneEngine\shaders\spv\ifft2.comp.spv;C:\Project\CraneEngine\shaders\spv\ocean.frag.spv;C:\Project\CraneEngine\shaders\spv\ocean.vert.spv;C:\Project\CraneEngine\shaders\spv\ocean0.vert.spv;C:\Project\CraneEngine\shaders\spv\sign.comp.spv;C:\Project\CraneEngine\shaders\spv\pbr.frag.spv;C:\Project\CraneEngine\shaders\spv\pbr.vert.spv;C:\Project\CraneEngine\shaders\spv\phong.frag.spv;C:\Project\CraneEngine\shaders\spv\phong.vert.spv;C:\Project\CraneEngine\shaders\spv\yuv420p2rgb.comp.spv;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Project\CraneEngine\shaders\spv\basic.frag.spv;C:\Project\CraneEngine\shaders\spv\basic.vert.spv;C:\Project\CraneEngine\shaders\spv\cull.comp.spv;C:\Project\CraneEngine\shaders\spv\ampl.comp.spv;C:\Project\CraneEngine\shaders\spv\ifft2.comp.spv;C:\Project\CraneEngine\shaders\spv\ocean.frag.spv;C:\Project\CraneEngine\shaders\spv\ocean.vert.spv;C:\Project\CraneEngine\shaders\spv\ocean0.vert.spv;C:\Project\CraneEngine\shaders\spv\sign.comp.spv;C:\Project\CraneEngine\shaders\spv\pbr.frag.spv;C:\Project\CraneEngine\shaders\spv\pbr.vert.spv;C:\Project\CraneEngine\shaders\spv\phong.frag.spv;C:\Project\CraneEngine\shaders\spv\phong.vert.spv;C:\Project\CraneEngine\shaders\spv\sky.frag.spv;C:\Project\CraneEngine\shaders\spv\sky.vert.spv;C:\Project\CraneEngine\shaders\spv\yuv420p2rgb.comp.spv;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Project\CraneEngine\shaders\build\CMakeFiles\Shaders</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
       <VerifyInputsAndOutputsExist Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</VerifyInputsAndOutputsExist>
@@ -910,7 +1022,7 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Project\CraneEngine\shaders\spv\basic.frag.spv;C:\Project\CraneEngine\shaders\spv\basic.vert.spv;C:\Project\CraneEngine\shaders\spv\cull.comp.spv;C:\Project\CraneEngine\shaders\spv\ampl.comp.spv;C:\Project\CraneEngine\shaders\spv\ifft2.comp.spv;C:\Project\CraneEngine\shaders\spv\ocean.frag.spv;C:\Project\CraneEngine\shaders\spv\ocean.vert.spv;C:\Project\CraneEngine\shaders\spv\ocean0.vert.spv;C:\Project\CraneEngine\shaders\spv\sign.comp.spv;C:\Project\CraneEngine\shaders\spv\pbr.frag.spv;C:\Project\CraneEngine\shaders\spv\pbr.vert.spv;C:\Project\CraneEngine\shaders\spv\phong.frag.spv;C:\Project\CraneEngine\shaders\spv\phong.vert.spv;C:\Project\CraneEngine\shaders\spv\yuv420p2rgb.comp.spv;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Project\CraneEngine\shaders\spv\basic.frag.spv;C:\Project\CraneEngine\shaders\spv\basic.vert.spv;C:\Project\CraneEngine\shaders\spv\cull.comp.spv;C:\Project\CraneEngine\shaders\spv\ampl.comp.spv;C:\Project\CraneEngine\shaders\spv\ifft2.comp.spv;C:\Project\CraneEngine\shaders\spv\ocean.frag.spv;C:\Project\CraneEngine\shaders\spv\ocean.vert.spv;C:\Project\CraneEngine\shaders\spv\ocean0.vert.spv;C:\Project\CraneEngine\shaders\spv\sign.comp.spv;C:\Project\CraneEngine\shaders\spv\pbr.frag.spv;C:\Project\CraneEngine\shaders\spv\pbr.vert.spv;C:\Project\CraneEngine\shaders\spv\phong.frag.spv;C:\Project\CraneEngine\shaders\spv\phong.vert.spv;C:\Project\CraneEngine\shaders\spv\sky.frag.spv;C:\Project\CraneEngine\shaders\spv\sky.vert.spv;C:\Project\CraneEngine\shaders\spv\yuv420p2rgb.comp.spv;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Project\CraneEngine\shaders\build\CMakeFiles\Shaders</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
       <VerifyInputsAndOutputsExist Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</VerifyInputsAndOutputsExist>
@@ -922,7 +1034,7 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Project\CraneEngine\shaders\spv\basic.frag.spv;C:\Project\CraneEngine\shaders\spv\basic.vert.spv;C:\Project\CraneEngine\shaders\spv\cull.comp.spv;C:\Project\CraneEngine\shaders\spv\ampl.comp.spv;C:\Project\CraneEngine\shaders\spv\ifft2.comp.spv;C:\Project\CraneEngine\shaders\spv\ocean.frag.spv;C:\Project\CraneEngine\shaders\spv\ocean.vert.spv;C:\Project\CraneEngine\shaders\spv\ocean0.vert.spv;C:\Project\CraneEngine\shaders\spv\sign.comp.spv;C:\Project\CraneEngine\shaders\spv\pbr.frag.spv;C:\Project\CraneEngine\shaders\spv\pbr.vert.spv;C:\Project\CraneEngine\shaders\spv\phong.frag.spv;C:\Project\CraneEngine\shaders\spv\phong.vert.spv;C:\Project\CraneEngine\shaders\spv\yuv420p2rgb.comp.spv;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Project\CraneEngine\shaders\spv\basic.frag.spv;C:\Project\CraneEngine\shaders\spv\basic.vert.spv;C:\Project\CraneEngine\shaders\spv\cull.comp.spv;C:\Project\CraneEngine\shaders\spv\ampl.comp.spv;C:\Project\CraneEngine\shaders\spv\ifft2.comp.spv;C:\Project\CraneEngine\shaders\spv\ocean.frag.spv;C:\Project\CraneEngine\shaders\spv\ocean.vert.spv;C:\Project\CraneEngine\shaders\spv\ocean0.vert.spv;C:\Project\CraneEngine\shaders\spv\sign.comp.spv;C:\Project\CraneEngine\shaders\spv\pbr.frag.spv;C:\Project\CraneEngine\shaders\spv\pbr.vert.spv;C:\Project\CraneEngine\shaders\spv\phong.frag.spv;C:\Project\CraneEngine\shaders\spv\phong.vert.spv;C:\Project\CraneEngine\shaders\spv\sky.frag.spv;C:\Project\CraneEngine\shaders\spv\sky.vert.spv;C:\Project\CraneEngine\shaders\spv\yuv420p2rgb.comp.spv;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Project\CraneEngine\shaders\build\CMakeFiles\Shaders</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
       <VerifyInputsAndOutputsExist Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</VerifyInputsAndOutputsExist>
@@ -934,7 +1046,7 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Project\CraneEngine\shaders\spv\basic.frag.spv;C:\Project\CraneEngine\shaders\spv\basic.vert.spv;C:\Project\CraneEngine\shaders\spv\cull.comp.spv;C:\Project\CraneEngine\shaders\spv\ampl.comp.spv;C:\Project\CraneEngine\shaders\spv\ifft2.comp.spv;C:\Project\CraneEngine\shaders\spv\ocean.frag.spv;C:\Project\CraneEngine\shaders\spv\ocean.vert.spv;C:\Project\CraneEngine\shaders\spv\ocean0.vert.spv;C:\Project\CraneEngine\shaders\spv\sign.comp.spv;C:\Project\CraneEngine\shaders\spv\pbr.frag.spv;C:\Project\CraneEngine\shaders\spv\pbr.vert.spv;C:\Project\CraneEngine\shaders\spv\phong.frag.spv;C:\Project\CraneEngine\shaders\spv\phong.vert.spv;C:\Project\CraneEngine\shaders\spv\yuv420p2rgb.comp.spv;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Project\CraneEngine\shaders\spv\basic.frag.spv;C:\Project\CraneEngine\shaders\spv\basic.vert.spv;C:\Project\CraneEngine\shaders\spv\cull.comp.spv;C:\Project\CraneEngine\shaders\spv\ampl.comp.spv;C:\Project\CraneEngine\shaders\spv\ifft2.comp.spv;C:\Project\CraneEngine\shaders\spv\ocean.frag.spv;C:\Project\CraneEngine\shaders\spv\ocean.vert.spv;C:\Project\CraneEngine\shaders\spv\ocean0.vert.spv;C:\Project\CraneEngine\shaders\spv\sign.comp.spv;C:\Project\CraneEngine\shaders\spv\pbr.frag.spv;C:\Project\CraneEngine\shaders\spv\pbr.vert.spv;C:\Project\CraneEngine\shaders\spv\phong.frag.spv;C:\Project\CraneEngine\shaders\spv\phong.vert.spv;C:\Project\CraneEngine\shaders\spv\sky.frag.spv;C:\Project\CraneEngine\shaders\spv\sky.vert.spv;C:\Project\CraneEngine\shaders\spv\yuv420p2rgb.comp.spv;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Project\CraneEngine\shaders\build\CMakeFiles\Shaders</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
       <VerifyInputsAndOutputsExist Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</VerifyInputsAndOutputsExist>

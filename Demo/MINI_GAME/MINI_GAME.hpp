@@ -8,6 +8,8 @@
 #include "SDL2_IMGUI_BASE.hpp"
 #include "Actor.hpp"
 #include "OCEAN.hpp"
+#include "Atmosphere.hpp"
+#include "Sky.hpp"
 
 class MINI_GAME : public SDL2_IMGUI_BASE
 {
@@ -21,6 +23,8 @@ private:
 	Crane::Actor cloak;
 
 	Crane::Actor dragon;
+
+	Crane::Sky sky;
 
 	const uint32_t soldierCount = 10;
 	std::vector<Crane::Actor> soldiers;

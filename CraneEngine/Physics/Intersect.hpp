@@ -32,4 +32,15 @@ namespace CranePhysics
      */
     std::optional<std::pair<Eigen::Vector3f, float>> SphereSphereIntersect(
         Eigen::Vector3f c1, float r1, Eigen::Vector3f c2, float r2);
+
+    /**
+     * @brief 射线与球体相交测试
+     * @param originRay 射线起点
+     * @param direction 射线方向
+     * @param originSphere 球体中心
+     * @param radius 球体半径
+     * @return 相交点位置参数
+    */
+    std::optional<std::pair<float, float >> RaySphereIntersect(const Eigen::Vector3f& originRay, const Eigen::Vector3f& direction,
+        const Eigen::Vector3f& originSphere, float radius);
 }
