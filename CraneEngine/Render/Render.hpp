@@ -8,6 +8,7 @@
 #include <stack>
 #include <set>
 #include <tuple>
+#include <algorithm>
 #include <execution>
 
 #include <vk_mem_alloc.h>
@@ -235,5 +236,7 @@ namespace Crane
 
 		Crane::PipelinePassGraphics pipelinePassPhong;
 		Crane::MaterialBuilder materialBuilderPhong;
+
+		Crane::PipelinePassGraphics pipelinePassLinePhong;
 	};
 }

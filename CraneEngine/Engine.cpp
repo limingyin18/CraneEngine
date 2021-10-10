@@ -50,6 +50,24 @@ void Crane::Engine::initEngine()
 
 		pipelinePassPhong.buildPipelineLayout();
 		pipelinePassPhong.buildPipeline(pipelineBuilder);
+
+		// line
+		pipelineBuilder.rs.polygonMode = vk::PolygonMode::eLine;
+
+		pipelinePassLinePhong.device = device.get();
+
+		pipelinePassLinePhong.renderPass = renderPass.get();
+
+		pipelinePassLinePhong.addShader(vertShaderCode, vk::ShaderStageFlagBits::eVertex);
+		pipelinePassLinePhong.addShader(fragShaderCode, vk::ShaderStageFlagBits::eFragment);
+		pipelinePassLinePhong.bindings[0][0].descriptorType = vk::DescriptorType::eUniformBufferDynamic;
+
+		pipelinePassLinePhong.buildDescriptorSetLayout();
+
+		pipelinePassLinePhong.buildPipelineLayout();
+		pipelinePassLinePhong.buildPipeline(pipelineBuilder);
+
+		pipelineBuilder.rs.polygonMode = vk::PolygonMode::eFill;
 	}
 
 	LOGI("创建冯氏着色材质构建工厂")

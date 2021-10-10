@@ -77,6 +77,19 @@ namespace CranePhysics
         std::vector<float> ds;
     };
 
+    class CollisionConstraint : public Constraint
+    {
+    public:
+        Rigidbody& rb1;
+        Rigidbody& rb2;
+        Eigen::Vector3f contactNormal;
+        float penetration;
+
+        CollisionConstraint(Rigidbody& rb1, Rigidbody& rb2, Eigen::Vector3f cN, float pt);
+
+        void solveVelocity() override;
+    };
+
     class ParticleRigidbodyCollisionConstraint : public Constraint
     {
     public:
@@ -90,16 +103,13 @@ namespace CranePhysics
         float penetration;
     };
 
-    class ParticleCubeCollisionConstraint : public Constraint
+    class ParticleCubeCollisionConstraint : public CollisionConstraint
     {
     public:
         ParticleCubeCollisionConstraint(Particle &p, Cube &rb, Eigen::Vector3f cN, float pt);
         void solveConstraint() override;
-        void solveVelocity() override;
 
         Particle &particle;
         Cube &cube;
-        Eigen::Vector3f contactNormal;
-        float penetration;
     };
 }

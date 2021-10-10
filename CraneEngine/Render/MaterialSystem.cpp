@@ -17,6 +17,7 @@ PipelineBuilder::PipelineBuilder()
 
 	rs = vk::PipelineRasterizationStateCreateInfo{
 		.polygonMode = vk::PolygonMode::eFill,
+		//.polygonMode = vk::PolygonMode::eLine,
 		.cullMode = vk::CullModeFlagBits::eNone,
 		.frontFace = vk::FrontFace::eCounterClockwise,
 		.lineWidth = 1.0f };

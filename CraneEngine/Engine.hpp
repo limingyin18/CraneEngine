@@ -9,6 +9,8 @@
 #include "Utils.hpp"
 #include "Physics/PositionBasedDynamics.hpp"
 #include "Physics/Constraint.hpp"
+#include "Physics/Voxelize.hpp"
+#include "Physics/BVH.hpp"
 
 #include "asset_loader.h"
 #include "texture_asset.h"

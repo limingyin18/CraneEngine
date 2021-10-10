@@ -23,7 +23,32 @@ optional<pair<Vector3f, float>> CranePhysics::SphereCubeIntersect(
     // 长方体到圆心的最短矢量
     Vector3f u = p - q;
 
-    if (u.squaredNorm() <= r * r)
+    float l = u.squaredNorm();
+
+    // 球心在长方体里
+    if (l == 0)
+    {
+        uint32_t indexMin, indexMax;
+        float minMin = (p1 - bmin).minCoeff(&indexMin);
+        float minMax = (bmax- p1).minCoeff(&indexMax);
+
+        if (minMin < minMax) //靠近左下前面
+        {
+            u[indexMin] = 1.0f;
+            Quaternionf uQ = t.inverse() * Quaternionf(0, u.x(), u.y(), u.z()) * t;
+            Vector3f u1{ uQ.x(), uQ.y(), uQ.z() };
+            return pair{u1, r + minMin};
+
+        }
+        else //靠近右上后面
+        {
+            u[indexMax] = 1.0f;
+            Quaternionf uQ = t.inverse() * Quaternionf(0, u.x(), u.y(), u.z()) * t;
+            Vector3f u1{ uQ.x(), uQ.y(), uQ.z() };
+            return pair{u1, r + minMax};
+        }
+    }
+    if (l < r * r)
         return pair{u, r - u.norm()};
     else
         return nullopt;

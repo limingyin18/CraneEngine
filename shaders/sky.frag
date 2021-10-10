@@ -30,6 +30,7 @@ layout(set = 0, binding = 0) uniform  SceneData{
 #define u_time iTime
 
 vec3 sunDir = -sceneData.sunlightDirection.xyz;
+
 float sunPower = 20.;
 const float earthRadius = 6360e3;
 const float atmosphereRadius = 6420e3;
@@ -190,6 +191,8 @@ vec3 getIncidentLight(const in ray r)
 
 void main()
 {
+    sunDir.z = -sunDir.z;
+
     vec2 p = (2.*texFrag-1.);
 
     vec3 color = vec3(0.);

@@ -779,7 +779,7 @@ void Render::createSceneParametersUniformBuffer()
 	sceneParameters.fogColor = { 0.2f, 0.2f, 0.2f, 1.0f };
 	sceneParameters.fogDistances = { 0.2f, 0.2f, 0.2f, 1.0f };
 	sceneParameters.sunlightColor = { 0.9f, 0.9f, 0.9f, 1.0f };
-	Eigen::Vector3f sunDirection = {0.f, -0.8f, 0.5f };
+	Eigen::Vector3f sunDirection = {0.f, -1.f, -0.5f };
 	sunDirection.normalize();
 	sceneParameters.sunlightDirection = { sunDirection.x(), sunDirection.y(), sunDirection.z(), 1.0f };
 

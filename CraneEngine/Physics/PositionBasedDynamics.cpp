@@ -16,6 +16,7 @@ PositionBasedDynamics::~PositionBasedDynamics()
 {
 }
 
+
 void PositionBasedDynamics::externalForceIntegral()
 {
     for (auto rb : rigidbodies)

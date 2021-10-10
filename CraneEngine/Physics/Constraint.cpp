@@ -97,7 +97,7 @@ void ParticleRigidbodyCollisionConstraint::solveVelocity()
 
 ParticleCubeCollisionConstraint::ParticleCubeCollisionConstraint(
 	Particle &p, Cube &rb, Eigen::Vector3f cN, float pt)
-	: particle{p}, cube{rb}, contactNormal{cN}, penetration{pt}
+	: CollisionConstraint(p, rb, cN, pt), particle{p}, cube{rb}
 {
 }
 void ParticleCubeCollisionConstraint::solveConstraint()
@@ -111,11 +111,6 @@ void ParticleCubeCollisionConstraint::solveConstraint()
 		float penetration = rect.value().second;
 		particle.position += penetration * contactNormal;
 	}
-}
-
-void ParticleCubeCollisionConstraint::solveVelocity()
-{
-	particle.velocity = particle.velocityPrime -(2 * particle.velocityPrime.dot(contactNormal)) * contactNormal;
 }
 
 void jacobiRotate(Matrix3f &A, Matrix3f &R, int p, int q)
@@ -374,4 +369,14 @@ void FollowTheLeaderConstraint::solveConstraint()
 
 		rbs[i+1]->position += 0.5f*(n * (d - ds[i]));
 	}
+}
+
+CranePhysics::CollisionConstraint::CollisionConstraint(Rigidbody& rb1, Rigidbody& rb2, Eigen::Vector3f cN, float pt) :
+	rb1{rb1}, rb2{rb2}, contactNormal{cN}, penetration{pt}
+{
+}
+
+void CranePhysics::CollisionConstraint::solveVelocity()
+{
+	rb1.velocity = rb1.velocityPrime - 0.9f*(2 * rb1.velocityPrime.dot(contactNormal)) * contactNormal;
 }

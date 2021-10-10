@@ -1,34 +1,34 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="C:\project\CraneEngine\asset-baker\asset_main.cpp">
+    <ClCompile Include="C:\Project\CraneEngine\asset-baker\asset_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\project\CraneEngine\assetlib\asset_loader.cpp">
+    <ClCompile Include="C:\Project\CraneEngine\assetlib\asset_loader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\project\CraneEngine\assetlib\material_asset.cpp">
+    <ClCompile Include="C:\Project\CraneEngine\assetlib\material_asset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\project\CraneEngine\assetlib\mesh_asset.cpp">
+    <ClCompile Include="C:\Project\CraneEngine\assetlib\mesh_asset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\project\CraneEngine\assetlib\prefab_asset.cpp">
+    <ClCompile Include="C:\Project\CraneEngine\assetlib\prefab_asset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\project\CraneEngine\assetlib\texture_asset.cpp">
+    <ClCompile Include="C:\Project\CraneEngine\assetlib\texture_asset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="C:\project\CraneEngine\asset-baker\CMakeLists.txt" />
+    <CustomBuild Include="C:\Project\CraneEngine\asset-baker\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="C:\lib\vcpkg\installed\x64-windows\share\nlohmann_json\nlohmann_json.natvis" />
+    <Natvis Include="C:\Library\vcpkg\installed\x64-windows\share\nlohmann_json\nlohmann_json.natvis" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{55BBDF54-426B-32B8-B1F1-A07C62B20B29}</UniqueIdentifier>
+      <UniqueIdentifier>{E087B38A-06A4-348E-91B8-C349F496F675}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -4,6 +4,7 @@
 #include <memory>
 #include "Rigidbody.hpp"
 #include "Collision.hpp"
+#include "BVH.hpp"
 
 namespace CranePhysics
 {
@@ -15,6 +16,8 @@ namespace CranePhysics
         std::vector<std::shared_ptr<Constraint>> constraints;
         std::vector<std::shared_ptr<Rigidbody>> rigidbodies;
         float dt;
+
+        BVH bvh;
 
     public:
         PositionBasedDynamics(/* args */);

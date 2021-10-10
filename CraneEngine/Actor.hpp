@@ -19,5 +19,11 @@ namespace Crane
 
 		void setPosition(Eigen::Vector3f p);
 		void setRotation(Eigen::Vector3f r);
+
+		// aabb
+
+		Eigen::Vector3f extentMin, extentMax;
+
+		void computeAABB();
 	};
 }
