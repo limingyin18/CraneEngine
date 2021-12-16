@@ -28,6 +28,10 @@ int main(int argc, char **argv)
                                       HEIGHT,                  //window height in pixels
                                       window_flags),
                                   SDL_DestroyWindow};
+    if (window == nullptr)
+    {
+        cout << SDL_GetError() << endl;
+    }
 
     try
     {

@@ -1,3 +1,0 @@
-C:/Project/CraneEngine/shaders/build/CMakeFiles/Shaders.dir
-C:/Project/CraneEngine/shaders/build/CMakeFiles/ALL_BUILD.dir
-C:/Project/CraneEngine/shaders/build/CMakeFiles/ZERO_CHECK.dir

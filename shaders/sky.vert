@@ -7,6 +7,12 @@ layout (location = 3) in vec2 tex;
 
 layout (location = 1) out vec2 texFrag;
 
+layout (push_constant) uniform constants
+{
+	vec4 pos;
+	mat4 projView;
+}camera;
+
 void main()
 {
 	gl_Position = vec4(position, 1.0f);
