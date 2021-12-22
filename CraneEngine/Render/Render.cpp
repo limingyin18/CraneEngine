@@ -1,6 +1,6 @@
 ﻿// CraneEngine.cpp : Defines the entry point for the application.
 //
-
+#define TRACY_ENABLE
 #define VMA_IMPLEMENTATION
 #include "Render.hpp"
 
@@ -35,7 +35,8 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 	return VK_FALSE;
 }
 
-Render::Render() : vmaAllocator{ nullptr,[](VmaAllocator* vma) {vmaDestroyAllocator(*vma); } }
+Render::Render() : vmaAllocator{ nullptr,[](VmaAllocator* vma) {vmaDestroyAllocator(*vma); } },
+				   tracyVkCtxPtr{nullptr, [](TracyVkCtx* ctx) {TracyVkDestroy(*ctx); }}
 {
 	appName = "Test";
 	engineName = "Crane Vision";
@@ -57,7 +58,7 @@ Render::Render() : vmaAllocator{ nullptr,[](VmaAllocator* vma) {vmaDestroyAlloca
 	#ifndef NDEBUG
 		"VK_LAYER_KHRONOS_validation",
 	#endif
-		"VK_LAYER_KHRONOS_synchronization2"
+		//"VK_LAYER_KHRONOS_synchronization2"
 	};
 
 	deviceExtensions = {
@@ -68,7 +69,6 @@ Render::Render() : vmaAllocator{ nullptr,[](VmaAllocator* vma) {vmaDestroyAlloca
 		VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
 		VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME,
 		VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,
-		VK_KHR_MAINTENANCE1_EXTENSION_NAME,
 	};
 
 	// set default clear values
@@ -104,6 +104,9 @@ void Render::init()
 
 	initEngine();
 	createAsset();
+
+	tracyVkCtx = TracyVkContext(physicalDevice, device.get(), graphicsQueue, commandBuffer[0].get());
+	tracyVkCtxPtr.reset(&tracyVkCtx);
 
 	LOGI("初始化完成");
 }
@@ -211,8 +214,13 @@ void Render::createLogicalDevice()
 		.fillModeNonSolid = true,
 		.samplerAnisotropy = true,
 		};
+
+	vk::PhysicalDeviceFeatures2 features2;
+	features2.features = features;
+	vk::PhysicalDeviceSynchronization2FeaturesKHR synchronization2Features{.synchronization2=true };
+	features2.pNext = &synchronization2Features;
+	
 	auto supportedFeatures = physicalDevice.getFeatures();
-	auto supportedFeatures2 = physicalDevice.getFeatures2();
 	if (!supportedFeatures.multiDrawIndirect)
 	{
 		LOGE("feature not availabe:");
@@ -261,13 +269,17 @@ void Render::createLogicalDevice()
 
 	// 指定设备创建信息
 
-	vk::DeviceCreateInfo ci{ .queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()),
-	.pQueueCreateInfos = queueCreateInfos.data(),
-	.enabledLayerCount = static_cast<uint32_t>(layers.size()),
-	.ppEnabledLayerNames = layers.data(),
-	.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size()),
-	.ppEnabledExtensionNames = deviceExtensions.data(),
-	.pEnabledFeatures = &features };
+	vk::DeviceCreateInfo ci{
+		.pNext = &features2,
+		.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()),
+		.pQueueCreateInfos = queueCreateInfos.data(),
+		.enabledLayerCount = static_cast<uint32_t>(layers.size()),
+		.ppEnabledLayerNames = layers.data(),
+		.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size()),
+		.ppEnabledExtensionNames = deviceExtensions.data(),
+		.pEnabledFeatures = nullptr,
+	};
+
 
 	device = physicalDevice.createDeviceUnique(ci);
 	VULKAN_HPP_DEFAULT_DISPATCHER.init(device.get());

@@ -1,67 +1,23 @@
 # CMake generation dependency list for this directory.
-C:/Library/vcpkg/installed/x64-windows/share/assimp/assimpConfig-debug.cmake
-C:/Library/vcpkg/installed/x64-windows/share/assimp/assimpConfig-release.cmake
-C:/Library/vcpkg/installed/x64-windows/share/assimp/assimpConfig.cmake
-C:/Library/vcpkg/installed/x64-windows/share/assimp/assimpConfigVersion.cmake
-C:/Library/vcpkg/installed/x64-windows/share/glm/glm-config.cmake
-C:/Library/vcpkg/installed/x64-windows/share/irrlicht/irrlicht-config.cmake
-C:/Library/vcpkg/installed/x64-windows/share/irrlicht/irrlicht-targets-debug.cmake
-C:/Library/vcpkg/installed/x64-windows/share/irrlicht/irrlicht-targets-release.cmake
-C:/Library/vcpkg/installed/x64-windows/share/irrlicht/irrlicht-targets.cmake
-C:/Library/vcpkg/installed/x64-windows/share/kubazip/kubazipConfig.cmake
-C:/Library/vcpkg/installed/x64-windows/share/kubazip/kubazipConfigVersion.cmake
-C:/Library/vcpkg/installed/x64-windows/share/kubazip/kubazipTargets-debug.cmake
-C:/Library/vcpkg/installed/x64-windows/share/kubazip/kubazipTargets-release.cmake
-C:/Library/vcpkg/installed/x64-windows/share/kubazip/kubazipTargets.cmake
-C:/Library/vcpkg/installed/x64-windows/share/lz4/lz4-config-debug.cmake
-C:/Library/vcpkg/installed/x64-windows/share/lz4/lz4-config-release.cmake
-C:/Library/vcpkg/installed/x64-windows/share/lz4/lz4-config.cmake
-C:/Library/vcpkg/installed/x64-windows/share/minizip/minizipConfig.cmake
-C:/Library/vcpkg/installed/x64-windows/share/minizip/minizipConfigVersion.cmake
-C:/Library/vcpkg/installed/x64-windows/share/minizip/minizipTargets-debug.cmake
-C:/Library/vcpkg/installed/x64-windows/share/minizip/minizipTargets-release.cmake
-C:/Library/vcpkg/installed/x64-windows/share/minizip/minizipTargets.cmake
-C:/Library/vcpkg/installed/x64-windows/share/nlohmann_json/nlohmann_jsonConfig.cmake
-C:/Library/vcpkg/installed/x64-windows/share/nlohmann_json/nlohmann_jsonConfigVersion.cmake
-C:/Library/vcpkg/installed/x64-windows/share/nlohmann_json/nlohmann_jsonTargets.cmake
-C:/Library/vcpkg/installed/x64-windows/share/poly2tri/poly2triConfig-debug.cmake
-C:/Library/vcpkg/installed/x64-windows/share/poly2tri/poly2triConfig-release.cmake
-C:/Library/vcpkg/installed/x64-windows/share/poly2tri/poly2triConfig.cmake
-C:/Library/vcpkg/installed/x64-windows/share/polyclipping/polyclippingConfig-debug.cmake
-C:/Library/vcpkg/installed/x64-windows/share/polyclipping/polyclippingConfig-release.cmake
-C:/Library/vcpkg/installed/x64-windows/share/polyclipping/polyclippingConfig.cmake
-C:/Library/vcpkg/installed/x64-windows/share/tinyobjloader/tinyobjloader-config-version.cmake
-C:/Library/vcpkg/installed/x64-windows/share/tinyobjloader/tinyobjloader-config.cmake
-C:/Library/vcpkg/installed/x64-windows/share/tinyobjloader/tinyobjloader-targets-debug.cmake
-C:/Library/vcpkg/installed/x64-windows/share/tinyobjloader/tinyobjloader-targets-release.cmake
-C:/Library/vcpkg/installed/x64-windows/share/tinyobjloader/tinyobjloader-targets.cmake
-C:/Library/vcpkg/installed/x64-windows/share/utf8cpp/utf8cppConfig.cmake
-C:/Library/vcpkg/scripts/buildsystems/vcpkg.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/CMakeCInformation.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/CMakeCXXInformation.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/CMakeCommonLanguageInclude.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/CMakeDependentOption.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/CMakeFindDependencyMacro.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/CMakeGenericSystem.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/CMakeInitializeConfigs.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/CMakeLanguageInformation.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/CMakeRCInformation.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/CMakeSystemSpecificInformation.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/CMakeSystemSpecificInitialize.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/Compiler/CMakeCommonCompilerMacros.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/Compiler/MSVC-C.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/Compiler/MSVC-CXX.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/FindPackageHandleStandardArgs.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/FindPackageMessage.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/FindZLIB.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/Platform/Windows-MSVC-C.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/Platform/Windows-MSVC-CXX.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/Platform/Windows-MSVC.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/Platform/Windows.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/Platform/WindowsPaths.cmake
-C:/Program Files/CMake/share/cmake-3.21/Modules/SelectLibraryConfigurations.cmake
-C:/Project/CraneEngine/asset-baker/CMakeLists.txt
-C:/Project/CraneEngine/asset-baker/build/CMakeFiles/3.21.3/CMakeCCompiler.cmake
-C:/Project/CraneEngine/asset-baker/build/CMakeFiles/3.21.3/CMakeCXXCompiler.cmake
-C:/Project/CraneEngine/asset-baker/build/CMakeFiles/3.21.3/CMakeRCCompiler.cmake
-C:/Project/CraneEngine/asset-baker/build/CMakeFiles/3.21.3/CMakeSystem.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.21/Modules/CMakeCInformation.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.21/Modules/CMakeCXXInformation.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.21/Modules/CMakeCommonLanguageInclude.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.21/Modules/CMakeGenericSystem.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.21/Modules/CMakeInitializeConfigs.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.21/Modules/CMakeLanguageInformation.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.21/Modules/CMakeRCInformation.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.21/Modules/CMakeSystemSpecificInformation.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.21/Modules/CMakeSystemSpecificInitialize.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.21/Modules/Compiler/CMakeCommonCompilerMacros.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.21/Modules/Compiler/MSVC-C.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.21/Modules/Compiler/MSVC-CXX.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.21/Modules/Platform/Windows-MSVC-C.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.21/Modules/Platform/Windows-MSVC-CXX.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.21/Modules/Platform/Windows-MSVC.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.21/Modules/Platform/Windows.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.21/Modules/Platform/WindowsPaths.cmake
+C:/project/CraneEngine/asset-baker/CMakeLists.txt
+C:/project/CraneEngine/asset-baker/build/CMakeFiles/3.21.21080301-MSVC_2/CMakeCCompiler.cmake
+C:/project/CraneEngine/asset-baker/build/CMakeFiles/3.21.21080301-MSVC_2/CMakeCXXCompiler.cmake
+C:/project/CraneEngine/asset-baker/build/CMakeFiles/3.21.21080301-MSVC_2/CMakeRCCompiler.cmake
+C:/project/CraneEngine/asset-baker/build/CMakeFiles/3.21.21080301-MSVC_2/CMakeSystem.cmake

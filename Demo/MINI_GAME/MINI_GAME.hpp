@@ -42,8 +42,8 @@ private:
 	CranePhysics::PositionBasedDynamics pbd;
 
 	void createAssetApp() override;
-	void updateApp() override;
 
+	void updateApp() override;
 	void updateAI();
 	void updatePhysics();
 	void updateGraphics();

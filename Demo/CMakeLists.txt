@@ -16,6 +16,7 @@ target_link_libraries(imgui Vulkan::Vulkan SDL2::SDL2)
 # sdl imgui base
 add_subdirectory(SDL2_BASE)
 add_subdirectory(SDL2_IMGUI_BASE)
+add_subdirectory(OCEAN)
 #add_subdirectory(BASIC)
 #add_subdirectory(CLOTH)
 add_subdirectory(MINI_GAME)

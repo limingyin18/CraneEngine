@@ -10,6 +10,11 @@ void Crane::Render::draw()
 	vk::CommandBufferBeginInfo commandBufferBeginInfo{};
 	commandBuffer[currBuffIndex]->begin(commandBufferBeginInfo);
 
+	if (currBuffIndex == 0)
+	{
+		TracyVkZone(tracyVkCtx, commandBuffer[currBuffIndex].get(), "All Frame");
+	}
+
 	vk::RenderPassBeginInfo rpBeginInfo{
 		.renderPass = renderPass.get(),
 		.framebuffer = framebuffers[currBuffIndex].get(),
@@ -73,6 +78,7 @@ void Crane::Render::draw()
 
 void Crane::Render::update()
 {
+
 	device->waitForFences(inFlightFences[currentFrame].get(), true, UINT64_MAX);
 	currBuffIndex = device->acquireNextImageKHR(swapchain.get(), UINT64_MAX, imageAcquiredSemaphores[currentFrame].get());
 	device->waitForFences(imagesInFlightFences[currBuffIndex], true, UINT64_MAX);

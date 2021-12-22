@@ -29,3 +29,11 @@ target_include_directories(lz4 PUBLIC "lz4/lib")
 # spirv-reflect
 add_library(spirv_reflect "SPIRV-Reflect/spirv_reflect.c")
 target_include_directories(spirv_reflect PUBLIC "SPIRV-Reflect")
+
+# VkFFT
+add_library(VkFFT INTERFACE)
+target_include_directories(VkFFT INTERFACE "VkFFT/vkFFT")
+target_include_directories(VkFFT INTERFACE "VkFFT/glslang-master/glslang/Include/")
+
+#tracy 
+add_subdirectory(tracy)

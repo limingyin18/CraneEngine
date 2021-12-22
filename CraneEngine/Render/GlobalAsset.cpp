@@ -32,9 +32,9 @@ void Render::createAsset()
 
 	LOGI("´´½¨sampler")
 		vk::SamplerCreateInfo samplerInfo{
-		.magFilter = vk::Filter::eLinear,
-		.minFilter = vk::Filter::eLinear,
-		.mipmapMode = vk::SamplerMipmapMode::eLinear,
+		.magFilter = vk::Filter::eNearest,
+		.minFilter = vk::Filter::eNearest,
+		.mipmapMode = vk::SamplerMipmapMode::eNearest,
 		.addressModeU = vk::SamplerAddressMode::eRepeat,
 		.addressModeV = vk::SamplerAddressMode::eRepeat,
 		.addressModeW = vk::SamplerAddressMode::eRepeat,

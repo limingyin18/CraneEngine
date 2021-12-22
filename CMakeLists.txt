@@ -11,6 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(Vulkan REQUIRED)
 find_package(SDL2 REQUIRED)
+find_package(glslang REQUIRED)
 
 # Include sub-projects.
 add_subdirectory(third_party)

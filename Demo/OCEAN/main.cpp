@@ -43,11 +43,13 @@ int main(int argc, char **argv)
         SDL_Event event;
         do
         {
-            if (SDL_PollEvent(&event) != 0)
+            while (SDL_PollEvent(&event) != 0)
             {
                 processInputEvent(event, app.input);
 
                 ImGui_ImplSDL2_ProcessEvent(&event);
+                if (event.type == SDL_QUIT)
+                    break;
             }
             app.update();
         } while (event.type != SDL_QUIT);

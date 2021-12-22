@@ -8,7 +8,7 @@ using namespace Crane;
 MINI_GAME::MINI_GAME(shared_ptr<SDL_Window> win) : SDL2_IMGUI_BASE(win)
 {
 	//preferPresentMode = vk::PresentModeKHR::eFifo;
-	camera.target = Vector3f{ 0.f, 1.0f, 0.f };
+	camera.target = Vector3f{ 0.f, 100.0f, 0.f };
 	camera.rotation[0] = -0.0f;
 	camera.cameraMoveSpeed = 0.1f;
 }
@@ -22,11 +22,11 @@ void MINI_GAME::updateApp()
 {
 	updateEngine();
 
-	//ocean.update(dtAll);
+	ocean.update(dtAll);
 
 	//updateAI();
 
-	updatePhysics();
+	//updatePhysics();
 
 	updateGraphics();
 
@@ -84,42 +84,43 @@ void MINI_GAME::createAssetApp()
 
 	SDL2_IMGUI_BASE::createAssetApp();
 
-	createChessboard();
+	//createChessboard();
 
-	sky.init(this);
-	renderables.emplace_back(sky.mesh.get(), sky.material, &sky.transform);
-	renderables.back().cullFlag = false;
+	//sky.init(this);
+	//renderables.emplace_back(sky.mesh.get(), sky.material, &sky.transform);
+	//renderables.back().cullFlag = false;
 
 	//createBall();
 
-	createCloak();
-	createHuman();
+	//createCloak();
+	//createHuman();
 
 	//createDragon();
 
 	//createSoldiers();
 
-	//ocean.init(this);
+	ocean.init(this);
 
-	//oceans[0].mesh = ocean.mesh;
-	//oceans[0].material = ocean.material;
-	//oceans[0].setPosition(Vector3f{ 100.f, 0.f, 0.f });
-	//renderables.emplace_back(oceans[0].mesh.get(), oceans[0].material, &oceans[0].transform);
+	oceans[0].mesh = ocean.mesh;
+	oceans[0].material = ocean.material;
+	oceans[0].setPosition(Vector3f{ 100.f, 0.f, 0.f });
+	renderables.emplace_back(oceans[0].mesh.get(), oceans[0].material, &oceans[0].transform);
 
-	//oceans[1].mesh = ocean.mesh;
-	//oceans[1].material = ocean.material;
-	//oceans[1].setPosition(Vector3f{ -100.f, 0.f, 0.f });
-	//renderables.emplace_back(oceans[1].mesh.get(), oceans[1].material, &oceans[1].transform);
+	/*
+	oceans[1].mesh = ocean.mesh;
+	oceans[1].material = ocean.material;
+	oceans[1].setPosition(Vector3f{ -100.f, 0.f, 0.f });
+	renderables.emplace_back(oceans[1].mesh.get(), oceans[1].material, &oceans[1].transform);
 
-	//oceans[2].mesh = ocean.mesh;
-	//oceans[2].material = ocean.material;
-	//oceans[2].setPosition(Vector3f{ 100.f, 0.f, 200.f });
-	//renderables.emplace_back(oceans[2].mesh.get(), oceans[2].material, &oceans[2].transform);
+	oceans[2].mesh = ocean.mesh;
+	oceans[2].material = ocean.material;
+	oceans[2].setPosition(Vector3f{ 100.f, 0.f, 200.f });
+	renderables.emplace_back(oceans[2].mesh.get(), oceans[2].material, &oceans[2].transform);
 
-	//oceans[3].mesh = ocean.mesh;
-	//oceans[3].material = ocean.material;
-	//oceans[3].setPosition(Vector3f{ -100.f, 0.f, 200.f });
-	//renderables.emplace_back(oceans[3].mesh.get(), oceans[3].material, &oceans[3].transform);
+	oceans[3].mesh = ocean.mesh;
+	oceans[3].material = ocean.material;
+	oceans[3].setPosition(Vector3f{ -100.f, 0.f, 200.f });
+	renderables.emplace_back(oceans[3].mesh.get(), oceans[3].material, &oceans[3].transform);*/
 
 	// physics
 
@@ -151,8 +152,8 @@ void MINI_GAME::createAssetApp()
 	//}
 	//pbd.mConstraints.emplace_back(std::make_shared<ShapeMatchingConstraint>(pbd, indices.size(), indices));
 
-	for (auto& rb : pbd.rigidbodies)
+/*	for (auto& rb : pbd.rigidbodies)
 		rb->computeAABB();
 
-	pbd.bvh = BVH(pbd.rigidbodies);
+	pbd.bvh = BVH(pbd.rigidbodies)*/;
 }

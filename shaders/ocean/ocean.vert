@@ -1,4 +1,5 @@
 #version 450 core
+#extension GL_KHR_vulkan_glsl:enable
 
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec3 normal;
@@ -45,7 +46,8 @@ void main()
 {
     mat4 model = bufferModel[bufferInstance[gl_InstanceIndex]]; 
 
-    vec2 texInv = vec2(1.0f - tex.y, tex.x);
+    //vec2 texInv = vec2(1.0f - tex.y, tex.x);
+    vec2 texInv = vec2(tex.x, tex.y);
     vec4 height = texture(heightTex, texInv);
     vec4 normalX = texture(normalXTex, texInv);
     vec4 normalZ = texture(normalZTex, texInv);
@@ -53,6 +55,7 @@ void main()
     vec4 dz = texture(dzTex, texInv);
 
     vec3 pos = position + vec3(-lambda*dx.x, height.x, -lambda*dz.x);
+    //vec3 pos = position + vec3(0.f, height.x, 0.f);
     gl_Position =  camera.projView * model* vec4(pos.x, pos.y, pos.z, 1.0);
     posFrag = vec3(model* vec4(pos.x, pos.y, pos.z, 1.0));
     colorFrag = colorVert;

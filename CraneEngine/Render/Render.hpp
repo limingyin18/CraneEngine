@@ -18,6 +18,9 @@
 
 #include <Eigen/Eigen>
 
+#include <Tracy.hpp>
+#include <TracyVulkan.hpp>
+
 #include "Logging.hpp"
 #include "Buffer.hpp"
 #include "Image.hpp"
@@ -97,6 +100,7 @@ namespace Crane
 
 		void compactDraws();
 
+	public:
 		vk::CommandBuffer beginSingleTimeCommands();
 		void endSingleTimeCommands(vk::CommandBuffer cmdBuffer);
 		void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
@@ -106,7 +110,6 @@ namespace Crane
 		std::tuple<Image, vk::UniqueImageView> createTextureImage(uint32_t texWidth, uint32_t texHeight,
 			uint32_t texChannels, void* pixels);
 		
-	public:
 		uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
 	public:
@@ -238,5 +241,9 @@ namespace Crane
 		Crane::MaterialBuilder materialBuilderPhong;
 
 		Crane::PipelinePassGraphics pipelinePassLinePhong;
+
+		// profiler
+		TracyVkCtx tracyVkCtx;
+		std::unique_ptr<TracyVkCtx, void(*)(TracyVkCtx*)> tracyVkCtxPtr;
 	};
 }

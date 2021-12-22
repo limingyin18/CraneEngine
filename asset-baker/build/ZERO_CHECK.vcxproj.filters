@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CustomBuild Include="C:\Project\CraneEngine\asset-baker\build\CMakeFiles\dfd61c75082e055e37476296d110ea30\generate.stamp.rule">
+    <CustomBuild Include="C:\project\CraneEngine\asset-baker\build\CMakeFiles\370ff524c269d060c027ad3cd96129b7\generate.stamp.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CMake Rules">
-      <UniqueIdentifier>{06C5BD78-E334-3036-AF7A-71E399B74F0D}</UniqueIdentifier>
+      <UniqueIdentifier>{1534F689-0CA9-3CE4-B252-5864AF17718B}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

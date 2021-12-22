@@ -100,6 +100,8 @@ void Crane::OCEAN::createBufferOcean(vk::UniqueBuffer& buffer, vk::UniqueImage& 
 	imageInfo.sharingMode = vk::SharingMode::eExclusive;
 	image = context->device->createImageUnique(imageInfo);
 
+
+
 	vk::MemoryRequirements memRequirementsBuffer = context->device->getBufferMemoryRequirements(buffer.get());
 	vk::MemoryRequirements memRequirementsImage = context->device->getImageMemoryRequirements(image.get());
 	vk::MemoryAllocateInfo allocInfo{};
@@ -108,6 +110,27 @@ void Crane::OCEAN::createBufferOcean(vk::UniqueBuffer& buffer, vk::UniqueImage& 
 	deviceMemory = context->device->allocateMemoryUnique(allocInfo);
 	context->device->bindBufferMemory(buffer.get(), deviceMemory.get(), 0);
 	context->device->bindImageMemory(image.get(), deviceMemory.get(), 0);
+
+	vk::CommandBuffer cmdBuffSingle = context->beginSingleTimeCommands();
+
+	vk::ImageMemoryBarrier barrier{};
+	barrier.oldLayout = vk::ImageLayout::eUndefined;
+	barrier.newLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.image = image.get();
+	barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+	barrier.subresourceRange.baseMipLevel = 0;
+	barrier.subresourceRange.levelCount = 1;
+	barrier.subresourceRange.baseArrayLayer = 0;
+	barrier.subresourceRange.layerCount = 1;
+	barrier.srcAccessMask = vk::AccessFlagBits::eMemoryWrite;
+	barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+
+	VkImageMemoryBarrier vkm = barrier;
+	vkCmdPipelineBarrier(cmdBuffSingle, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0,
+		nullptr, 1, &vkm);
+	context->endSingleTimeCommands(cmdBuffSingle);
 
 	vk::ImageViewCreateInfo imageViewCreateInfo{ .image = image.get(),
 										.viewType = vk::ImageViewType::e2D,

@@ -7,6 +7,9 @@
 
 namespace Crane
 {
+    /**
+     * @brief ·â×°VkImage£¬VmaAllocator
+    */
     class Image
     {
     public:
@@ -27,8 +30,7 @@ namespace Crane
         void updateBuffer(VkBuffer buffer, vk::CommandBuffer cmdBuff);
 
         void copyBufferToImage(VkBuffer buffer, VkCommandBuffer commandBuffer);
-        void transitionImageLayout(VkFormat format,
-                                   VkImageLayout oldLayout, VkImageLayout newLayout,
+        static void transitionImageLayout(const VkImage &image, VkImageLayout oldLayout, VkImageLayout newLayout,
                                    VkCommandBuffer commandBuffer);
 
     public:
