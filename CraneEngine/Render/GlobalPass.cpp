@@ -69,7 +69,7 @@ void Render::createRenderPass()
 	.dstSubpass = 0,
 	.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput,
 	.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput,
-	.srcAccessMask = vk::AccessFlagBits::eNoneKHR,
+	.srcAccessMask = {},
 	.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite };
 
 	vk::RenderPassCreateInfo renderPassCreateInfo{ .attachmentCount = 2,

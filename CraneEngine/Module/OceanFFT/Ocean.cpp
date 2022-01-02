@@ -42,7 +42,7 @@ void Ocean::init(Crane::Render* ctx)
 {
 	context = ctx;
 
-	LOGI("´´½¨º£Ñó¼ÆËã×ÊÔ´")
+	LOGI("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´")
 	{
 		createBufferOcean(bufferAmpl, imageAmpl, imageViewAmpl, deviceMeomoryAmpl, descriptorBufferInfoAmpl, descriptorImageInfoAmpl);
 		createBufferOcean(bufferNormalX, imageNormalX, imageViewNormalX, deviceMeomoryNormalX, descriptorBufferInfoNormalX, descriptorImageInfoNormalX);
@@ -166,7 +166,7 @@ void Crane::Ocean::createBufferOcean(vk::UniqueBuffer& buffer, vk::UniqueImage& 
 
 void Ocean::createAmpl()
 {
-	LOGI("´´½¨º£ÑóÆµÆ×¹ÜÏß")
+	LOGI("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æµï¿½×¹ï¿½ï¿½ï¿½")
 	{
 		amplPipelinePass.device = context->device.get();
 
@@ -179,7 +179,7 @@ void Ocean::createAmpl()
 		amplPipelinePass.buildPipeline();
 	}
 
-	LOGI("´´½¨º£ÑóÆµÆ×¼ÆËã×ÊÔ´²ÄÖÊ¹¹½¨¹¤³§")
+	LOGI("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æµï¿½×¼ï¿½ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")
 	{
 		materialBuilderAmpl.descriptorPool = context->descriptorPool.get();
 		materialBuilderAmpl.pipelinePass = &amplPipelinePass;
@@ -198,7 +198,7 @@ void Ocean::createAmpl()
 		materialBuilderAmpl.descriptorInfos[0][11].first = &t.descriptorBufferInfo;
 	}
 
-	LOGI("´´½¨º£ÑóÆµÆ×¼ÆËã×ÊÔ´²ÄÖÊ")
+	LOGI("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æµï¿½×¼ï¿½ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½")
 	{
 		materialAmpl = materialBuilderAmpl.build();
 		materialAmpl.update();
@@ -207,7 +207,7 @@ void Ocean::createAmpl()
 
 void Ocean::createIfft2()
 {
-	LOGI("´´½¨ifft2¹ÜÏß")
+	LOGI("ï¿½ï¿½ï¿½ï¿½ifft2ï¿½ï¿½ï¿½ï¿½")
 	{
 		iff2PipelinePass.device = context->device.get();
 
@@ -220,7 +220,7 @@ void Ocean::createIfft2()
 		iff2PipelinePass.buildPipeline();
 	}
 
-	LOGI("´´½¨ifft2¼ÆËã×ÊÔ´²ÄÖÊ¹¹½¨¹¤³§")
+	LOGI("ï¿½ï¿½ï¿½ï¿½ifft2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")
 	{
 		materialBuilderIfft2.descriptorPool = context->descriptorPool.get();
 		materialBuilderIfft2.pipelinePass = &iff2PipelinePass;
@@ -228,7 +228,7 @@ void Ocean::createIfft2()
 		materialBuilderIfft2.descriptorInfos[0][1].first = &NB.descriptorBufferInfo;
 	}
 
-	LOGI("´´½¨ifft2¼ÆËã×ÊÔ´²ÄÖÊ")
+	LOGI("ï¿½ï¿½ï¿½ï¿½ifft2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½")
 	{
 		materialBuilderIfft2.descriptorInfos[0][0].first = &descriptorBufferInfoAmpl;
 		materialIff2Ampl = materialBuilderIfft2.build();
@@ -254,7 +254,7 @@ void Ocean::createIfft2()
 
 void Ocean::createSign()
 {
-	LOGI("´´½¨sign¹ÜÏß")
+	LOGI("ï¿½ï¿½ï¿½ï¿½signï¿½ï¿½ï¿½ï¿½")
 	{
 		pipelinePassSign.device = context->device.get();
 
@@ -267,7 +267,7 @@ void Ocean::createSign()
 		pipelinePassSign.buildPipeline();
 	}
 
-	LOGI("´´½¨sign¼ÆËã×ÊÔ´²ÄÖÊ¹¹½¨¹¤³§")
+	LOGI("ï¿½ï¿½ï¿½ï¿½signï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")
 	{
 		materialBuilderSign.descriptorPool = context->descriptorPool.get();
 		materialBuilderSign.pipelinePass = &pipelinePassSign;
@@ -275,7 +275,7 @@ void Ocean::createSign()
 		materialBuilderSign.descriptorInfos[0][1].first = &NB.descriptorBufferInfo;
 	}
 
-	LOGI("´´½¨sign¼ÆËã×ÊÔ´²ÄÖÊ")
+	LOGI("ï¿½ï¿½ï¿½ï¿½signï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½")
 	{
 		materialBuilderSign.descriptorInfos[0][0].first = &descriptorBufferInfoAmpl;
 		materialSignAmpl = materialBuilderSign.build();
@@ -301,14 +301,14 @@ void Ocean::createSign()
 
 void Ocean::createRender()
 {
-	LOGI("´´½¨º£ÑóÍø¸ñ")
+	LOGI("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")
 	{
 		context->loadMeshs["Ocean"] = make_shared<Plane>(N, M);
 		mesh = context->loadMeshs["Ocean"];
 		mesh->setVertices([](uint32_t i, Vertex& v) {v.position *= 100.f; });
 	}
 
-	LOGI("´´½¨º£Ñó×ÅÉ«¹ÜÏß")
+	LOGI("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½")
 	{
 		pipelinePass.device = context->device.get();
 		pipelinePass.renderPass = context->renderPass.get();
@@ -326,7 +326,7 @@ void Ocean::createRender()
 		pipelinePass.buildPipeline(context->pipelineBuilder);
 	}
 
-	LOGI("´´½¨º£Ñó×ÅÉ«²ÄÖÊ¹¹½¨¹¤³§")
+	LOGI("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")
 	{
 		materialBuilder.descriptorPool = context->descriptorPool.get();
 		materialBuilder.pipelinePass = &pipelinePass;
@@ -344,7 +344,7 @@ void Ocean::createRender()
 		materialBuilder.descriptorInfos[1][5].first = &lambda.descriptorBufferInfo;
 	}
 
-	LOGI("´´½¨º£Ñó×ÅÉ«²ÄÖÊ")
+	LOGI("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½")
 	{
 		context->materials["Ocean"] = materialBuilder.build();
 		material = &context->materials["Ocean"];
@@ -353,7 +353,7 @@ void Ocean::createRender()
 
 void Ocean::createCommand()
 {
-	LOGI("´´½¨º£Ñó¹¹½¨ÃüÁî")
+	LOGI("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ó¹¹½ï¿½ï¿½ï¿½ï¿½ï¿½")
 
 		vk::CommandPoolCreateInfo commandPoolCreateInfo{ .queueFamilyIndex = context->computeQueueFamilyIndex };
 
@@ -375,7 +375,7 @@ void Ocean::createCommand()
 
 void Ocean::initVkFFT()
 {
-	LOGI("³õÊ¼»¯vkFFT");
+	LOGI("ï¿½ï¿½Ê¼ï¿½ï¿½vkFFT");
 
 	int resGlslangInitialize = glslang_initialize_process();
 
@@ -425,6 +425,7 @@ void Ocean::writeCommand()
 	computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialAmpl.pipelinePass->pipelineLayout.get(), 0, materialAmpl.descriptorSets.size(), materialAmpl.descriptorSets.data(), 0, nullptr);
 	computeCommandBuffers[0]->dispatch(1, 1, 1);
 
+	/*
 	vk::MemoryBarrier2KHR memoryBarrier = {
 		.srcStageMask = vk::PipelineStageFlagBits2KHR::eComputeShader,
 		.srcAccessMask = vk::AccessFlagBits2KHR::eShaderWrite,
@@ -436,6 +437,22 @@ void Ocean::writeCommand()
 		.pMemoryBarriers = &memoryBarrier
 	};
 	computeCommandBuffers[0]->pipelineBarrier2KHR(dependencyInfo);
+	*/
+
+	vk::MemoryBarrier memoryBarrier = {
+		.srcAccessMask = vk::AccessFlagBits::eShaderWrite,
+		.dstAccessMask = vk::AccessFlagBits::eShaderRead };
+
+	vkCmdPipelineBarrier( computeCommandBuffers[0].get(),
+		VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, // srcStageMask
+    	VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, // dstStageMask
+		{},
+    	1,                                    // memoryBarrierCount
+    	(VkMemoryBarrier*)&memoryBarrier,                       // pMemoryBarriers);
+		0,
+		nullptr,
+		0,
+		nullptr);
 
 	// ifft2
 	VkFFTAppend(&vkFFTAppAmpl, 1, &vkFFTLaunchParamsAmpl);
@@ -460,8 +477,17 @@ void Ocean::writeCommand()
 	//computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialIff2Dz.pipelinePass->pipelineLayout.get(), 0, materialIff2Dz.descriptorSets.size(), materialIff2Dz.descriptorSets.data(), 0, nullptr);
 	//computeCommandBuffers[0]->dispatch(1, 1, 1);
 
-	computeCommandBuffers[0]->pipelineBarrier2KHR(dependencyInfo);
-
+	//computeCommandBuffers[0]->pipelineBarrier2KHR(dependencyInfo);
+	vkCmdPipelineBarrier( computeCommandBuffers[0].get(),
+		VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, // srcStageMask
+    	VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, // dstStageMask
+		{},
+    	1,                                    // memoryBarrierCount
+    	(VkMemoryBarrier*)&memoryBarrier,                       // pMemoryBarriers);
+		0,
+		nullptr,
+		0,
+		nullptr);
 	// sign
 	computeCommandBuffers[0]->bindPipeline(vk::PipelineBindPoint::eCompute, materialSignAmpl.pipelinePass->pipeline.get());
 	computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialSignAmpl.pipelinePass->pipelineLayout.get(), 0, materialSignAmpl.descriptorSets.size(), materialSignAmpl.descriptorSets.data(), 0, nullptr);

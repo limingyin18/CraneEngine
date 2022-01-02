@@ -16,7 +16,7 @@ void Crane::Engine::initEngine()
 	LOGI("创建剔除管线相关")
 	{
 		pipelinePassCull.device = device.get();
-		auto shaderCodeCull = Loader::readFile("shaders/cull.comp.spv.");
+		auto shaderCodeCull = Loader::readFile("shaders/cull.comp.spv");
 		pipelinePassCull.addShader(shaderCodeCull, vk::ShaderStageFlagBits::eCompute);
 		pipelinePassCull.buildDescriptorSetLayout();
 		pipelinePassCull.buildPipelineLayout();

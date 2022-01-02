@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <optional>
+#include <memory>
 #include <Eigen/Eigen>
 
 #include "Collision.hpp"
@@ -11,7 +12,7 @@ using namespace Eigen;
 namespace CranePhysics
 {
     /**
-     * ¸ÕÌå
+     * ï¿½ï¿½ï¿½ï¿½
      */
     class Rigidbody
     {
@@ -39,7 +40,7 @@ namespace CranePhysics
     };
 
     /**
-     * Á£×Ó/ÇòÌå
+     * ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½
      */
     class Particle : public Rigidbody
     {
@@ -65,7 +66,7 @@ namespace CranePhysics
     using Sphere = Particle;
 
     /**
-     * ³¤·½Ìå
+     * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
      */
     class Cube : public Rigidbody
     {

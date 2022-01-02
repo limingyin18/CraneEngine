@@ -68,7 +68,7 @@ Render::Render() : vmaAllocator{ nullptr,[](VmaAllocator* vma) {vmaDestroyAlloca
 		VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,
 		VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
 		VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME,
-		VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,
+		//VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,
 	};
 
 	// set default clear values
@@ -217,8 +217,8 @@ void Render::createLogicalDevice()
 
 	vk::PhysicalDeviceFeatures2 features2;
 	features2.features = features;
-	vk::PhysicalDeviceSynchronization2FeaturesKHR synchronization2Features{.synchronization2=true };
-	features2.pNext = &synchronization2Features;
+	//vk::PhysicalDeviceSynchronization2FeaturesKHR synchronization2Features{.synchronization2=true };
+	//features2.pNext = &synchronization2Features;
 	
 	auto supportedFeatures = physicalDevice.getFeatures();
 	if (!supportedFeatures.multiDrawIndirect)

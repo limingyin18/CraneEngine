@@ -75,7 +75,7 @@ namespace Crane
 	class PipelinePassCompute : public PipelinePass
 	{
 	public:
-		void buildPipeline(vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
+		void buildPipeline(vk::PipelineCache pipelineCache = nullptr);
 	};
 
 	class PipelinePassGraphics : public PipelinePass

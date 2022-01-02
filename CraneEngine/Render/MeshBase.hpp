@@ -10,14 +10,14 @@
 namespace Crane
 {
     /**
-     * @brief ¶¥µã½á¹¹
+     * @brief é¡¶ç‚¹ç»“æ„
      */
     struct Vertex
     {
-        Eigen::Vector3f position{0.f, 0.f, 0.f}; // Î»ÖÃ
-        Eigen::Vector3f normal{1.f, 1.f, 1.f};   // ·¨Ïß
-        Eigen::Vector3f color{ 1.f, 1.f, 1.f };  // ÑÕÉ«
-        Eigen::Vector2f uv{ 0.f, 0.f };          // ÎÆÀí
+        Eigen::Vector3f position{0.f, 0.f, 0.f}; // ä½ç½®
+        Eigen::Vector3f normal{1.f, 1.f, 1.f};   // æ³•çº¿
+        Eigen::Vector3f color{ 1.f, 1.f, 1.f };  // é¢œè‰²
+        Eigen::Vector2f uv{ 0.f, 0.f };          // çº¹ç†
 
         static std::vector<vk::VertexInputBindingDescription> GetVertexInputBindingDescription();
 
@@ -27,30 +27,30 @@ namespace Crane
     };
 
     /**
-     * @brief Íø¸ñ»ùÀà
+     * @brief ç½‘æ ¼åŸºç±»
      */
     class MeshBase
     {
     public:
-        std::vector<Vertex> data;      // ¶¥µãÊı×é
-        std::vector<uint32_t> indices; // Ë÷ÒıÊı×é
+        std::vector<Vertex> data;      // é¡¶ç‚¹æ•°ç»„
+        std::vector<uint32_t> indices; // ç´¢å¼•æ•°ç»„
 
         /**
-         * @brief ÉèÖÃ¶¥µã
+         * @brief è®¾ç½®é¡¶ç‚¹
          *
-         * @param fun ÉèÖÃº¯Êı
+         * @param fun è®¾ç½®å‡½æ•°
          */
         void setVertices(std::function<void(uint32_t, Vertex &)> const &fun);
 
         /**
-         * @brief ·¨Ïß¼ÆËã
-         * @details Èı½ÇĞÎÁ½±ß²æ³Ë¼ÆËã·¨Ïß£¬ÏàÁÚÈı½ÇĞÎÃæ»ı¿ØÖÆÕ¼±È
+         * @brief æ³•çº¿è®¡ç®—
+         * @details ä¸‰è§’å½¢ä¸¤è¾¹å‰ä¹˜è®¡ç®—æ³•çº¿ï¼Œç›¸é‚»ä¸‰è§’å½¢é¢ç§¯æ§åˆ¶å æ¯”
          */
         void recomputeNormals();
     };
 
     /**
-     * @brief Æ½Ãæ
+     * @brief å¹³é¢
      */
     class Plane : public MeshBase
     {
@@ -59,7 +59,7 @@ namespace Crane
     };
 
     /**
-     * @brief Á¢·½Ìå
+     * @brief ç«‹æ–¹ä½“
      */
     class Cube : public MeshBase
     {
@@ -68,7 +68,7 @@ namespace Crane
     };
 
     /**
-     * @brief ÆåÅÌ
+     * @brief æ£‹ç›˜
      */
     class Chessboard : public MeshBase
     {
@@ -77,7 +77,7 @@ namespace Crane
     };
 
     /**
-     * @brief ÇòÀà
+     * @brief çƒç±»
      */
     class Sphere : public MeshBase
     {

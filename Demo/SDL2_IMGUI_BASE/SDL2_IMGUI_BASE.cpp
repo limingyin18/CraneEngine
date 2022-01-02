@@ -52,7 +52,7 @@ void SDL2_IMGUI_BASE::createSurface()
 
 void SDL2_IMGUI_BASE::createAssetApp()
 {
-	LOGI("SDL2_IMGUI ³õÊ¼»¯");
+	LOGI("SDL2_IMGUI ï¿½ï¿½Ê¼ï¿½ï¿½");
 
 	vk::CommandPoolCreateInfo guiCmdPoolCreateInfo = {
 		.flags = vk::CommandPoolCreateFlagBits::eTransient | vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
@@ -99,7 +99,7 @@ void SDL2_IMGUI_BASE::imguiInit()
 
 	//this initializes the core structures of imgui
 	imguiContext.reset(ImGui::CreateContext());
-
+	ImGui::SetCurrentContext(imguiContext.get());
 	/*
 	ImGui_ImplVulkan_LoadFunctions(
 		[](const char *function_name, void *)

@@ -1,7 +1,7 @@
 ﻿# CMakeList.txt : Top-level CMake project file, do global configuration
 # and include sub-projects here.
 #
-cmake_minimum_required (VERSION 3.20)
+cmake_minimum_required (VERSION 3.18)
 
 project (Crane)
 
@@ -11,7 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(Vulkan REQUIRED)
 find_package(SDL2 REQUIRED)
-find_package(glslang REQUIRED)
+#find_package(glslang REQUIRED)
 
 # Include sub-projects.
 add_subdirectory(third_party)
