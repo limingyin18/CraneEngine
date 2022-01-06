@@ -13,15 +13,15 @@ target_link_directories(${PROJECT_NAME} PUBLIC ${Vulkan_INCLUDE_DIRS}/../Lib)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
                       spdlog
-                      Vulkan::Vulkan
+                      vulkan
                       vma
-                      SPIRV-Tools
+                      #SPIRV-Tools
                       spirv_reflect
                       SPIRV
                       glslang
                       eigen
                       TracyClient
-                      tbb
+                      #tbb
                       )
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")                        
 # TODO: Add tests and install targets if needed.

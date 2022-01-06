@@ -10,9 +10,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(Vulkan REQUIRED)
-find_package(SDL2 REQUIRED)
+message("============================")
+message( "Vulkan FOUND = ${Vulkan_FOUND}")
+message( "Vulkan Include = ${Vulkan_INCLUDE_DIR}")
+message( "Vulkan Lib = ${Vulkan_LIBRARY}")
+
+#find_package(SDL2 REQUIRED)
 #find_package(glslang REQUIRED)
 
+if(ANDROID)
+
+endif()
 # Include sub-projects.
 add_subdirectory(third_party)
 add_subdirectory(assetlib)

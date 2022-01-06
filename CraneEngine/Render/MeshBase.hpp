@@ -1,6 +1,5 @@
 #pragma once
 
-#include <numbers>
 #include <vector>
 #include <functional>
 
@@ -14,6 +13,10 @@ namespace Crane
      */
     struct Vertex
     {
+        Vertex() = default;
+        Vertex(Eigen::Vector3f p, Eigen::Vector3f n, Eigen::Vector3f c, Eigen::Vector2f u):
+            position{p}, normal{}, color{c}, uv{u}{};
+
         Eigen::Vector3f position{0.f, 0.f, 0.f}; // 位置
         Eigen::Vector3f normal{1.f, 1.f, 1.f};   // 法线
         Eigen::Vector3f color{ 1.f, 1.f, 1.f };  // 颜色

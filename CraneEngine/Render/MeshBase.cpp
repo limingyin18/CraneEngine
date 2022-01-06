@@ -300,7 +300,7 @@ Sphere::Sphere(uint32_t lng, uint32_t lat, float radius)
     data.reserve((lat + 1) * (lng + 1));
     for (uint32_t i = 0; i <= lat; ++i)
     {
-        float angLat = numbers::pi / 2.f - i * numbers::pi / lat;        // starting from pi/2 to -pi/2
+        float angLat = 3.14f / 2.f - i * 3.14f / lat;        // starting from pi/2 to -pi/2
         float xy = radius * cosf(angLat);             // r * cos(u)
         float z = radius * sinf(angLat);              // r * sin(u)
 
@@ -308,7 +308,7 @@ Sphere::Sphere(uint32_t lng, uint32_t lat, float radius)
         // the first and last vertices have same position and normal, but different tex coords
         for (int j = 0; j <= lng; ++j)
         {
-            float angLng = j * 2 * numbers::pi / lng;           // starting from 0 to 2pi
+            float angLng = j * 2 * 3.14f / lng;           // starting from 0 to 2pi
 
             // vertex position (x, y, z)
             float x = xy * cosf(angLng);             // r * cos(u) * cos(v)

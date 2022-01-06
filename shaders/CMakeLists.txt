@@ -11,9 +11,6 @@ file(GLOB_RECURSE GLSL_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/*.comp"
         )
 
-message("${PROJECT_SOURCE_DIR}")
-message("${GLSL_VALIDATOR}")
-
 foreach(GLSL ${GLSL_SOURCE_FILES})
     message(STATUS "BUILDING SHADER")
     get_filename_component(FILE_NAME ${GLSL} NAME)
