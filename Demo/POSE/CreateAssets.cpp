@@ -9,7 +9,7 @@ void POSE::createBones()
 {
     string name = "bone";
 	loadMeshs[name] = make_shared<Crane::Cube>(2);
-    loadMeshs[name]->setVertices([](uint32_t i, Vertex&v){v.position*=0.02f;});
+    loadMeshs[name]->setVertices([](uint32_t i, Vertex&v){v.position*=0.1f;});
 	materials[name] = materialBuilderPhong.build();
 
 	for (auto &b : bones)
@@ -19,28 +19,29 @@ void POSE::createBones()
 		renderables.emplace_back(b.mesh.get(), b.material, &b.transform);
 	}
 
-	Vector3f position = { 0.f, 2.f, 10.f };
+	Vector3f position = { 0.f, 4.5f, -20.f };
     bones[0].setPosition(position);
 
+	float scale = 2.5f;
     // left arms
-    bones[1].setPosition(bones[0].position + Vector3f{-0.30f, -0.15f, 0.f});
-    bones[2].setPosition(bones[1].position + Vector3f{-0.15f, -0.15f, 0.f});
-    bones[3].setPosition(bones[2].position + Vector3f{-0.15f, -0.15f, 0.f});
+    bones[1].setPosition(bones[0].position + scale*Vector3f{-0.30f, -0.30f, 0.f});
+    bones[2].setPosition(bones[1].position + scale*Vector3f{-0.15f, -0.15f, 0.f});
+    bones[3].setPosition(bones[2].position + scale*Vector3f{-0.15f, -0.15f, 0.f});
 
     // right arms
-    bones[4].setPosition(bones[0].position + Vector3f{0.30f, -0.15f, 0.f});
-    bones[5].setPosition(bones[4].position + Vector3f{0.15f, -0.15f, 0.f});
-    bones[6].setPosition(bones[5].position + Vector3f{0.15f, -0.15f, 0.f});
+    bones[4].setPosition(bones[0].position + scale*Vector3f{0.30f, -0.30f, 0.f});
+    bones[5].setPosition(bones[4].position + scale*Vector3f{0.15f, -0.15f, 0.f});
+    bones[6].setPosition(bones[5].position + scale*Vector3f{0.15f, -0.15f, 0.f});
 
     // left legs
-    bones[7].setPosition(bones[0].position + Vector3f{-0.15f, -0.60f, 0.f});
-    bones[8].setPosition(bones[7].position + Vector3f{0.f, -0.30f, 0.f});
-    bones[9].setPosition(bones[8].position + Vector3f{0.f, -0.30f, 0.f});
+    bones[7].setPosition(bones[0].position + scale*Vector3f{-0.15f, -0.80f, 0.f});
+    bones[8].setPosition(bones[7].position + scale*Vector3f{0.f, -0.40f, 0.f});
+    bones[9].setPosition(bones[8].position + scale*Vector3f{0.f, -0.40f, 0.f});
 
     // right legs
-    bones[10].setPosition(bones[0].position + Vector3f{0.15f, -0.60f, 0.f});
-    bones[11].setPosition(bones[10].position + Vector3f{0.f, -0.30f, 0.f});
-    bones[12].setPosition(bones[11].position + Vector3f{0.f, -0.30f, 0.f});
+    bones[10].setPosition(bones[0].position + scale*Vector3f{0.15f, -0.80f, 0.f});
+    bones[11].setPosition(bones[10].position + scale*Vector3f{0.f, -0.40f, 0.f});
+    bones[12].setPosition(bones[11].position + scale*Vector3f{0.f, -0.40f, 0.f});
 }
 
 void POSE::createChessboard()
@@ -107,6 +108,27 @@ void POSE::createHuman()
 
 	renderables.emplace_back(human.mesh.get(), human.material, &human.transform);
 
+	bindCoffs.resize(human.mesh->data.size());
+	for(uint32_t j = 0; j < human.mesh->data.size(); ++j)
+	{
+		float minDist = numeric_limits<float>::max();
+		for(uint32_t i = 0; i < bones.size(); ++i)
+		{
+			Vector3f diff = human.mesh->data[j].position - bones[i].position;
+			float dist = (diff).norm();
+			if(dist < minDist)
+			{
+				minDist = dist;
+				bindCoffs[j].index = i;
+				bindCoffs[j].diff = diff;
+			}
+		}
+	}
+
+	for(uint32_t i = 0; i < human.mesh->data.size(); ++i)
+	{
+		human.mesh->data[i].position = bones[bindCoffs[i].index].position + bindCoffs[i].diff;
+	}
 
 	// voxelize
 

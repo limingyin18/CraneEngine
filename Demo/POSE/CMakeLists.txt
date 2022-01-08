@@ -1,7 +1,11 @@
 project(POSE LANGUAGES CXX)
 
 find_package(PythonInterp REQUIRED)
-find_package(Torch REQUIRED)
+
+find_package(Torch REQUIRED
+            NO_MODULE
+            PATHS /home/ylm/Library/libtorch
+            NO_DEFAULT_PATH)
 find_package(OpenCV)
 
 include_directories( ${OpenCV_INCLUDE_DIRS} )

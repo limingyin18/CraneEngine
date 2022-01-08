@@ -7,7 +7,7 @@ using namespace CranePhysics;
 
 void CLOTH::createChessboard()
 {
-	LOGI("´´½¨chessboard");
+	LOGI("create chessboard");
 
 	string name = "chessboard";
 	loadMeshs[name] = make_shared<Crane::Chessboard>(11, 11);
@@ -31,7 +31,7 @@ void CLOTH::createChessboard()
 
 void CLOTH::createCloak()
 {
-	LOGI("´´½¨cloak");
+	LOGI("create cloak");
 
 	string nameImage = "BannerHolyRoman";
 	{
@@ -62,8 +62,9 @@ void CLOTH::createCloak()
 	loadMeshs[name] = make_shared<Crane::Plane>(11, 11);
 	cloak.mesh = loadMeshs[name];
 
+	materialBuilderPhong.descriptorInfos[1][0].second = &descriptorImageInfos[nameImage];
 	materials[name] = materialBuilderPhong.build();
-	materials[name].writeDescriptorSets[1][0].pImageInfo = &descriptorImageInfos[nameImage];
+	materialBuilderPhong.descriptorInfos[1][0].second = &descriptorImageInfoBlank;
 	cloak.material = &materials[name];
 
 	cloak.setPosition(modelCloak);
@@ -112,8 +113,10 @@ void CLOTH::createCubeTest()
 	loadMeshs[name] = make_shared<Crane::Cube>(2);
 	cubeTest.mesh = loadMeshs[name];
 
+	materialBuilderPhong.descriptorInfos[1][0].second = &descriptorImageInfoLilac;
+	materialBuilderPhong.pipelinePass = &pipelinePassLinePhong;
 	materials[name] = materialBuilderPhong.build();
-	materials[name].writeDescriptorSets[1][0].pImageInfo = &descriptorImageInfoLilac;
+	materialBuilderPhong.pipelinePass = &pipelinePassPhong;
 	cubeTest.material = &materials[name];
 
 	cubeTest.setPosition(modelCube);
@@ -140,8 +143,8 @@ void CLOTH::createSphereTest()
 	loadMeshs[name]->setVertices([](uint32_t i, Vertex& v) {v.color = {1.0f, 0.f, 0.f}; });
 	sphereTest.mesh = loadMeshs[name];
 
+	materialBuilderPhong.descriptorInfos[1][0].second = &descriptorImageInfoBlank;
 	materials[name] = materialBuilderPhong.build();
-	materials[name].writeDescriptorSets[1][0].pImageInfo = &descriptorImageInfoBlank;
 	sphereTest.material = &materials[name];
 
 	sphereTest.setPosition(modelSphere);
@@ -158,9 +161,10 @@ void CLOTH::createSphereTest()
 
 void CLOTH::createDragon()
 {
-	LOGI("¶ÁÈ¡ÁúÄ£ÐÍ");
+	LOGI("ï¿½ï¿½È¡ï¿½ï¿½Ä£ï¿½ï¿½");
 
 	Eigen::Vector3f rotationDragon{ 45.f / 180.f * 3.14f, 0.f, 0.f };
+	//Eigen::Vector3f rotationDragon{ 0.f, 0.f, 0.f };
 	Eigen::Vector3f modelDragon{ 0.f, 0.f, -0.f };
 
 	string name = "Dragon";
@@ -177,7 +181,12 @@ void CLOTH::createDragon()
 		assets::unpack_mesh(&meshInfo, file.binaryBlob.data(), file.binaryBlob.size(),
 			reinterpret_cast<char*>(loadMeshs[name]->data.data()),
 			reinterpret_cast<char*>(loadMeshs[name]->indices.data()));
-		loadMeshs[name].get()->setVertices([](uint32_t i, Vertex& v) {v.color = { 1.f, 1.f, 1.f }; v.position *= 10.f; });
+		loadMeshs[name].get()->setVertices([](uint32_t i, Vertex& v) {v.color = { 1.f, 1.f, 1.f }; 
+		v.position += Vector3f{0.f, 0.0f, 0.05f}; 
+		v.position *= 10.f; 
+		AngleAxis<float> aa(90.f / 180.f * 3.14f, Vector3f(1.f,0.f,0.f));
+		v.position= aa*v.position;
+		});
 		loadMeshs[name].get()->recomputeNormals();
 	}
 	dragon.mesh = loadMeshs[name];
@@ -189,14 +198,15 @@ void CLOTH::createDragon()
 	}
 	dragon.material = &materials[name];
 
-	dragon.setRotation(rotationDragon);
-	dragon.setPosition(modelDragon);
+	//dragon.setRotation(rotationDragon);
+	//dragon.setPosition(modelDragon);
+	dragon.computeAABB();
 	renderables.emplace_back(dragon.mesh.get(), dragon.material, &dragon.transform);
 }
 
 void CLOTH::createSoldiers()
 {
-	LOGI("¶ÁÈ¡ÂÞÂíÊ¿±øÄ£ÐÍ");
+	LOGI("ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½Ê¿ï¿½ï¿½Ä£ï¿½ï¿½");
 
 	string name = "Roman-Soldier";
 	assets::AssetFile file;

@@ -14,11 +14,13 @@ namespace Crane
 
 		Eigen::Vector3f position = Eigen::Vector3f::Zero();
 		Eigen::Vector3f rotation = Eigen::Vector3f::Zero();
+		Eigen::Vector3f scale = Eigen::Vector3f::Ones();
 		Eigen::Quaternionf rotationQ = Eigen::Quaternionf::Identity();
 		Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
 
 		void setPosition(Eigen::Vector3f p);
 		void setRotation(Eigen::Vector3f r);
+		void setScale(Eigen::Vector3f s);
 
 		// aabb
 

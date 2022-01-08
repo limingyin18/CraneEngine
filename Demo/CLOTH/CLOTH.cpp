@@ -65,8 +65,8 @@ void CLOTH::updateApp()
 	cloak.mesh->recomputeNormals();
 
 	sphereTest.setPosition(pbd.rigidbodies.back()->position);
-	LOGI("位置 {}, {}, {}", sphereTest.position.x(), sphereTest.position.y(), sphereTest.position.z());
-	LOGI("速度 {}, {}, {}", pbd.rigidbodies.back()->velocity.x(), pbd.rigidbodies.back()->velocity.y(), pbd.rigidbodies.back()->velocity.z());
+	//LOGI("位锟斤拷 {}, {}, {}", sphereTest.position.x(), sphereTest.position.y(), sphereTest.position.z());
+	//LOGI("锟劫讹拷 {}, {}, {}", pbd.rigidbodies.back()->velocity.x(), pbd.rigidbodies.back()->velocity.y(), pbd.rigidbodies.back()->velocity.z());
 
 	/*
 	for(size_t i = 0; i < renderables.size(); ++i)
@@ -104,57 +104,10 @@ void CLOTH::setImgui()
 
 void CLOTH::createAssetApp()
 {
-	LOGI("创建应用资产");
+	LOGI("create app asset");
 
 	SDL2_IMGUI_BASE::createAssetApp();
 
-	LOGI("创建剔除管线")
-	{
-		pipelinePassCull.device = device.get();
-		auto shaderCodeCull = Loader::readFile("shaders/cull.comp.spv.");
-		pipelinePassCull.addShader(shaderCodeCull, vk::ShaderStageFlagBits::eCompute);
-		pipelinePassCull.buildDescriptorSetLayout();
-		pipelinePassCull.buildPipelineLayout();
-		pipelinePassCull.buildPipeline(nullptr);
-
-		materialBuilder.descriptorPool = descriptorPool.get();
-		materialBuilder.pipelinePass = &pipelinePassCull;
-
-		materialCull = materialBuilder.build();
-		materialCull.writeDescriptorSets[0][0].pBufferInfo = &descriptorBufferInfoCullObjCandidate; // object candidate
-		materialCull.writeDescriptorSets[0][1].pBufferInfo = &descriptorBufferInfoIndirect; // draw command
-		materialCull.writeDescriptorSets[0][2].pBufferInfo = &descriptorBufferDrawsFlat; // flat batch
-		materialCull.writeDescriptorSets[0][3].pBufferInfo = &descriptorBufferInfoInstanceID; // instance id
-		materialCull.writeDescriptorSets[0][5].pBufferInfo = &descriptorBufferInfoCullData; // cull data
-	}
-
-	LOGI("创建冯氏着色模型管线")
-	{
-		pipelinePassPhong.device = device.get();
-
-		pipelinePassPhong.renderPass = renderPass.get();
-
-		auto vertShaderCode = Loader::readFile("shaders/phong.vert.spv");
-		pipelinePassPhong.addShader(vertShaderCode, vk::ShaderStageFlagBits::eVertex);
-		auto fragShaderCode = Loader::readFile("shaders/phong.frag.spv");
-		pipelinePassPhong.addShader(fragShaderCode, vk::ShaderStageFlagBits::eFragment);
-		pipelinePassPhong.bindings[0][0].descriptorType = vk::DescriptorType::eUniformBufferDynamic;
-
-		pipelinePassPhong.buildDescriptorSetLayout();
-
-		pipelinePassPhong.buildPipelineLayout();
-		pipelinePassPhong.buildPipeline(pipelineBuilder);
-	}
-
-	LOGI("创建冯氏着色材质构建工厂")
-	{
-		materialBuilderPhong.descriptorPool = descriptorPool.get();
-		materialBuilderPhong.pipelinePass = &pipelinePassPhong;
-		materialBuilderPhong.sceneParameterBufferDescriptorInfo = &sceneParameterBufferDescriptorInfo;
-		materialBuilderPhong.modelMatrixBufferDescriptorInfo = &modelMatrixBufferDescriptorInfo;
-		materialBuilderPhong.descriptorBufferInfoInstanceID = &descriptorBufferInfoInstanceID;
-		materialBuilderPhong.descriptorImageInfoBlank = &descriptorImageInfoBlank;
-	}
 
 	createChessboard();
 	createCloak();
@@ -162,4 +115,54 @@ void CLOTH::createAssetApp()
 	createSoldiers();
 	createCubeTest();
 	createSphereTest();
+
+	vector<Vector3f> box1Vertex(dragon.mesh->data.size());
+	for (uint32_t i = 0; i < dragon.mesh->data.size(); ++i)
+		box1Vertex[i] = dragon.mesh->data[i].position;
+	vector<unsigned> volume;
+	vector<uint32_t> indices;
+	uint32_t width = 100, height = 40, depth = 20;
+	Voxelize(box1Vertex.data(), box1Vertex.size(), dragon.mesh->indices.data(), dragon.mesh->indices.size() / 3,
+			 width, height, depth, volume, dragon.extentMin, dragon.extentMax);
+
+	Vector3f len = dragon.extentMax - dragon.extentMin;
+	for (uint32_t i = 0, offset = 2; i < volume.size(); ++i)
+	{
+		if (volume[i] == 1)
+		{
+			uint32_t z = i / (width * height);
+			uint32_t y = i % (width * height) / width;
+			uint32_t x = i % (width * height) % width;
+			Vector3f pos = dragon.position + dragon.extentMin +
+												 Vector3f(len.x() / width * (x+0.5f),
+														  len.y() / height * (y+0.5f),
+														  len.z() / depth * (z+0.5f));
+			Actor box;
+			box.mesh = loadMeshs["cubeTest"];
+			box.material = &materials["cubeTest"];
+			box.setPosition(pos);
+			box.setRotation(dragon.rotation);
+			box.setScale(Vector3f{len.x() / width, len.y() / height, len.z() / depth}/ 2.f);
+			boxs.push_back(box);
+
+			/*
+			pbd.mRigiBodies.emplace_back(1.0f);
+			pbd.mRigiBodies.back().mBaryCenter = phyBox1.getAabb().first +
+												 Vector3f(phyBox1.mLength.x() / width * x,
+														  phyBox1.mLength.y() / height * y,
+														  phyBox1.mLength.z() / depth * z);
+			pbd.mRigiBodies.back().mVelocity = Vector3f(0.f, 0.f, 0.f);
+			indices.emplace_back(offset++);
+			*/
+		}
+	}
+	for(auto &b:boxs)
+		renderables.emplace_back(b.mesh.get(), b.material, &b.transform);
+
+	//pbd.mConstraints.emplace_back(std::make_shared<ShapeMatchingConstraint>(pbd, indices.size(), indices));
+
+	for (auto& rb : pbd.rigidbodies)
+		rb->computeAABB();
+
+	pbd.bvh = BVH(pbd.rigidbodies);
 }

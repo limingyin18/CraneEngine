@@ -19,7 +19,7 @@ add_subdirectory(SDL2_IMGUI_BASE)
 add_subdirectory(OCEAN)
 add_subdirectory(POSE)
 #add_subdirectory(BASIC)
-#add_subdirectory(CLOTH)
+add_subdirectory(CLOTH)
 #add_subdirectory(MINI_GAME)
 #add_subdirectory(HAIR)
 

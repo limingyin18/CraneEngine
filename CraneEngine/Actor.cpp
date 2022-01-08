@@ -8,7 +8,7 @@ void Actor::setPosition(Eigen::Vector3f p)
 {
 	position = p;
 
-	transform = (Translation3f(position) * rotationQ).matrix();
+	transform = (Translation3f(position) * rotationQ * Scaling(scale)).matrix();
 }
 
 void Actor::setRotation(Eigen::Vector3f r)
@@ -18,10 +18,16 @@ void Actor::setRotation(Eigen::Vector3f r)
 	rotationQ = Quaternionf(aa);
 	auto bb = AngleAxisf(rotation[1], Vector3f::UnitY());
 	rotationQ *= Quaternionf(bb);
-	auto cc = AngleAxisf(rotation[0], Vector3f::UnitZ());
-	rotationQ *= Quaternionf(aa);
+	auto cc = AngleAxisf(rotation[2], Vector3f::UnitZ());
+	rotationQ *= Quaternionf(cc);
 
-	transform = (Translation3f(position) * rotationQ).matrix();
+	transform = (Translation3f(position) * rotationQ * Scaling(scale)).matrix();
+}
+
+void Actor::setScale(Eigen::Vector3f s)
+{
+	scale = s;
+	transform = (Translation3f(position) * rotationQ * Scaling(scale)).matrix();
 }
 
 void Actor::computeAABB()

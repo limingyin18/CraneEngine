@@ -11,6 +11,12 @@
 
 #include "CVUtils.hpp"
 
+struct BindCoff
+{
+	uint32_t index;
+	Eigen::Vector3f diff;
+};
+
 class POSE : public SDL2_IMGUI_BASE
 {
 public:
@@ -35,6 +41,7 @@ private:
 	void createChessboard();
 
 	Crane::Actor human;
+	std::vector<BindCoff> bindCoffs;
 	void createHuman();
 
 	std::array<Crane::Actor, 13> bones;

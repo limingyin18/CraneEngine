@@ -9,9 +9,6 @@
 class CLOTH : public SDL2_IMGUI_BASE
 {
 private:
-	Crane::PipelinePassGraphics pipelinePassPhong;
-	Crane::MaterialBuilderPhong materialBuilderPhong;
-
 	Crane::Actor chessboard;
 
 	Crane::Actor cloak;
@@ -26,6 +23,8 @@ private:
 	Crane::Actor sphereTest;
 
 	CranePhysics::PositionBasedDynamics pbd;
+
+	std::vector<Crane::Actor> boxs;
 
 	void createAssetApp() override;
 	void updateApp() override;

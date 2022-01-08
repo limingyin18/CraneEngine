@@ -111,32 +111,32 @@ void Engine::updateInput()
 
 	if (input.keys["a"])
 	{
-		camera.target = camera.target - camera.right * camera.cameraMoveSpeed;
+		camera.target = camera.target - camera.right * camera.cameraMoveSpeed*dt;
 	}
 
 	if (input.keys["w"])
 	{
-		camera.target = camera.target + camera.front * camera.cameraMoveSpeed;
+		camera.target = camera.target + camera.front * camera.cameraMoveSpeed*dt;
 	}
 
 	if (input.keys["s"])
 	{
-		camera.target = camera.target - camera.front * camera.cameraMoveSpeed;
+		camera.target = camera.target - camera.front * camera.cameraMoveSpeed*dt;
 	}
 
 	if (input.keys["d"])
 	{
-		camera.target = camera.target + camera.right * camera.cameraMoveSpeed;
+		camera.target = camera.target + camera.right * camera.cameraMoveSpeed*dt;
 	}
 
 	if (input.keys["q"])
 	{
-		camera.target = camera.target + camera.up * camera.cameraMoveSpeed;
+		camera.target = camera.target + camera.up * camera.cameraMoveSpeed*dt;
 	}
 
 	if (input.keys["e"])
 	{
-		camera.target = camera.target - camera.up * camera.cameraMoveSpeed;
+		camera.target = camera.target - camera.up * camera.cameraMoveSpeed*dt;
 	}
 
 	camera.computeTransformation();
