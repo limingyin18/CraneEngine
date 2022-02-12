@@ -4,6 +4,17 @@ using namespace std;
 using namespace Eigen;
 using namespace CranePhysics;
 
+bool CranePhysics::aabbIntersect(Eigen::Vector3f aMin, Eigen::Vector3f aMax, Eigen::Vector3f bMin, Eigen::Vector3f bMax)
+{
+    if(aMax.x() < bMin.x() || aMin.x() > bMax.x())
+        return false;
+    if(aMax.y() < bMin.y() || aMin.y() > bMax.y())
+        return false;
+    if(aMax.z() < bMin.z() || aMin.z() > bMax.z())
+        return false;
+
+    return true;
+}
 optional<pair<Vector3f, float>> CranePhysics::SphereCubeIntersect(
     Vector3f bmin, Vector3f bmax, Vector3f c, Eigen::Quaternionf t, Vector3f p, float r)
 {

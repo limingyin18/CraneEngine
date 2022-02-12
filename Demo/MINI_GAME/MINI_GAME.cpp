@@ -34,6 +34,7 @@ void MINI_GAME::updateApp()
 
 void MINI_GAME::updateGraphics()
 {
+    int a = 1;
 	auto modelMatrixPtr = modelMatrix.data();
 	uint32_t offset = 0;
 	for (auto& d : draws)

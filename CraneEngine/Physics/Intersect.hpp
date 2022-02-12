@@ -5,6 +5,19 @@
 namespace CranePhysics
 {
     /**
+     * @brief aabb intersect
+     * 
+     * @param aMin 
+     * @param aMax 
+     * @param bMin 
+     * @param bMax 
+     * @return true 
+     * @return false 
+     */
+    bool aabbIntersect(Eigen::Vector3f aMin, Eigen::Vector3f aMax, Eigen::Vector3f bMin, Eigen::Vector3f bMax);
+    
+
+    /**
      * @brief 球体与长方体相交测试
      * 
      * @param bmin - 长方体最小点

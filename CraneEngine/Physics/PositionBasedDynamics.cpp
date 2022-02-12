@@ -21,7 +21,7 @@ void PositionBasedDynamics::externalForceIntegral()
 {
     for (auto rb : rigidbodies)
     {
-        // ÖØÁ¦
+        // ï¿½ï¿½ï¿½ï¿½
         if (rb->invMass > 0.f)
         {
             rb->velocity[1] += -dt * g;
@@ -56,12 +56,25 @@ void PositionBasedDynamics::updateVelocity()
 
 void PositionBasedDynamics::generateCollisionConstraint()
 {
+    for (auto& rb : rigidbodies)
+		rb->computeAABB();
+	bvh = BVH(rigidbodies);
+
     for (uint32_t i = 0; i < rigidbodies.size() - 1; ++i)
     {
+        vector<uint32_t> indices;
+        bvh.check(*rigidbodies[i], bvh.root, indices);
+        for(uint32_t index : indices)
+        {
+            if(i != index)
+                CollisionDetectDispatch(rigidbodies[i].get(), rigidbodies[index].get(), *this);
+        }
+        /*
         for (uint32_t j = i + 1; j < rigidbodies.size(); ++j)
         {
             CollisionDetectDispatch(rigidbodies[i].get(), rigidbodies[j].get(), *this);
         }
+        */
     }
 }
 

@@ -56,7 +56,7 @@ void CLOTH::createCloak()
 		descriptorImageInfos[nameImage].sampler = textureSampler.get();
 	}
 
-	Eigen::Vector3f modelCloak{ 0.f, 5.0f, -5.f };
+	Eigen::Vector3f modelCloak{ 0.f, 6.0f, 5.f };
 
 	string name = "cloak";
 	loadMeshs[name] = make_shared<Crane::Plane>(11, 11);
@@ -116,6 +116,7 @@ void CLOTH::createCubeTest()
 	materialBuilderPhong.descriptorInfos[1][0].second = &descriptorImageInfoLilac;
 	materialBuilderPhong.pipelinePass = &pipelinePassLinePhong;
 	materials[name] = materialBuilderPhong.build();
+	materialBuilderPhong.descriptorInfos[1][0].second = &descriptorImageInfoBlank;
 	materialBuilderPhong.pipelinePass = &pipelinePassPhong;
 	cubeTest.material = &materials[name];
 
@@ -131,6 +132,55 @@ void CLOTH::createCubeTest()
 	physicsCubeTest->depth = 2.f;
 	physicsCubeTest->height =2.f;
 	pbd.rigidbodies.push_back(physicsCubeTest);
+}
+
+void CLOTH::createFlagCloth()
+{
+	LOGI("create flag cloth");
+
+	Eigen::Vector3f modelFlagCloth{ 0.f, 3.0f, 5.f };
+
+	string name = "flagCloth";
+	loadMeshs[name] = make_shared<Crane::Plane>(11, 11);
+	flagCloth.mesh = loadMeshs[name];
+	flagCloth.material = &materials["cloak"];
+	flagCloth.setPosition(modelFlagCloth);
+	renderables.emplace_back(flagCloth.mesh.get(), flagCloth.material, &flagCloth.transform);
+
+	// physics
+	offsetPhyFlagCloth = pbd.rigidbodies.size();
+	for (uint32_t i = 0; i < flagCloth.mesh->data.size(); ++i)
+	{
+		auto particle = std::make_shared<CranePhysics::Particle>();
+		particle->radius = 1.0f / 10.f - 0.01f;
+		particle->position = flagCloth.mesh->data[i].position + modelFlagCloth;
+		particle->positionPrime = particle->position;
+
+		//particle->invMass = (i - i % 11) / 11.f;
+		particle->invMass = 1.f;
+		pbd.rigidbodies.push_back(particle);
+	}
+
+	// physics constraint
+	float compress = 1.0f, stretch = 1.0f;
+	for (uint32_t i = 0; i < flagCloth.mesh->indices.size(); i = i + 3)
+	{
+		size_t indexA = flagCloth.mesh->indices[i];
+		size_t indexB = flagCloth.mesh->indices[i + 1];
+		size_t indexC = flagCloth.mesh->indices[i + 2];
+
+		CranePhysics::Rigidbody& a = *(pbd.rigidbodies[offsetPhyFlagCloth + indexA]);
+		CranePhysics::Rigidbody& b = *(pbd.rigidbodies[offsetPhyFlagCloth + indexB]);
+		CranePhysics::Rigidbody& c = *(pbd.rigidbodies[offsetPhyFlagCloth + indexC]);
+		float distAB = (a.position - b.position).norm();
+		pbd.constraints.emplace_back(std::make_shared<Stretching>(a, b, distAB, compress, stretch));
+
+		float distAC = (a.position - c.position).norm();
+		pbd.constraints.emplace_back(std::make_shared<Stretching>(a, c, distAC, compress, stretch));
+
+		float distBC = (b.position - c.position).norm();
+		pbd.constraints.emplace_back(std::make_shared<Stretching>(b, c, distBC, compress, stretch));
+	}
 }
 
 void CLOTH::createSphereTest()
@@ -165,7 +215,7 @@ void CLOTH::createDragon()
 
 	Eigen::Vector3f rotationDragon{ 45.f / 180.f * 3.14f, 0.f, 0.f };
 	//Eigen::Vector3f rotationDragon{ 0.f, 0.f, 0.f };
-	Eigen::Vector3f modelDragon{ 0.f, 0.f, -0.f };
+	Eigen::Vector3f modelDragon{ 0.f, 0.f, 5.f };
 
 	string name = "Dragon";
 	assets::AssetFile file;
@@ -199,9 +249,57 @@ void CLOTH::createDragon()
 	dragon.material = &materials[name];
 
 	//dragon.setRotation(rotationDragon);
-	//dragon.setPosition(modelDragon);
+	dragon.setPosition(modelDragon);
 	dragon.computeAABB();
 	renderables.emplace_back(dragon.mesh.get(), dragon.material, &dragon.transform);
+
+
+	vector<Vector3f> box1Vertex(dragon.mesh->data.size());
+	for (uint32_t i = 0; i < dragon.mesh->data.size(); ++i)
+		box1Vertex[i] = dragon.mesh->data[i].position;
+	vector<unsigned> volume;
+	vector<uint32_t> indices;
+	uint32_t width = 100, height = 40, depth = 20;
+	//uint32_t width = 2, height = 2, depth = 2;
+	Voxelize(box1Vertex.data(), box1Vertex.size(), dragon.mesh->indices.data(), dragon.mesh->indices.size() / 3,
+			 width, height, depth, volume, dragon.extentMin, dragon.extentMax);
+
+	Vector3f len = dragon.extentMax - dragon.extentMin;
+	for (uint32_t i = 0, offset = 2; i < volume.size(); ++i)
+	{
+		if (volume[i] == 1)
+		{
+			uint32_t z = i / (width * height);
+			uint32_t y = i % (width * height) / width;
+			uint32_t x = i % (width * height) % width;
+			Vector3f pos = dragon.position + dragon.extentMin +
+												 Vector3f(len.x() / width * (x+0.5f),
+														  len.y() / height * (y+0.5f),
+														  len.z() / depth * (z+0.5f));
+			Actor box;
+			box.mesh = loadMeshs["cubeTest"];
+			box.material = &materials["cubeTest"];
+			box.setPosition(pos);
+			box.setRotation(dragon.rotation);
+			box.setScale(Vector3f{len.x() / width, len.y() / height, len.z() / depth}/ 2.f);
+			boxs.push_back(box);
+
+			auto physicsCubeTest = std::make_shared<CranePhysics::Cube>();
+			physicsCubeTest->invMass = 0.f;
+			physicsCubeTest->position = pos;
+			physicsCubeTest->positionPrime = pos;
+			physicsCubeTest->width = len.x() / width;
+			physicsCubeTest->height = len.y() / height;
+			physicsCubeTest->depth = len.z() / depth;
+
+			pbd.rigidbodies.push_back(physicsCubeTest);
+			pbd.rigidbodies.back()->velocity = Vector3f(0.f, 0.f, 0.f);
+			//indices.emplace_back(offset++);
+		}
+	}
+	//pbd.mConstraints.emplace_back(std::make_shared<ShapeMatchingConstraint>(pbd, indices.size(), indices));
+	for(auto &b:boxs)
+		renderables.emplace_back(b.mesh.get(), b.material, &b.transform);
 }
 
 void CLOTH::createSoldiers()

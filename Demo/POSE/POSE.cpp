@@ -11,7 +11,6 @@ POSE::POSE(shared_ptr<SDL_Window> win) : SDL2_IMGUI_BASE(win), deviceTorch(torch
 	camera.target = Vector3f{ 0.f, 10.f, 0.f };
 	camera.cameraMoveSpeed = 1.f;
 
-	initCV();
 }
 
 POSE::~POSE()
@@ -26,6 +25,8 @@ void POSE::createAssetApp()
     createChessboard();
 	createBones();
 	createHuman();
+
+	initCV();
 }
 
 void POSE::updateApp()

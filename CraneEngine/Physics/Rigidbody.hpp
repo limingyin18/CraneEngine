@@ -12,7 +12,7 @@ using namespace Eigen;
 namespace CranePhysics
 {
     /**
-     * ����
+     * Rigidbody base class
      */
     class Rigidbody
     {

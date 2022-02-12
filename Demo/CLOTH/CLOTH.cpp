@@ -8,7 +8,7 @@ using namespace Crane;
 CLOTH::CLOTH(shared_ptr<SDL_Window> win) : SDL2_IMGUI_BASE(win)
 {
 	//preferPresentMode = vk::PresentModeKHR::eFifo;
-	camera.target = Vector3f{ 0.f, 1.8f, 0.f };
+	camera.target = Vector3f{ 0.f, 1.8f, 10.f };
 	camera.rotation[0] = -0.0f;
 	camera.cameraMoveSpeed = 1.f;
 }
@@ -64,6 +64,9 @@ void CLOTH::updateApp()
 	cloak.mesh->setVertices([this](uint32_t i, Crane::Vertex &v){v.position = this->pbd.rigidbodies[offsetCloak+i]->position - this->cloak.position;});
 	cloak.mesh->recomputeNormals();
 
+	flagCloth.mesh->setVertices([this](uint32_t i, Crane::Vertex &v){v.position = this->pbd.rigidbodies[offsetPhyFlagCloth+i]->position - this->flagCloth.position;});
+	flagCloth.mesh->recomputeNormals();
+
 	sphereTest.setPosition(pbd.rigidbodies.back()->position);
 	//LOGI("λ�� {}, {}, {}", sphereTest.position.x(), sphereTest.position.y(), sphereTest.position.z());
 	//LOGI("�ٶ� {}, {}, {}", pbd.rigidbodies.back()->velocity.x(), pbd.rigidbodies.back()->velocity.y(), pbd.rigidbodies.back()->velocity.z());
@@ -86,6 +89,10 @@ void CLOTH::updateApp()
 	size_t offset = chessboard.mesh->data.size();
 	for (size_t i = 0; i < cloak.mesh->data.size(); i++)
 		vertices[offset++] = cloak.mesh->data[i];
+
+	for (size_t i = 0; i < flagCloth.mesh->data.size(); i++)
+		vertices[offset++] = flagCloth.mesh->data[i];
+
 	vertBuff.update(vertices.data());
 }
 
@@ -111,55 +118,13 @@ void CLOTH::createAssetApp()
 
 	createChessboard();
 	createCloak();
+	createFlagCloth();
+	createCubeTest();
 	createDragon();
 	createSoldiers();
-	createCubeTest();
 	createSphereTest();
 
-	vector<Vector3f> box1Vertex(dragon.mesh->data.size());
-	for (uint32_t i = 0; i < dragon.mesh->data.size(); ++i)
-		box1Vertex[i] = dragon.mesh->data[i].position;
-	vector<unsigned> volume;
-	vector<uint32_t> indices;
-	uint32_t width = 100, height = 40, depth = 20;
-	Voxelize(box1Vertex.data(), box1Vertex.size(), dragon.mesh->indices.data(), dragon.mesh->indices.size() / 3,
-			 width, height, depth, volume, dragon.extentMin, dragon.extentMax);
 
-	Vector3f len = dragon.extentMax - dragon.extentMin;
-	for (uint32_t i = 0, offset = 2; i < volume.size(); ++i)
-	{
-		if (volume[i] == 1)
-		{
-			uint32_t z = i / (width * height);
-			uint32_t y = i % (width * height) / width;
-			uint32_t x = i % (width * height) % width;
-			Vector3f pos = dragon.position + dragon.extentMin +
-												 Vector3f(len.x() / width * (x+0.5f),
-														  len.y() / height * (y+0.5f),
-														  len.z() / depth * (z+0.5f));
-			Actor box;
-			box.mesh = loadMeshs["cubeTest"];
-			box.material = &materials["cubeTest"];
-			box.setPosition(pos);
-			box.setRotation(dragon.rotation);
-			box.setScale(Vector3f{len.x() / width, len.y() / height, len.z() / depth}/ 2.f);
-			boxs.push_back(box);
-
-			/*
-			pbd.mRigiBodies.emplace_back(1.0f);
-			pbd.mRigiBodies.back().mBaryCenter = phyBox1.getAabb().first +
-												 Vector3f(phyBox1.mLength.x() / width * x,
-														  phyBox1.mLength.y() / height * y,
-														  phyBox1.mLength.z() / depth * z);
-			pbd.mRigiBodies.back().mVelocity = Vector3f(0.f, 0.f, 0.f);
-			indices.emplace_back(offset++);
-			*/
-		}
-	}
-	for(auto &b:boxs)
-		renderables.emplace_back(b.mesh.get(), b.material, &b.transform);
-
-	//pbd.mConstraints.emplace_back(std::make_shared<ShapeMatchingConstraint>(pbd, indices.size(), indices));
 
 	for (auto& rb : pbd.rigidbodies)
 		rb->computeAABB();

@@ -13,6 +13,8 @@ private:
 
 	Crane::Actor cloak;
 	uint32_t offsetCloak = 0;
+	Crane::Actor flagCloth;
+	uint32_t offsetPhyFlagCloth = 0;
 
 	Crane::Actor dragon;
 
@@ -34,6 +36,7 @@ private:
 	void createChessboard();
 
 	void createCloak();
+	void createFlagCloth();
 	void createCubeTest();
 	void createSphereTest();
 
