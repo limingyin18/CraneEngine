@@ -4,6 +4,27 @@ using namespace std;
 using namespace Eigen;
 using namespace Crane;
 
+void Render::buildPipelineBuilder()
+{
+	pipelineBuilder.device = device.get();
+
+	pipelineBuilder.viewport = vk::Viewport{
+		.y = (float)height,
+		.width = (float)width,
+		.height = -(float)height,
+		.minDepth = 0.f,
+		.maxDepth = 1.f };
+	pipelineBuilder.scissor = vk::Rect2D{
+		.extent = {.width = width, .height = height} };
+	pipelineBuilder.vp = vk::PipelineViewportStateCreateInfo{
+		.viewportCount = 1,
+		.pViewports = &pipelineBuilder.viewport,
+		.scissorCount = 1,
+		.pScissors = &pipelineBuilder.scissor };
+
+	pipelineBuilder.pipelineCache = pipelineCache.get();
+}
+
 void Render::createDepthStencilImage()
 {
 	depthStencilImage.create(*vmaAllocator, width, height, 1, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_TILING_OPTIMAL,

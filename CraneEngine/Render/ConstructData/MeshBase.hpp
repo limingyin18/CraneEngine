@@ -14,6 +14,11 @@ namespace Crane
      */
     struct Vertex
     {
+        Vertex(const Eigen::Vector3f &pos = Eigen::Vector3f{0.f, 0.f, 0.f}, 
+            const Eigen::Vector3f &n = Eigen::Vector3f{1.f, 1.f, 1.f}, 
+            const Eigen::Vector3f &c = Eigen::Vector3f{1.f, 1.f, 1.f}, 
+            const Eigen::Vector2f &u = Eigen::Vector2f{0.f, 0.f});
+
         Eigen::Vector3f position{0.f, 0.f, 0.f}; // 位置
         Eigen::Vector3f normal{1.f, 1.f, 1.f};   // 法线
         Eigen::Vector3f color{ 1.f, 1.f, 1.f };  // 颜色
@@ -46,7 +51,7 @@ namespace Crane
          * @brief 法线计算
          * @details 三角形两边叉乘计算法线，相邻三角形面积控制占比
          */
-        void recomputeNormals();
+        virtual void recomputeNormals();
     };
 
     /**

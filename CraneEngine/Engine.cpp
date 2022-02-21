@@ -1,4 +1,4 @@
-﻿#include "Engine.hpp"
+#include "Engine.hpp"
 
 using namespace std;
 using namespace Crane;
@@ -142,7 +142,7 @@ void Engine::updateInput()
 	camera.computeTransformation();
 }
 
-bool Engine::load_prefab(assets::PrefabInfo prefab, Eigen::Matrix4f root, vector<RenderableBase>& renderables, PipelinePassGraphics& pipelinePassGraphics)
+bool Engine::load_prefab(assets::PrefabInfo prefab, Eigen::Matrix4f root, vector<GraphicsPrimitive>& renderables, PipelinePassGraphics& pipelinePassGraphics)
 {
 	/*
 	std::unordered_map<uint64_t, Eigen::Matrix4f> node_worldmats;

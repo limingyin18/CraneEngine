@@ -1,3 +1,5 @@
+#include "GraphicsPrimitive.hpp"
+
 namespace Crane
 {
 	struct SceneParameters
@@ -17,7 +19,7 @@ namespace Crane
 
 	struct IndirectBatch
 	{
-		RenderableBase* renderable;
+		GraphicsPrimitive* renderable;
 		uint32_t first;
 		uint32_t count;
 	};

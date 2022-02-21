@@ -105,6 +105,6 @@ namespace Crane
 
 		std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::pair<vk::DescriptorBufferInfo*, vk::DescriptorImageInfo*>>> descriptorInfos;
 
-		virtual Material build();
+		std::shared_ptr<Material> build();
 	};
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include "numeric"
 #include "Rigidbody.hpp"
 #include "Intersect.hpp"
@@ -28,7 +30,7 @@ namespace CranePhysics
 		};
 
 	public:
-		BVH() {};
+		BVH(){};
 		~BVH();
 		BVH(const BVH &rhs) = delete;
 		BVH(BVH &&rhs) = delete;
@@ -43,5 +45,6 @@ namespace CranePhysics
 		void check(CranePhysics::Rigidbody const & rb, Node *node, std::vector<uint32_t> &indices);
 
 		Node* root = nullptr;
+		const std::vector<std::shared_ptr<CranePhysics::Rigidbody>> *rgb = nullptr;
 	};
 }

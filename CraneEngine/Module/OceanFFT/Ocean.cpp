@@ -11,9 +11,8 @@ constexpr float LX = 100.0f;
 constexpr float LZ = 100.0f;
 constexpr float AMPLITUDE = 100.f;
 constexpr float WIND_SPEED = 100.0f;
-constexpr complex<float> WIND_DIRECTION = { 1.f, 1.f };
+constexpr complex<float> WIND_DIRECTION = {1.f, 1.f};
 constexpr float CHOPPY_FACTOR = 1.0f;
-
 
 Ocean::Ocean() : oceanAmpl(N, M, LX, LZ, AMPLITUDE, WIND_SPEED, WIND_DIRECTION, CHOPPY_FACTOR)
 {
@@ -38,7 +37,7 @@ void Ocean::update(float dtAll)
 	computeQueue.waitIdle();
 }
 
-void Ocean::init(Crane::Render* ctx)
+void Ocean::init(Crane::Render *ctx)
 {
 	context = ctx;
 
@@ -74,7 +73,6 @@ void Ocean::init(Crane::Render* ctx)
 		lambda.update(&oceanAmpl.lambda);
 	}
 
-
 	createAmpl();
 	createIfft2();
 	createSign();
@@ -85,7 +83,7 @@ void Ocean::init(Crane::Render* ctx)
 	writeCommand();
 }
 
-void Crane::Ocean::createBufferOcean(vk::UniqueBuffer& buffer, vk::UniqueImage& image, vk::UniqueImageView& imageView, vk::UniqueDeviceMemory& deviceMemory, vk::DescriptorBufferInfo& descriptorBufferInfo, vk::DescriptorImageInfo& descriptorImageInfo)
+void Crane::Ocean::createBufferOcean(vk::UniqueBuffer &buffer, vk::UniqueImage &image, vk::UniqueImageView &imageView, vk::UniqueDeviceMemory &deviceMemory, vk::DescriptorBufferInfo &descriptorBufferInfo, vk::DescriptorImageInfo &descriptorImageInfo)
 {
 	size_t size = N * M * 2 * 4;
 	vk::BufferCreateInfo bufferInfo{};
@@ -115,14 +113,11 @@ void Crane::Ocean::createBufferOcean(vk::UniqueBuffer& buffer, vk::UniqueImage& 
 	imageInfo.sharingMode = vk::SharingMode::eExclusive;
 	image = context->device->createImageUnique(imageInfo);
 
-
-
 	vk::MemoryRequirements memRequirementsBuffer = context->device->getBufferMemoryRequirements(buffer.get());
 	vk::MemoryRequirements memRequirementsImage = context->device->getImageMemoryRequirements(image.get());
 	vk::MemoryAllocateInfo allocInfo{};
 	allocInfo.allocationSize = size;
-	allocInfo.memoryTypeIndex = context->findMemoryType(memRequirementsBuffer.memoryTypeBits & memRequirementsImage.memoryTypeBits
-		, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+	allocInfo.memoryTypeIndex = context->findMemoryType(memRequirementsBuffer.memoryTypeBits & memRequirementsImage.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 	deviceMemory = context->device->allocateMemoryUnique(allocInfo);
 	context->device->bindBufferMemory(buffer.get(), deviceMemory.get(), 0);
 	context->device->bindImageMemory(image.get(), deviceMemory.get(), 0);
@@ -145,23 +140,22 @@ void Crane::Ocean::createBufferOcean(vk::UniqueBuffer& buffer, vk::UniqueImage& 
 
 	VkImageMemoryBarrier vkm = barrier;
 	vkCmdPipelineBarrier(cmdBuffSingle, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0,
-		nullptr, 1, &vkm);
+						 nullptr, 1, &vkm);
 	context->endSingleTimeCommands(cmdBuffSingle);
 
-	vk::ImageViewCreateInfo imageViewCreateInfo{ .image = image.get(),
-										.viewType = vk::ImageViewType::e2D,
-										.format = vk::Format::eR32G32Sfloat,
-										.subresourceRange = {.aspectMask = vk::ImageAspectFlagBits::eColor,
-															 .baseMipLevel = 0,
-															 .levelCount = 1,
-															 .baseArrayLayer = 0,
-															 .layerCount = 1} };
+	vk::ImageViewCreateInfo imageViewCreateInfo{.image = image.get(),
+												.viewType = vk::ImageViewType::e2D,
+												.format = vk::Format::eR32G32Sfloat,
+												.subresourceRange = {.aspectMask = vk::ImageAspectFlagBits::eColor,
+																	 .baseMipLevel = 0,
+																	 .levelCount = 1,
+																	 .baseArrayLayer = 0,
+																	 .layerCount = 1}};
 	imageView = context->device->createImageViewUnique(imageViewCreateInfo);
 
 	descriptorImageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 	descriptorImageInfo.imageView = imageView.get();
 	descriptorImageInfo.sampler = context->textureSampler.get();
-
 }
 
 void Ocean::createAmpl()
@@ -201,7 +195,7 @@ void Ocean::createAmpl()
 	LOGI("��������Ƶ�׼�����Դ����")
 	{
 		materialAmpl = materialBuilderAmpl.build();
-		materialAmpl.update();
+		materialAmpl->update();
 	}
 }
 
@@ -232,23 +226,23 @@ void Ocean::createIfft2()
 	{
 		materialBuilderIfft2.descriptorInfos[0][0].first = &descriptorBufferInfoAmpl;
 		materialIff2Ampl = materialBuilderIfft2.build();
-		materialIff2Ampl.update();
+		materialIff2Ampl->update();
 
 		materialBuilderIfft2.descriptorInfos[0][0].first = &descriptorBufferInfoNormalX;
 		materialIff2NormalX = materialBuilderIfft2.build();
-		materialIff2NormalX.update();
+		materialIff2NormalX->update();
 
 		materialBuilderIfft2.descriptorInfos[0][0].first = &descriptorBufferInfoNormalZ;
 		materialIff2NormalZ = materialBuilderIfft2.build();
-		materialIff2NormalZ.update();
+		materialIff2NormalZ->update();
 
 		materialBuilderIfft2.descriptorInfos[0][0].first = &descriptorBufferInfoDx;
 		materialIff2Dx = materialBuilderIfft2.build();
-		materialIff2Dx.update();
+		materialIff2Dx->update();
 
 		materialBuilderIfft2.descriptorInfos[0][0].first = &descriptorBufferInfoDz;
 		materialIff2Dz = materialBuilderIfft2.build();
-		materialIff2Dz.update();
+		materialIff2Dz->update();
 	}
 }
 
@@ -279,23 +273,23 @@ void Ocean::createSign()
 	{
 		materialBuilderSign.descriptorInfos[0][0].first = &descriptorBufferInfoAmpl;
 		materialSignAmpl = materialBuilderSign.build();
-		materialSignAmpl.update();
+		materialSignAmpl->update();
 
 		materialBuilderSign.descriptorInfos[0][0].first = &descriptorBufferInfoNormalX;
 		materialSignNormalX = materialBuilderSign.build();
-		materialSignNormalX.update();
+		materialSignNormalX->update();
 
 		materialBuilderSign.descriptorInfos[0][0].first = &descriptorBufferInfoNormalZ;
 		materialSignNormalZ = materialBuilderSign.build();
-		materialSignNormalZ.update();
+		materialSignNormalZ->update();
 
 		materialBuilderSign.descriptorInfos[0][0].first = &descriptorBufferInfoDx;
 		materialSignDx = materialBuilderSign.build();
-		materialSignDx.update();
+		materialSignDx->update();
 
 		materialBuilderSign.descriptorInfos[0][0].first = &descriptorBufferInfoDz;
 		materialSignDz = materialBuilderSign.build();
-		materialSignDz.update();
+		materialSignDz->update();
 	}
 }
 
@@ -303,9 +297,10 @@ void Ocean::createRender()
 {
 	LOGI("������������")
 	{
-		context->loadMeshs["Ocean"] = make_shared<Plane>(N, M);
-		mesh = context->loadMeshs["Ocean"];
-		mesh->setVertices([](uint32_t i, Vertex& v) {v.position *= 100.f; });
+		context->meshRepository["Ocean"] = make_shared<Plane>(N, M);
+		mesh = context->meshRepository["Ocean"];
+		mesh->setVertices([](uint32_t i, Vertex &v)
+						  { v.position *= 100.f; });
 	}
 
 	LOGI("����������ɫ����")
@@ -322,7 +317,7 @@ void Ocean::createRender()
 		pipelinePass.buildDescriptorSetLayout();
 
 		pipelinePass.buildPipelineLayout();
-		//context->pipelineBuilder.rs.polygonMode = vk::PolygonMode::eLine;
+		// context->pipelineBuilder.rs.polygonMode = vk::PolygonMode::eLine;
 		pipelinePass.buildPipeline(context->pipelineBuilder);
 	}
 
@@ -335,7 +330,6 @@ void Ocean::createRender()
 		materialBuilder.descriptorInfos[0][1].first = &context->modelMatrixBufferDescriptorInfo;
 		materialBuilder.descriptorInfos[0][2].first = &context->descriptorBufferInfoInstanceID;
 
-
 		materialBuilder.descriptorInfos[1][0].second = &descriptorImageInfoAmpl;
 		materialBuilder.descriptorInfos[1][1].second = &descriptorImageInfoNormalX;
 		materialBuilder.descriptorInfos[1][2].second = &descriptorImageInfoNormalZ;
@@ -346,8 +340,8 @@ void Ocean::createRender()
 
 	LOGI("����������ɫ����")
 	{
-		context->materials["Ocean"] = materialBuilder.build();
-		material = &context->materials["Ocean"];
+		context->materialRepository["Ocean"] = materialBuilder.build();
+		material = context->materialRepository["Ocean"].get();
 	}
 }
 
@@ -355,13 +349,14 @@ void Ocean::createCommand()
 {
 	LOGI("�������󹹽�����")
 
-		vk::CommandPoolCreateInfo commandPoolCreateInfo{ .queueFamilyIndex = context->computeQueueFamilyIndex };
+	vk::CommandPoolCreateInfo commandPoolCreateInfo{.queueFamilyIndex = context->computeQueueFamilyIndex};
 
 	computeCommandPool = context->device->createCommandPoolUnique(commandPoolCreateInfo);
 
 	// allocate compute command buffer
-	vk::CommandBufferAllocateInfo commandBufferAllocateInfo{ .commandPool = computeCommandPool.get(),
-		.level = vk::CommandBufferLevel::ePrimary, .commandBufferCount = 1 };
+	vk::CommandBufferAllocateInfo commandBufferAllocateInfo{.commandPool = computeCommandPool.get(),
+															.level = vk::CommandBufferLevel::ePrimary,
+															.commandBufferCount = 1};
 	computeCommandBuffers = context->device->allocateCommandBuffersUnique(commandBufferAllocateInfo);
 
 	computeSubmitInfo.commandBufferCount = computeCommandBuffers.size();
@@ -382,12 +377,12 @@ void Ocean::initVkFFT()
 	vkFFTConfiguration.FFTdim = 2;
 	vkFFTConfiguration.size[0] = N;
 	vkFFTConfiguration.size[1] = M;
-	vkFFTConfiguration.device = reinterpret_cast<VkDevice*>(&context->device.get());
+	vkFFTConfiguration.device = reinterpret_cast<VkDevice *>(&context->device.get());
 	buffersize = sizeof(float) * 2 * N * M;
-	vkFFTConfiguration.queue = reinterpret_cast<VkQueue*>(&computeQueue);
-	vkFFTConfiguration.fence = reinterpret_cast<VkFence*>(&fftFence);
-	vkFFTConfiguration.commandPool = reinterpret_cast<VkCommandPool*>(&computeCommandPool);
-	vkFFTConfiguration.physicalDevice = reinterpret_cast<VkPhysicalDevice*>(&context->physicalDevice);
+	vkFFTConfiguration.queue = reinterpret_cast<VkQueue *>(&computeQueue);
+	vkFFTConfiguration.fence = reinterpret_cast<VkFence *>(&fftFence);
+	vkFFTConfiguration.commandPool = reinterpret_cast<VkCommandPool *>(&computeCommandPool);
+	vkFFTConfiguration.physicalDevice = reinterpret_cast<VkPhysicalDevice *>(&context->physicalDevice);
 	vkFFTConfiguration.bufferSize = &buffersize;
 	vkFFTConfiguration.isCompilerInitialized = 1;
 	vkFFTConfiguration.makeInversePlanOnly = 1;
@@ -399,20 +394,20 @@ void Ocean::initVkFFT()
 	initializeVkFFT(&vkFFTAppDx, vkFFTConfiguration);
 	initializeVkFFT(&vkFFTAppDz, vkFFTConfiguration);
 
-	vkFFTLaunchParamsAmpl.buffer = reinterpret_cast<VkBuffer*>(&bufferAmpl.get());
-	vkFFTLaunchParamsAmpl.commandBuffer = reinterpret_cast<VkCommandBuffer*>(&computeCommandBuffers[0].get());
+	vkFFTLaunchParamsAmpl.buffer = reinterpret_cast<VkBuffer *>(&bufferAmpl.get());
+	vkFFTLaunchParamsAmpl.commandBuffer = reinterpret_cast<VkCommandBuffer *>(&computeCommandBuffers[0].get());
 
-	vkFFTLaunchParamsNormalX.buffer = reinterpret_cast<VkBuffer*>(&bufferNormalX.get());
-	vkFFTLaunchParamsNormalX.commandBuffer = reinterpret_cast<VkCommandBuffer*>(&computeCommandBuffers[0].get());
+	vkFFTLaunchParamsNormalX.buffer = reinterpret_cast<VkBuffer *>(&bufferNormalX.get());
+	vkFFTLaunchParamsNormalX.commandBuffer = reinterpret_cast<VkCommandBuffer *>(&computeCommandBuffers[0].get());
 
-	vkFFTLaunchParamsNormalZ.buffer = reinterpret_cast<VkBuffer*>(&bufferNormalZ.get());
-	vkFFTLaunchParamsNormalZ.commandBuffer = reinterpret_cast<VkCommandBuffer*>(&computeCommandBuffers[0].get());
+	vkFFTLaunchParamsNormalZ.buffer = reinterpret_cast<VkBuffer *>(&bufferNormalZ.get());
+	vkFFTLaunchParamsNormalZ.commandBuffer = reinterpret_cast<VkCommandBuffer *>(&computeCommandBuffers[0].get());
 
-	vkFFTLaunchParamsDx.buffer = reinterpret_cast<VkBuffer*>(&bufferDx.get());
-	vkFFTLaunchParamsDx.commandBuffer = reinterpret_cast<VkCommandBuffer*>(&computeCommandBuffers[0].get());
+	vkFFTLaunchParamsDx.buffer = reinterpret_cast<VkBuffer *>(&bufferDx.get());
+	vkFFTLaunchParamsDx.commandBuffer = reinterpret_cast<VkCommandBuffer *>(&computeCommandBuffers[0].get());
 
-	vkFFTLaunchParamsDz.buffer = reinterpret_cast<VkBuffer*>(&bufferDz.get());
-	vkFFTLaunchParamsDz.commandBuffer = reinterpret_cast<VkCommandBuffer*>(&computeCommandBuffers[0].get());
+	vkFFTLaunchParamsDz.buffer = reinterpret_cast<VkBuffer *>(&bufferDz.get());
+	vkFFTLaunchParamsDz.commandBuffer = reinterpret_cast<VkCommandBuffer *>(&computeCommandBuffers[0].get());
 }
 
 void Ocean::writeCommand()
@@ -421,8 +416,9 @@ void Ocean::writeCommand()
 	computeCommandBuffers[0]->begin(commandBufferBeginInfo);
 
 	// ampl
-	computeCommandBuffers[0]->bindPipeline(vk::PipelineBindPoint::eCompute, materialAmpl.pipelinePass->pipeline.get());
-	computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialAmpl.pipelinePass->pipelineLayout.get(), 0, materialAmpl.descriptorSets.size(), materialAmpl.descriptorSets.data(), 0, nullptr);
+	computeCommandBuffers[0]->bindPipeline(vk::PipelineBindPoint::eCompute, materialAmpl->pipelinePass->pipeline.get());
+	computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialAmpl->pipelinePass->pipelineLayout.get(),
+												 0, materialAmpl->descriptorSets.size(), materialAmpl->descriptorSets.data(), 0, nullptr);
 	computeCommandBuffers[0]->dispatch(1, 1, 1);
 
 	/*
@@ -441,18 +437,18 @@ void Ocean::writeCommand()
 
 	vk::MemoryBarrier memoryBarrier = {
 		.srcAccessMask = vk::AccessFlagBits::eShaderWrite,
-		.dstAccessMask = vk::AccessFlagBits::eShaderRead };
+		.dstAccessMask = vk::AccessFlagBits::eShaderRead};
 
-	vkCmdPipelineBarrier( computeCommandBuffers[0].get(),
-		VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, // srcStageMask
-    	VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, // dstStageMask
-		{},
-    	1,                                    // memoryBarrierCount
-    	(VkMemoryBarrier*)&memoryBarrier,                       // pMemoryBarriers);
-		0,
-		nullptr,
-		0,
-		nullptr);
+	vkCmdPipelineBarrier(computeCommandBuffers[0].get(),
+						 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, // srcStageMask
+						 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, // dstStageMask
+						 {},
+						 1,									// memoryBarrierCount
+						 (VkMemoryBarrier *)&memoryBarrier, // pMemoryBarriers);
+						 0,
+						 nullptr,
+						 0,
+						 nullptr);
 
 	// ifft2
 	VkFFTAppend(&vkFFTAppAmpl, 1, &vkFFTLaunchParamsAmpl);
@@ -461,48 +457,53 @@ void Ocean::writeCommand()
 	VkFFTAppend(&vkFFTAppDx, 1, &vkFFTLaunchParamsDx);
 	VkFFTAppend(&vkFFTAppDz, 1, &vkFFTLaunchParamsDz);
 
-	//computeCommandBuffers[0]->bindPipeline(vk::PipelineBindPoint::eCompute, materialIff2Ampl.pipelinePass->pipeline.get());
-	//computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialIff2Ampl.pipelinePass->pipelineLayout.get(), 0, materialIff2Ampl.descriptorSets.size(), materialIff2Ampl.descriptorSets.data(), 0, nullptr);
-	//computeCommandBuffers[0]->dispatch(1, 1, 1);
+	// computeCommandBuffers[0]->bindPipeline(vk::PipelineBindPoint::eCompute, materialIff2Ampl.pipelinePass->pipeline.get());
+	// computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialIff2Ampl.pipelinePass->pipelineLayout.get(), 0, materialIff2Ampl.descriptorSets.size(), materialIff2Ampl.descriptorSets.data(), 0, nullptr);
+	// computeCommandBuffers[0]->dispatch(1, 1, 1);
 
-	//computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialIff2NormalX.pipelinePass->pipelineLayout.get(), 0, materialIff2NormalX.descriptorSets.size(), materialIff2NormalX.descriptorSets.data(), 0, nullptr);
-	//computeCommandBuffers[0]->dispatch(1, 1, 1);
+	// computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialIff2NormalX.pipelinePass->pipelineLayout.get(), 0, materialIff2NormalX.descriptorSets.size(), materialIff2NormalX.descriptorSets.data(), 0, nullptr);
+	// computeCommandBuffers[0]->dispatch(1, 1, 1);
 
-	//computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialIff2NormalZ.pipelinePass->pipelineLayout.get(), 0, materialIff2NormalZ.descriptorSets.size(), materialIff2NormalZ.descriptorSets.data(), 0, nullptr);
-	//computeCommandBuffers[0]->dispatch(1, 1, 1);
+	// computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialIff2NormalZ.pipelinePass->pipelineLayout.get(), 0, materialIff2NormalZ.descriptorSets.size(), materialIff2NormalZ.descriptorSets.data(), 0, nullptr);
+	// computeCommandBuffers[0]->dispatch(1, 1, 1);
 
-	//computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialIff2Dx.pipelinePass->pipelineLayout.get(), 0, materialIff2Dx.descriptorSets.size(), materialIff2Dx.descriptorSets.data(), 0, nullptr);
-	//computeCommandBuffers[0]->dispatch(1, 1, 1);
+	// computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialIff2Dx.pipelinePass->pipelineLayout.get(), 0, materialIff2Dx.descriptorSets.size(), materialIff2Dx.descriptorSets.data(), 0, nullptr);
+	// computeCommandBuffers[0]->dispatch(1, 1, 1);
 
-	//computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialIff2Dz.pipelinePass->pipelineLayout.get(), 0, materialIff2Dz.descriptorSets.size(), materialIff2Dz.descriptorSets.data(), 0, nullptr);
-	//computeCommandBuffers[0]->dispatch(1, 1, 1);
+	// computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialIff2Dz.pipelinePass->pipelineLayout.get(), 0, materialIff2Dz.descriptorSets.size(), materialIff2Dz.descriptorSets.data(), 0, nullptr);
+	// computeCommandBuffers[0]->dispatch(1, 1, 1);
 
-	//computeCommandBuffers[0]->pipelineBarrier2KHR(dependencyInfo);
-	vkCmdPipelineBarrier( computeCommandBuffers[0].get(),
-		VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, // srcStageMask
-    	VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, // dstStageMask
-		{},
-    	1,                                    // memoryBarrierCount
-    	(VkMemoryBarrier*)&memoryBarrier,                       // pMemoryBarriers);
-		0,
-		nullptr,
-		0,
-		nullptr);
+	// computeCommandBuffers[0]->pipelineBarrier2KHR(dependencyInfo);
+	vkCmdPipelineBarrier(computeCommandBuffers[0].get(),
+						 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, // srcStageMask
+						 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, // dstStageMask
+						 {},
+						 1,									// memoryBarrierCount
+						 (VkMemoryBarrier *)&memoryBarrier, // pMemoryBarriers);
+						 0,
+						 nullptr,
+						 0,
+						 nullptr);
 	// sign
-	computeCommandBuffers[0]->bindPipeline(vk::PipelineBindPoint::eCompute, materialSignAmpl.pipelinePass->pipeline.get());
-	computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialSignAmpl.pipelinePass->pipelineLayout.get(), 0, materialSignAmpl.descriptorSets.size(), materialSignAmpl.descriptorSets.data(), 0, nullptr);
+	computeCommandBuffers[0]->bindPipeline(vk::PipelineBindPoint::eCompute, materialSignAmpl->pipelinePass->pipeline.get());
+	computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialSignAmpl->pipelinePass->pipelineLayout.get(),
+												 0, materialSignAmpl->descriptorSets.size(), materialSignAmpl->descriptorSets.data(), 0, nullptr);
 	computeCommandBuffers[0]->dispatch(1, 1, 1);
 
-	computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialSignNormalX.pipelinePass->pipelineLayout.get(), 0, materialSignNormalX.descriptorSets.size(), materialSignNormalX.descriptorSets.data(), 0, nullptr);
+	computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialSignNormalX->pipelinePass->pipelineLayout.get(),
+												 0, materialSignNormalX->descriptorSets.size(), materialSignNormalX->descriptorSets.data(), 0, nullptr);
 	computeCommandBuffers[0]->dispatch(1, 1, 1);
 
-	computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialSignNormalZ.pipelinePass->pipelineLayout.get(), 0, materialSignNormalZ.descriptorSets.size(), materialSignNormalZ.descriptorSets.data(), 0, nullptr);
+	computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialSignNormalZ->pipelinePass->pipelineLayout.get(),
+												 0, materialSignNormalZ->descriptorSets.size(), materialSignNormalZ->descriptorSets.data(), 0, nullptr);
 	computeCommandBuffers[0]->dispatch(1, 1, 1);
 
-	computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialSignDx.pipelinePass->pipelineLayout.get(), 0, materialSignDx.descriptorSets.size(), materialSignDx.descriptorSets.data(), 0, nullptr);
+	computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialSignDx->pipelinePass->pipelineLayout.get(),
+												 0, materialSignDx->descriptorSets.size(), materialSignDx->descriptorSets.data(), 0, nullptr);
 	computeCommandBuffers[0]->dispatch(1, 1, 1);
 
-	computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialSignDz.pipelinePass->pipelineLayout.get(), 0, materialSignDz.descriptorSets.size(), materialSignDz.descriptorSets.data(), 0, nullptr);
+	computeCommandBuffers[0]->bindDescriptorSets(vk::PipelineBindPoint::eCompute, materialSignDz->pipelinePass->pipelineLayout.get(),
+												 0, materialSignDz->descriptorSets.size(), materialSignDz->descriptorSets.data(), 0, nullptr);
 	computeCommandBuffers[0]->dispatch(1, 1, 1);
 
 	computeCommandBuffers[0]->end();

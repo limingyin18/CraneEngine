@@ -71,7 +71,7 @@ vk::UniquePipeline PipelineBuilder::build(const std::vector<vk::PipelineShaderSt
 
 void PipelinePass::addShader(std::vector<char>& shaderCode, vk::ShaderStageFlagBits stage)
 {
-	LOGI("´´½¨×ÅÉ«Æ÷");
+	LOGI("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«ï¿½ï¿½");
 
 	vk::ShaderModuleCreateInfo shaderModuleCreateInfo{ .codeSize = shaderCode.size(),
 		.pCode = reinterpret_cast<const uint32_t*>(shaderCode.data()) };
@@ -176,29 +176,30 @@ void Crane::PipelinePassGraphics::buildPipeline(PipelineBuilder& pipelineBuilder
 	pipeline = pipelineBuilder.build(pipelineShaderStageCreateInfos, pipelineLayout.get(), renderPass);
 }
 
-Material Crane::MaterialBuilder::build()
+shared_ptr<Material> Crane::MaterialBuilder::build()
 {
-	Material m;
-	m.pipelinePass = pipelinePass;
+	//Material m;
+	auto m = make_shared<Material>();
+	m->pipelinePass = pipelinePass;
 
 	vk::DescriptorSetAllocateInfo descriptorSetAllocateInfo{
 			.descriptorPool = descriptorPool,
 			.descriptorSetCount = static_cast<uint32_t>(pipelinePass->descriptorSetLayouts.size()),
 			.pSetLayouts = pipelinePass->descriptorSetLayouts.data() };
-	m.descriptorSets = pipelinePass->device.allocateDescriptorSets(descriptorSetAllocateInfo);
+	m->descriptorSets = pipelinePass->device.allocateDescriptorSets(descriptorSetAllocateInfo);
 
 	for (auto& [i, s] : pipelinePass->bindings)
 	{
 		for (auto& [j, b] : s)
 		{
 			vk::WriteDescriptorSet writeDescriptorSet{
-				.dstSet = m.descriptorSets[i],
+				.dstSet = m->descriptorSets[i],
 				.dstBinding = b.binding,
 				.descriptorCount = b.descriptorCount,
 				.descriptorType = b.descriptorType,
 				.pImageInfo = descriptorInfos[i][j].second,
 				.pBufferInfo = descriptorInfos[i][j].first};
-			m.writeDescriptorSets.push_back(writeDescriptorSet);
+			m->writeDescriptorSets.push_back(writeDescriptorSet);
 		}
 	}
 

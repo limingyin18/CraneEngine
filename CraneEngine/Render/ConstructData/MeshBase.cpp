@@ -4,6 +4,11 @@ using namespace std;
 using namespace Crane;
 using namespace Eigen;
 
+Vertex::Vertex(const Eigen::Vector3f &pos, const Eigen::Vector3f &n, const Eigen::Vector3f &c, const Eigen::Vector2f &u) :
+    position{pos}, normal{n}, color{c}, uv{u}
+{
+}
+
 vector<vk::VertexInputBindingDescription> Vertex::GetVertexInputBindingDescription()
 {
     vector<vk::VertexInputBindingDescription> bindings;

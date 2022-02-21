@@ -1,7 +1,4 @@
-﻿// CraneVision.h : Include file for standard system include files,
-// or project specific include files.
-
-#pragma once
+﻿#pragma once
 
 #include <vector>
 #include <string>
@@ -25,11 +22,12 @@
 #include "Buffer.hpp"
 #include "Image.hpp"
 #include "Camera.hpp"
-#include "RenderableBase.hpp"
 #include "MeshBase.hpp"
 #include "MaterialSystem.hpp"
 
 #include "DataStruct.hpp"
+
+#include "Actor.hpp"
 
 
 namespace Crane
@@ -51,7 +49,7 @@ namespace Crane
 		void loadAPI();
 		void createInstance();
 		/**
-		 * @brief create surface with WSI system implmented in child class
+		 * @brief create surface. WSI system implmented in child class
 		 */
 		virtual void createSurface() = 0;
 
@@ -96,6 +94,7 @@ namespace Crane
 		void updateCameraBuffer();
 		void updateSceneParameters();
 
+		void assemblePrimitives();
 		void updateCullData();
 
 		void compactDraws();
@@ -166,8 +165,8 @@ namespace Crane
 		vk::DescriptorImageInfo descriptorImageInfoBlank, descriptorImageInfoLilac;
 
 		// renderable
-		std::vector<RenderableBase> renderables;
-		std::unordered_map<std::string, std::shared_ptr<MeshBase>> loadMeshs;
+		std::vector<GraphicsPrimitive> renderables;
+		std::unordered_map<std::string, std::shared_ptr<MeshBase>> meshRepository;
 		std::unordered_map<std::string, Image> loadImages;
 		std::unordered_map<std::string, vk::UniqueImageView> loadImageViews;
 		std::unordered_map<std::string, vk::DescriptorImageInfo> descriptorImageInfos;
@@ -177,7 +176,7 @@ namespace Crane
 		std::unordered_map<std::string, Image> metallicImages;
 		std::unordered_map<std::string, vk::UniqueImageView> metallicImageViews;
 		std::vector<vk::DescriptorImageInfo> descriptorImageInfosMetallic;
-		std::unordered_map<std::string, Material> materials;
+		std::unordered_map<std::string, std::shared_ptr<Material>> materialRepository;
 
 		uint32_t modelMatrixOffset;
 		std::vector<uint8_t> modelMatrix;
@@ -216,7 +215,7 @@ namespace Crane
 
 		PipelinePassCompute pipelinePassCull;
 		MaterialBuilder materialBuilderCull;
-		Material materialCull;
+		std::shared_ptr<Material> materialCull;
 
 		std::vector<IndirectBatch> draws;
 		std::vector<FlatBatch> drawsFlat;
@@ -241,6 +240,9 @@ namespace Crane
 		Crane::MaterialBuilder materialBuilderPhong;
 
 		Crane::PipelinePassGraphics pipelinePassLinePhong;
+
+		std::vector<std::shared_ptr<Actor>> scene;
+		Eigen::Matrix4f transformWorld = Eigen::Matrix4f::Identity();
 
 		// profiler
 		TracyVkCtx tracyVkCtx;

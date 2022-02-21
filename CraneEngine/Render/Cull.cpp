@@ -59,9 +59,9 @@ void Render::compactDraws()
 		Vector4f spherebound = renderables[d.first].SphereBound();
 		for (uint32_t i = d.first; i < d.count; ++i)
 		{
-			cullObjCandidates[i].model = *renderables[i].transformMatrix;
+			cullObjCandidates[i].model = renderables[i].transformer.getTransformWorld();
 			cullObjCandidates[i].spherebound = spherebound;
-			cullObjCandidates[i].cullFlag = renderables[i].cullFlag;
+			cullObjCandidates[i].cullFlag = true;
 		}
 	}
 	bufferCullObjCandidate.create(*vmaAllocator, sizeof(ObjectData) * cullObjCandidates.size(),

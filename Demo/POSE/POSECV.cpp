@@ -7,13 +7,13 @@ using namespace Crane;
 
 void POSE::initCV()
 {
-    std::string filename = "assets/model.pt";
-    // Deserialize the ScriptModule from a file using torch::jit::load()
-    module = torch::jit::load(filename);
-    module.to(deviceTorch);
+	std::string filename = "assets/model.pt";
+	// Deserialize the ScriptModule from a file using torch::jit::load()
+	module = torch::jit::load(filename);
+	module.to(deviceTorch);
 
-    std::string fileNameImage = "assets/caixukun.mp4";
-    cap = cv::VideoCapture(fileNameImage);
+	std::string fileNameImage = "assets/caixukun.mp4";
+	cap = cv::VideoCapture(fileNameImage);
 }
 
 void POSE::detectKeypoints()
@@ -40,11 +40,14 @@ void POSE::detectKeypoints()
 
 	auto points = GetMaxPreds(heatmap);
 	auto pointsPost = PostProcessingPoints(points, heatmap);
-    keypoints = pointsPost;
+	keypoints = pointsPost;
 
 	for (auto p : pointsPost)
 	{
-		cv::circle(img, {4 * p.first.second * weightImg / 256.f, 4 * p.first.first * heightImg / 256.f}, 2, {255, 0, 0}, 2);
+		cv::circle(img,
+				   {static_cast<int>(4 * p.first.second * weightImg / 256.f),
+					static_cast<int>(4 * p.first.first * heightImg / 256.f)},
+				   2, {255, 0, 0}, 2);
 	}
 
 	cv::imshow("t", img);

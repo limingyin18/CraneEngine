@@ -2,6 +2,7 @@
 #include "Constraint.hpp"
 
 #include <iostream>
+#include <chrono>
 
 using namespace std;
 using namespace CranePhysics;
@@ -15,7 +16,6 @@ PositionBasedDynamics::PositionBasedDynamics(/* args */)
 PositionBasedDynamics::~PositionBasedDynamics()
 {
 }
-
 
 void PositionBasedDynamics::externalForceIntegral()
 {
@@ -32,7 +32,7 @@ void PositionBasedDynamics::externalForceIntegral()
 
 void PositionBasedDynamics::internalForceIntegral()
 {
-    for (size_t i = 0; i < 5; ++i)
+    for (uint32_t i = 0; i < 1; ++i)
     {
         for (auto &c : constraints)
         {
@@ -48,7 +48,7 @@ void PositionBasedDynamics::updateVelocity()
         rb->velocity = (rb->position - rb->positionPrime) / dt;
     }
 
-    for (auto& c : constraints)
+    for (auto &c : constraints)
     {
         c->solveVelocity();
     }
@@ -56,25 +56,25 @@ void PositionBasedDynamics::updateVelocity()
 
 void PositionBasedDynamics::generateCollisionConstraint()
 {
-    for (auto& rb : rigidbodies)
-		rb->computeAABB();
-	bvh = BVH(rigidbodies);
+    for (auto &rb : rigidbodies)
+        rb->computeAABB();
 
     for (uint32_t i = 0; i < rigidbodies.size() - 1; ++i)
     {
-        vector<uint32_t> indices;
-        bvh.check(*rigidbodies[i], bvh.root, indices);
-        for(uint32_t index : indices)
-        {
-            if(i != index)
-                CollisionDetectDispatch(rigidbodies[i].get(), rigidbodies[index].get(), *this);
-        }
         /*
+        vector<uint32_t> indices(0);
+
+        bvh.check(*rigidbodies[i], bvh.root, indices);
+        for (uint32_t index : indices)
+        {
+            if (i != index)
+                CollisionDetectDispatch(rigidbodies[i].get(), (*bvh.rgb)[index].get(), *this);
+        }*/
+
         for (uint32_t j = i + 1; j < rigidbodies.size(); ++j)
         {
             CollisionDetectDispatch(rigidbodies[i].get(), rigidbodies[j].get(), *this);
         }
-        */
     }
 }
 
@@ -82,12 +82,15 @@ void PositionBasedDynamics::run()
 {
     externalForceIntegral();
     int n = constraints.size();
-    generateCollisionConstraint();
-    internalForceIntegral();
-    updateVelocity();
+    for (uint32_t i = 0; i < 1; ++i)
+    {
+        generateCollisionConstraint();
+        internalForceIntegral();
+        updateVelocity();
 
-    while (constraints.size() > n)
-        constraints.pop_back();
+        while (constraints.size() > n)
+            constraints.pop_back();
+    }
 
     for (auto rb : rigidbodies)
     {

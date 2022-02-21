@@ -1,5 +1,7 @@
 #include "Constraint.hpp"
 
+#include <iostream>
+
 using namespace std;
 using namespace Eigen;
 using namespace CranePhysics;
@@ -378,5 +380,9 @@ CranePhysics::CollisionConstraint::CollisionConstraint(Rigidbody& rb1, Rigidbody
 
 void CranePhysics::CollisionConstraint::solveVelocity()
 {
-	rb1.velocity = rb1.velocityPrime - 0.9f*(2 * rb1.velocityPrime.dot(contactNormal)) * contactNormal;
+	float deltaValue = 0.99f*(2 * rb1.velocityPrime.dot(contactNormal));
+	Vector3f deltaVelocity = deltaValue * contactNormal;
+	rb1.velocity = rb1.velocityPrime - deltaVelocity;
+
+	//rb1.velocity *= 0.9f;
 }

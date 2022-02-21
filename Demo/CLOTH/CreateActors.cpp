@@ -5,6 +5,7 @@ using namespace Eigen;
 using namespace Crane;
 using namespace CranePhysics;
 
+/*
 void CLOTH::createChessboard()
 {
 	LOGI("create chessboard");
@@ -59,7 +60,8 @@ void CLOTH::createCloak()
 	Eigen::Vector3f modelCloak{ 0.f, 6.0f, 5.f };
 
 	string name = "cloak";
-	loadMeshs[name] = make_shared<Crane::Plane>(11, 11);
+	uint32_t n = 3;
+	loadMeshs[name] = make_shared<Crane::Plane>(n, n);
 	cloak.mesh = loadMeshs[name];
 
 	materialBuilderPhong.descriptorInfos[1][0].second = &descriptorImageInfos[nameImage];
@@ -79,7 +81,7 @@ void CLOTH::createCloak()
 		particle->position = cloak.mesh->data[i].position + modelCloak;
 		particle->positionPrime = particle->position;
 
-		particle->invMass = (i - i % 11) / 11.f;
+		particle->invMass = (i - i % n) / float(n);
 		pbd.rigidbodies.push_back(particle);
 	}
 
@@ -141,7 +143,7 @@ void CLOTH::createFlagCloth()
 	Eigen::Vector3f modelFlagCloth{ 0.f, 3.0f, 5.f };
 
 	string name = "flagCloth";
-	loadMeshs[name] = make_shared<Crane::Plane>(11, 11);
+	loadMeshs[name] = make_shared<Crane::Plane>(3, 3);
 	flagCloth.mesh = loadMeshs[name];
 	flagCloth.material = &materials["cloak"];
 	flagCloth.setPosition(modelFlagCloth);
@@ -200,22 +202,45 @@ void CLOTH::createSphereTest()
 	sphereTest.setPosition(modelSphere);
 	renderables.emplace_back(sphereTest.mesh.get(), sphereTest.material, &sphereTest.transform);
 
+	LOGI("create sphere A")
+	{
+		sphereA.mesh = loadMeshs[name];
+		sphereA.material = &materials[name];
+		sphereA.setPosition(modelSphere+Vector3f{0.f, 0.f, 5.0f});
+		renderables.emplace_back(sphereA.mesh.get(), sphereA.material, &sphereA.transform);
+	}
+
 	// physics
 	auto physicsSphereTest = std::make_shared<CranePhysics::Sphere>();
 	physicsSphereTest->invMass = 0.1f;
 	physicsSphereTest->position = sphereTest.position;
 	physicsSphereTest->positionPrime = sphereTest.position;
 	physicsSphereTest->radius = radius;
+	sphereTestPhyIndex = pbd.rigidbodies.size();
 	pbd.rigidbodies.push_back(physicsSphereTest);
+
+	auto sphereAPhy = std::make_shared<CranePhysics::Sphere>();
+	sphereAPhy->invMass = 0.1f;
+	sphereAPhy->position = sphereA.position;
+	sphereAPhy->positionPrime = sphereA.position;
+	sphereAPhy->radius = radius;
+	sphereAPhyIndex = pbd.rigidbodies.size();
+	pbd.rigidbodies.push_back(sphereAPhy);
+
+	CranePhysics::Rigidbody& a = *(pbd.rigidbodies[sphereTestPhyIndex]);
+	CranePhysics::Rigidbody& b = *(pbd.rigidbodies[sphereAPhyIndex]);
+	float distAB = (a.position -b.position).norm();
+	float compress = 1.0f, stretch = 1.0f;
+	pbd.constraints.emplace_back(std::make_shared<Stretching>(a, b, distAB, compress, stretch));
 }
 
 void CLOTH::createDragon()
 {
-	LOGI("��ȡ��ģ��");
+	LOGI("create dragon");
 
 	Eigen::Vector3f rotationDragon{ 45.f / 180.f * 3.14f, 0.f, 0.f };
 	//Eigen::Vector3f rotationDragon{ 0.f, 0.f, 0.f };
-	Eigen::Vector3f modelDragon{ 0.f, 0.f, 5.f };
+	Eigen::Vector3f modelDragon{ 0.f, 1.f, 5.f };
 
 	string name = "Dragon";
 	assets::AssetFile file;
@@ -292,8 +317,10 @@ void CLOTH::createDragon()
 			physicsCubeTest->height = len.y() / height;
 			physicsCubeTest->depth = len.z() / depth;
 
-			pbd.rigidbodies.push_back(physicsCubeTest);
-			pbd.rigidbodies.back()->velocity = Vector3f(0.f, 0.f, 0.f);
+			rgbDragon.push_back(physicsCubeTest);
+			rgbDragon.back()->velocity = Vector3f(0.f, 0.f, 0.f);
+			//pbd.rigidbodies.push_back(physicsCubeTest);
+			//pbd.rigidbodies.back()->velocity = Vector3f(0.f, 0.f, 0.f);
 			//indices.emplace_back(offset++);
 		}
 	}
@@ -304,7 +331,7 @@ void CLOTH::createDragon()
 
 void CLOTH::createSoldiers()
 {
-	LOGI("��ȡ����ʿ��ģ��");
+	LOGI("craete soldier");
 
 	string name = "Roman-Soldier";
 	assets::AssetFile file;
@@ -335,6 +362,7 @@ void CLOTH::createSoldiers()
 	renderables.emplace_back(soldier.mesh.get(), soldier.material, &soldier.transform);
 }
 
+*/
 /*
 vector<Vector3f> box1Vertex(box1.data.size());
 for (uint32_t i = 0; i < box1.data.size(); ++i)

@@ -8,6 +8,7 @@ BVH::BVH(const std::vector<std::shared_ptr<CranePhysics::Rigidbody>>& rbs)
 	vector<uint32_t> index(rbs.size());
 	iota(index.begin(), index.end(), 0);
 	root = build(rbs, index, 0, rbs.size());
+	rgb = &rbs;
 }
 
 BVH::Node* BVH::build(const std::vector<std::shared_ptr<CranePhysics::Rigidbody>>& rbs, std::vector<uint32_t>& index, uint32_t start, uint32_t end)
@@ -65,5 +66,9 @@ BVH::~BVH()
 BVH &BVH::operator=(BVH &&rhs)
 {
 	root = rhs.root;
+	rgb = rhs.rgb;
 	rhs.root = nullptr;
+	rhs.rgb = nullptr;
+
+	return *this;
 }

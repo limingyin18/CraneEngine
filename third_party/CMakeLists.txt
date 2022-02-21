@@ -2,6 +2,7 @@ project(third_party)
 
 # spdlog
 add_subdirectory(spdlog)
+target_include_directories(spdlog PUBLIC "Log")
 
 # vma
 add_library(vma INTERFACE)

@@ -30,7 +30,7 @@ namespace Crane
 		Crane::OceanAmpl oceanAmpl;
 		Crane::PipelinePassCompute amplPipelinePass;
 		Crane::MaterialBuilder materialBuilderAmpl;
-		Crane::Material materialAmpl;
+		std::shared_ptr<Crane::Material> materialAmpl;
 		Crane::Buffer h_tlide_0, h_tlide_0_conj;
 		Crane::Buffer NB, MB, Lx, Lz, t;
 
@@ -50,7 +50,7 @@ namespace Crane
 
 		Crane::PipelinePassCompute iff2PipelinePass;
 		Crane::MaterialBuilder materialBuilderIfft2;
-		Crane::Material materialIff2Ampl, materialIff2NormalX, materialIff2NormalZ, materialIff2Dx, materialIff2Dz;
+		std::shared_ptr<Crane::Material> materialIff2Ampl, materialIff2NormalX, materialIff2NormalZ, materialIff2Dx, materialIff2Dz;
 
 		void createIfft2();
 
@@ -58,7 +58,7 @@ namespace Crane
 
 		Crane::PipelinePassCompute pipelinePassSign;
 		Crane::MaterialBuilder materialBuilderSign;
-		Crane::Material materialSignAmpl, materialSignNormalX, materialSignNormalZ, materialSignDx, materialSignDz;
+		std::shared_ptr<Crane::Material> materialSignAmpl, materialSignNormalX, materialSignNormalZ, materialSignDx, materialSignDz;
 
 		void createSign();
 
