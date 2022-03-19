@@ -19,6 +19,6 @@ namespace Crane
 		Eigen::Vector4f sphereBound;
 		Eigen::Vector4f SphereBound();
 
-		GraphicsPrimitive() = default;
+		uint32_t vertBufferOffset;
 	};
 }

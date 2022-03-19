@@ -19,7 +19,7 @@ namespace Crane
 
 	struct IndirectBatch
 	{
-		GraphicsPrimitive* renderable;
+		std::shared_ptr<GraphicsPrimitive> renderable;
 		uint32_t first;
 		uint32_t count;
 	};

@@ -319,8 +319,13 @@ void Render::getPhysicalDevice()
 
 	for (uint32_t i = 0; i < gpus.size(); ++i)
 	{
-		if (gpus[i].getProperties().deviceType == vk::PhysicalDeviceType::eDiscreteGpu)
+		auto properties = gpus[i].getProperties();
+		LOGI("gpu {} type: {}", i, properties.deviceType);
+		if (properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu)
+		{
+			LOGI("select gpu {}", i);
 			physicalDevice = gpus[i];
+		}
 	}
 	if (physicalDevice.operator VkPhysicalDevice() == nullptr)
 		throw runtime_error("no discrete gpu");

@@ -5,17 +5,16 @@
 #include <fstream>
 
 #include "SDL2_IMGUI_BASE.hpp"
+#include "ChessboardActor.hpp"
+#include "SkeletonActor.hpp"
+#include "CharacterActor.hpp"
 
 #include <torch/script.h>
 #include <opencv2/opencv.hpp>
 
 #include "CVUtils.hpp"
 
-struct BindCoff
-{
-	uint32_t index;
-	Eigen::Vector3f diff;
-};
+
 
 class POSE : public SDL2_IMGUI_BASE
 {
@@ -37,16 +36,13 @@ private:
 private:
 	CranePhysics::PositionBasedDynamics pbd;
 
-	Crane::Actor chessboard;
-	void createChessboard();
+	std::shared_ptr<Crane::ChessboardActor> chessboardActor;
+	std::shared_ptr<SkeletonActor> skeletonActor;
 
 	Crane::Actor human;
 	std::vector<BindCoff> bindCoffs;
 	void createHuman();
-
-	std::array<Crane::Actor, 13> bones;
-	void createBones();
-	void updateBones();
+	std::shared_ptr<CharacterActor> humanActor;
 
 	void initCV();
 	void detectKeypoints();

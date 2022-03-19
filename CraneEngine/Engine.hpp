@@ -17,6 +17,7 @@
 #include "mesh_asset.h"
 #include "prefab_asset.h"
 #include "material_asset.h"
+#include "skeleton_asset.hpp"
 
 namespace Crane
 {

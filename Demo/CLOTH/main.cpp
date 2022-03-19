@@ -21,11 +21,11 @@ int main(int argc, char **argv)
     SDL_Init(SDL_INIT_VIDEO);
     SDL_WindowFlags window_flags{SDL_WINDOW_VULKAN};
     shared_ptr<SDL_Window> window{SDL_CreateWindow(
-                                      TITLE.c_str(),           //window title
-                                      SDL_WINDOWPOS_UNDEFINED, //window position x (don't care)
-                                      SDL_WINDOWPOS_UNDEFINED, //window position y (don't care)
-                                      WIDTH,                   //window width in pixels
-                                      HEIGHT,                  //window height in pixels
+                                      TITLE.c_str(),           // window title
+                                      SDL_WINDOWPOS_UNDEFINED, // window position x (don't care)
+                                      SDL_WINDOWPOS_UNDEFINED, // window position y (don't care)
+                                      WIDTH,                   // window width in pixels
+                                      HEIGHT,                  // window height in pixels
                                       window_flags),
                                   SDL_DestroyWindow};
 
@@ -48,6 +48,17 @@ int main(int argc, char **argv)
     catch (const exception &e)
     {
         LOGE(e.what());
+        SDL_Event event;
+        event.type = SDL_QUIT;
+        SDL_PushEvent(&event);
+        do
+        {
+            while (SDL_PollEvent(&event) != 0)
+            {
+            }
+        } while (event.type != SDL_QUIT);
+        SDL_DestroyWindow(window.get());
+
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;

@@ -1,9 +1,0 @@
-libdir=C:/Program Files/asset-baker/lib
-includedir=C:/Program Files/asset-baker/include
-
-Name: asset-baker
-Description: Import various well-known 3D model formats in an uniform manner.
-Version: 5.1.4
-Libs: -L${libdir} -lassimp
-Libs.private:  
-Cflags: -I${includedir}

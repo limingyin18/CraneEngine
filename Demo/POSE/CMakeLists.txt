@@ -20,6 +20,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     SDL2::SDL2 
     SDL2::SDL2main 
     SDL2_IMGUI_BASE
+    BasicActor
     ${TORCH_LIBRARIES}
     ${OpenCV_LIBS}
     )

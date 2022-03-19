@@ -42,15 +42,16 @@ void Render::buildRenderable()
 	for (auto& d : draws)
 	{
 		auto& v = renderables[d.first];
-		for (size_t i = 0; i < v.mesh->data.size(); i++)
-			vertices.push_back(v.mesh->data[i]);
-		for (size_t i = 0; i < v.mesh->indices.size(); i++)
-			indices.push_back(offset + v.mesh->indices[i]);
-		offset += v.mesh->data.size();
+		v->vertBufferOffset = offset;
+		for (size_t i = 0; i < v->mesh->data.size(); i++)
+			vertices.push_back(v->mesh->data[i]);
+		for (size_t i = 0; i < v->mesh->indices.size(); i++)
+			indices.push_back(offset + v->mesh->indices[i]);
+		offset += v->mesh->data.size();
 
 		for (uint32_t i = 0; i < d.count; ++i)
 		{
-			*(reinterpret_cast<Eigen::Matrix4f*>(modelMatrixPtr)) = renderables[d.first + i].transformer.getTransformWorld();
+			*(reinterpret_cast<Eigen::Matrix4f*>(modelMatrixPtr)) = renderables[d.first + i]->transformer.getTransformWorld();
 			modelMatrixPtr = modelMatrixPtr + modelMatrixOffset;
 		}
 	}
@@ -65,7 +66,7 @@ void Render::buildRenderable()
 
 
 	for_each(renderables.begin(), renderables.end(), [](const auto&v) {
-		v.material->update();
+		v->material->update();
 		});
 
 	LOGI("�������㻺��");
@@ -112,7 +113,7 @@ void Render::buildRenderable()
 		{
 			bufferIndirectP[i].firstIndex = firstIndex;
 			bufferIndirectP[i].firstInstance = draws[i].first;
-			bufferIndirectP[i].indexCount = renderables[draws[i].first].mesh->indices.size();
+			bufferIndirectP[i].indexCount = renderables[draws[i].first]->mesh->indices.size();
 			bufferIndirectP[i].instanceCount = 0;
 			bufferIndirectP[i].vertexOffset = 0;
 
@@ -229,7 +230,7 @@ void Crane::Render::update()
 		auto modelMatrixPtr = modelMatrix.data();
 		for (auto &v : renderables)
 		{
-			*(reinterpret_cast<Eigen::Matrix4f *>(modelMatrixPtr)) = v.transformer.getTransformWorld();
+			*(reinterpret_cast<Eigen::Matrix4f *>(modelMatrixPtr)) = v->transformer.getTransformWorld();
 			modelMatrixPtr += modelMatrixOffset;
 		}
 		modelMatrixBuffer.update(modelMatrix.data());

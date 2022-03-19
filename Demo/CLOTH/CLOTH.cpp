@@ -10,7 +10,7 @@ CLOTH::CLOTH(shared_ptr<SDL_Window> win) : SDL2_IMGUI_BASE(win)
 	preferPresentMode = vk::PresentModeKHR::eFifo;
 	camera.target = Vector3f{0.f, 1.8f, 10.f};
 	camera.rotation[0] = -0.0f;
-	camera.cameraMoveSpeed = 1.f;
+	camera.cameraMoveSpeed = 10.f;
 }
 
 CLOTH::~CLOTH()
@@ -23,8 +23,8 @@ void CLOTH::updateApp()
 	updateEngine();
 
 	// physics update
-	// pbd.dt = 0.001f;
-	pbd.dt = dt;
+	 pbd.dt = 0.001f;
+	//pbd.dt = dt;
 
 	/*
 		Vector3f u{ 2.f, 0.f, 0.f };
@@ -60,7 +60,9 @@ void CLOTH::updateApp()
 		}
 		*/
 
-	// pbd.run();
+	pbd.run();
+
+	clothActor->update();
 
 	// cloak.mesh->setVertices([this](uint32_t i, Crane::Vertex &v){v.position = this->pbd.rigidbodies[offsetCloak+i]->position - this->cloak.position;});
 	// cloak.mesh->recomputeNormals();
@@ -112,9 +114,16 @@ void CLOTH::createAssetApp()
 	SDL2_IMGUI_BASE::createAssetApp();
 
 	clothActor = make_shared<ClothActor>();
-	clothActor->init(this);
+	clothActor->init(this, &pbd);
 	scene.push_back(clothActor);
-	// createChessboard();
+
+	soldierActor = make_shared<SoldierActor>();
+	soldierActor->init(this, &pbd);
+	scene.push_back(soldierActor);
+
+	chessboardActor = make_shared<ChessboardActor>();
+	chessboardActor->init(this, &pbd);
+	createChessboard();
 	// createCloak();
 	// createFlagCloth();
 	// createCubeTest();

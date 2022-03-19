@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <fstream>
@@ -12,6 +13,7 @@
 #include <texture_asset.h>
 #include <mesh_asset.h>
 #include <material_asset.h>
+#include "skeleton_asset.hpp"
 
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
@@ -45,7 +47,7 @@ bool convert_image(const fs::path &input, const fs::path &output)
 
 	auto pngstart = std::chrono::high_resolution_clock::now();
 
-	stbi_uc *pixels = stbi_load(input.u8string().c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+	stbi_uc *pixels = stbi_load((const char*)input.u8string().c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 
 	auto pngend = std::chrono::high_resolution_clock::now();
 
@@ -72,10 +74,10 @@ bool convert_image(const fs::path &input, const fs::path &output)
 	texinfo.pages.back().width = texWidth;
 	texinfo.pages.back().height = texHeight;
 	texinfo.pages.back().originalSize = texture_size;
-	//std::vector<char> all_buffer;
-	//all_buffer.insert(all_buffer.end(), handler.buffer.begin(), handler.buffer.end());
-	//texinfo.textureSize = all_buffer.size();
-	//assets::AssetFile newImage = assets::pack_texture(&texinfo, all_buffer.data());
+	// std::vector<char> all_buffer;
+	// all_buffer.insert(all_buffer.end(), handler.buffer.begin(), handler.buffer.end());
+	// texinfo.textureSize = all_buffer.size();
+	// assets::AssetFile newImage = assets::pack_texture(&texinfo, all_buffer.data());
 	assets::AssetFile newImage = assets::pack_texture(&texinfo, pixels);
 
 	auto end = std::chrono::high_resolution_clock::now();
@@ -127,7 +129,7 @@ void extract_mesh_from_obj(std::vector<tinyobj::shape_t> &shapes, tinyobj::attri
 		for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++)
 		{
 
-			//hardcode loading to triangles
+			// hardcode loading to triangles
 			int fv = 3;
 
 			// Loop over vertices in the face.
@@ -136,11 +138,11 @@ void extract_mesh_from_obj(std::vector<tinyobj::shape_t> &shapes, tinyobj::attri
 				// access to assets::Vertex_f32_PNCV
 				tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
 
-				//vertex position
+				// vertex position
 				tinyobj::real_t vx = attrib.vertices[3 * idx.vertex_index + 0];
 				tinyobj::real_t vy = attrib.vertices[3 * idx.vertex_index + 1];
 				tinyobj::real_t vz = attrib.vertices[3 * idx.vertex_index + 2];
-				//vertex normal
+				// vertex normal
 				tinyobj::real_t nx = 0;
 				tinyobj::real_t ny = 0;
 				tinyobj::real_t nz = 0;
@@ -151,16 +153,16 @@ void extract_mesh_from_obj(std::vector<tinyobj::shape_t> &shapes, tinyobj::attri
 					tinyobj::real_t nz = attrib.normals[3 * idx.normal_index + 2];
 				}
 
-				//vertex uv
+				// vertex uv
 				tinyobj::real_t ux = 0;
 				tinyobj::real_t uy = 0;
-				if (attrib.texcoords.size() != 0 && idx.texcoord_index >=0)
+				if (attrib.texcoords.size() != 0 && idx.texcoord_index >= 0)
 				{
 					tinyobj::real_t ux = attrib.texcoords[2 * idx.texcoord_index + 0];
 					tinyobj::real_t uy = attrib.texcoords[2 * idx.texcoord_index + 1];
 				}
 
-				//copy it into our vertex
+				// copy it into our vertex
 				V new_vert;
 				pack_vertex(new_vert, vx, vy, vz, nx, ny, nz, ux, uy);
 
@@ -174,19 +176,19 @@ void extract_mesh_from_obj(std::vector<tinyobj::shape_t> &shapes, tinyobj::attri
 
 bool convert_mesh(const fs::path &input, const fs::path &output)
 {
-	//attrib will contain the assets::Vertex_f32_PNCV arrays of the file
+	// attrib will contain the assets::Vertex_f32_PNCV arrays of the file
 	tinyobj::attrib_t attrib;
-	//shapes contains the info for each separate object in the file
+	// shapes contains the info for each separate object in the file
 	std::vector<tinyobj::shape_t> shapes;
-	//materials contains the information about the material of each shape, but we wont use it.
+	// materials contains the information about the material of each shape, but we wont use it.
 	std::vector<tinyobj::material_t> materials;
 
-	//error and warning output from the load function
+	// error and warning output from the load function
 	std::string warn;
 	std::string err;
 	auto pngstart = std::chrono::high_resolution_clock::now();
 
-	//load the OBJ file
+	// load the OBJ file
 	tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, input.string().c_str(),
 					 nullptr);
 
@@ -196,13 +198,13 @@ bool convert_mesh(const fs::path &input, const fs::path &output)
 
 	std::cout << "obj took " << std::chrono::duration_cast<std::chrono::nanoseconds>(diff).count() / 1000000.0 << "ms" << std::endl;
 
-	//make sure to output the warnings to the console, in case there are issues with the file
+	// make sure to output the warnings to the console, in case there are issues with the file
 	if (!warn.empty())
 	{
 		std::cout << "WARN: " << warn << std::endl;
 	}
-	//if we have any error, print it to the console, and break the mesh loading.
-	//This happens if the file cant be found or is malformed
+	// if we have any error, print it to the console, and break the mesh loading.
+	// This happens if the file cant be found or is malformed
 	if (!err.empty())
 	{
 		std::cerr << err << std::endl;
@@ -225,7 +227,7 @@ bool convert_mesh(const fs::path &input, const fs::path &output)
 	meshinfo.originalFile = input.string();
 
 	meshinfo.bounds = assets::calculateBounds(_vertices.data(), _vertices.size());
-	//pack mesh file
+	// pack mesh file
 	auto start = std::chrono::high_resolution_clock::now();
 
 	assets::AssetFile newFile = assets::pack_mesh(&meshinfo, (char *)_vertices.data(), (char *)_indices.data());
@@ -236,7 +238,7 @@ bool convert_mesh(const fs::path &input, const fs::path &output)
 
 	std::cout << "compression took " << std::chrono::duration_cast<std::chrono::nanoseconds>(diff).count() / 1000000.0 << "ms" << std::endl;
 
-	//save to disk
+	// save to disk
 	save_binaryfile(output.string().c_str(), newFile);
 
 	return true;
@@ -291,7 +293,7 @@ void extract_gltf_vertices(tinygltf::Primitive &primitive, tinygltf::Model &mode
 			{
 				float *dtf = (float *)pos_data.data();
 
-				//vec3f
+				// vec3f
 				_vertices[i].position[0] = *(dtf + (i * 3) + 0);
 				_vertices[i].position[1] = *(dtf + (i * 3) + 1);
 				_vertices[i].position[2] = *(dtf + (i * 3) + 2);
@@ -320,7 +322,7 @@ void extract_gltf_vertices(tinygltf::Primitive &primitive, tinygltf::Model &mode
 			{
 				float *dtf = (float *)normal_data.data();
 
-				//vec3f
+				// vec3f
 				_vertices[i].normal[0] = *(dtf + (i * 3) + 0);
 				_vertices[i].normal[1] = *(dtf + (i * 3) + 1);
 				_vertices[i].normal[2] = *(dtf + (i * 3) + 2);
@@ -353,7 +355,7 @@ void extract_gltf_vertices(tinygltf::Primitive &primitive, tinygltf::Model &mode
 			{
 				float *dtf = (float *)uv_data.data();
 
-				//vec3f
+				// vec3f
 				_vertices[i].uv[0] = *(dtf + (i * 2) + 0);
 				_vertices[i].uv[1] = *(dtf + (i * 2) + 1);
 			}
@@ -368,7 +370,7 @@ void extract_gltf_vertices(tinygltf::Primitive &primitive, tinygltf::Model &mode
 			{
 				float *dtf = (float *)uv_data.data();
 
-				//vec3f
+				// vec3f
 				_vertices[i].uv[0] = *(dtf + (i * 3) + 0);
 				_vertices[i].uv[1] = *(dtf + (i * 3) + 1);
 			}
@@ -383,7 +385,7 @@ void extract_gltf_vertices(tinygltf::Primitive &primitive, tinygltf::Model &mode
 		}
 	}
 
-	//for (auto& v : _vertices)
+	// for (auto& v : _vertices)
 	//{
 	//	v.position[0] *= -1;
 	//
@@ -391,7 +393,7 @@ void extract_gltf_vertices(tinygltf::Primitive &primitive, tinygltf::Model &mode
 	//	v.normal[1] *= -1;
 	//	v.normal[2] *= -1;
 	//	//v.position = flip * glm::vec4(v.position, 1.f);
-	//}
+	// }
 	return;
 }
 
@@ -440,7 +442,7 @@ void extract_gltf_indices(tinygltf::Primitive &primitive, tinygltf::Model &model
 
 	for (int i = 0; i < _primindices.size() / 3; i++)
 	{
-		//flip the triangle
+		// flip the triangle
 
 		std::swap(_primindices[i * 3 + 1], _primindices[i * 3 + 2]);
 	}
@@ -448,17 +450,21 @@ void extract_gltf_indices(tinygltf::Primitive &primitive, tinygltf::Model &model
 
 std::string calculate_gltf_mesh_name(tinygltf::Model &model, int meshIndex, int primitiveIndex)
 {
-	char buffer0[50];
-	char buffer1[50];
-	itoa(meshIndex, buffer0, 10);
-	itoa(primitiveIndex, buffer1, 10);
+	//char buffer0[50];
+	//char buffer1[50];
+	//itoa(meshIndex, buffer0, 10);
+	//itoa(primitiveIndex, buffer1, 10);
+	std::string buffer0 = std::to_string(meshIndex);
+	std::string buffer1 = std::to_string(primitiveIndex);
 
-	std::string meshname = "MESH_" + std::string{&buffer0[0]} + "_" + model.meshes[meshIndex].name;
+	//std::string meshname = "MESH_" + std::string{&buffer0[0]} + "_" + model.meshes[meshIndex].name;
+	std::string meshname = "MESH_" + buffer0 + "_" + model.meshes[meshIndex].name;
 
 	bool multiprim = model.meshes[meshIndex].primitives.size() > 1;
 	if (multiprim)
 	{
-		meshname += "_PRIM_" + std::string{&buffer1[0]};
+		//meshname += "_PRIM_" + std::string{&buffer1[0]};
+		meshname += "_PRIM_" + buffer1;
 	}
 
 	return meshname;
@@ -503,7 +509,7 @@ bool extract_gltf_meshes(tinygltf::Model &model, const fs::path &input, const fs
 
 			fs::path meshpath = outputFolder / (meshname + ".mesh");
 
-			//save to disk
+			// save to disk
 			save_binaryfile(meshpath.string().c_str(), newFile);
 		}
 	}
@@ -512,10 +518,12 @@ bool extract_gltf_meshes(tinygltf::Model &model, const fs::path &input, const fs
 
 std::string calculate_gltf_material_name(tinygltf::Model &model, int materialIndex)
 {
-	char buffer[50];
+	//char buffer[50];
+	//itoa(materialIndex, buffer, 10);
+	//std::string matname = "MAT_" + std::string{&buffer[0]} + "_" + model.materials[materialIndex].name;
 
-	itoa(materialIndex, buffer, 10);
-	std::string matname = "MAT_" + std::string{&buffer[0]} + "_" + model.materials[materialIndex].name;
+	std::string buffer = std::to_string(materialIndex);
+	std::string matname = "MAT_" + buffer + "_" + model.materials[materialIndex].name;
 	return matname;
 }
 
@@ -615,7 +623,7 @@ void extract_gltf_materials(tinygltf::Model &model, const fs::path &input, const
 
 		assets::AssetFile newFile = assets::pack_material(&newMaterial);
 
-		//save to disk
+		// save to disk
 		save_binaryfile(materialPath.string().c_str(), newFile);
 	}
 }
@@ -635,7 +643,7 @@ void extract_gltf_nodes(tinygltf::Model &model, const fs::path &input, const fs:
 
 		std::array<float, 16> matrix;
 
-		//node has a matrix
+		// node has a matrix
 		if (node.matrix.size() > 0)
 		{
 			for (int n = 0; n < 16; n++)
@@ -643,8 +651,8 @@ void extract_gltf_nodes(tinygltf::Model &model, const fs::path &input, const fs:
 				matrix[n] = node.matrix[n];
 			}
 
-			//glm::mat4 flip = glm::mat4{ 1.0 };
-			//flip[1][1] = -1;
+			// glm::mat4 flip = glm::mat4{ 1.0 };
+			// flip[1][1] = -1;
 
 			glm::mat4 mat;
 
@@ -654,7 +662,7 @@ void extract_gltf_nodes(tinygltf::Model &model, const fs::path &input, const fs:
 
 			memcpy(matrix.data(), &mat, sizeof(glm::mat4));
 		}
-		//separate transform
+		// separate transform
 		else
 		{
 
@@ -677,8 +685,8 @@ void extract_gltf_nodes(tinygltf::Model &model, const fs::path &input, const fs:
 			{
 				scale = glm::scale(glm::vec3{node.scale[0], node.scale[1], node.scale[2]});
 			}
-			//glm::mat4 flip = glm::mat4{ 1.0 };
-			//flip[1][1] = -1;
+			// glm::mat4 flip = glm::mat4{ 1.0 };
+			// flip[1][1] = -1;
 
 			glm::mat4 transformMatrix = (translation * rotation * scale); // * flip;
 
@@ -718,8 +726,8 @@ void extract_gltf_nodes(tinygltf::Model &model, const fs::path &input, const fs:
 		}
 	}
 
-	//calculate parent hierarchies
-	//gltf stores children, but we want parent
+	// calculate parent hierarchies
+	// gltf stores children, but we want parent
 	for (int i = 0; i < model.nodes.size(); i++)
 	{
 		for (auto c : model.nodes[i].children)
@@ -728,16 +736,16 @@ void extract_gltf_nodes(tinygltf::Model &model, const fs::path &input, const fs:
 		}
 	}
 
-	//for every gltf node that is a root node (no parents), apply the coordinate fixup
+	// for every gltf node that is a root node (no parents), apply the coordinate fixup
 
 	glm::mat4 flip = glm::mat4{1.0};
 	flip[1][1] = -1;
 
 	glm::mat4 rotation = glm::mat4{1.0};
-	//flip[1][1] = -1;
+	// flip[1][1] = -1;
 	rotation = glm::rotate(glm::radians(-180.f), glm::vec3{1, 0, 0});
 
-	//flip[2][2] = -1;
+	// flip[2][2] = -1;
 	for (int i = 0; i < model.nodes.size(); i++)
 	{
 
@@ -745,7 +753,7 @@ void extract_gltf_nodes(tinygltf::Model &model, const fs::path &input, const fs:
 		if (it == prefab.node_parents.end())
 		{
 			auto matrix = prefab.matrices[prefab.node_matrices[i]];
-			//no parent, root node
+			// no parent, root node
 			glm::mat4 mat;
 
 			memcpy(&mat, &matrix, sizeof(glm::mat4));
@@ -759,7 +767,7 @@ void extract_gltf_nodes(tinygltf::Model &model, const fs::path &input, const fs:
 	}
 
 	int nodeindex = model.nodes.size();
-	//iterate nodes with mesh, convert each submesh into a node
+	// iterate nodes with mesh, convert each submesh into a node
 	for (int i = 0; i < meshnodes.size(); i++)
 	{
 		auto &node = model.nodes[i];
@@ -774,11 +782,11 @@ void extract_gltf_nodes(tinygltf::Model &model, const fs::path &input, const fs:
 			auto primitive = mesh.primitives[primindex];
 			int newnode = nodeindex++;
 
-			char buffer[50];
-
-			itoa(primindex, buffer, 10);
-
-			prefab.node_names[newnode] = prefab.node_names[i] + "_PRIM_" + &buffer[0];
+			//char buffer[50];
+			//std::itoa(primindex, buffer, 10);
+			std::string buffer = std::to_string(primindex);
+			//prefab.node_names[newnode] = prefab.node_names[i] + "_PRIM_" + &buffer[0];
+			prefab.node_names[newnode] = prefab.node_names[i] + "_PRIM_" + buffer;
 
 			int material = primitive.material;
 			auto mat = model.materials[material];
@@ -802,23 +810,27 @@ void extract_gltf_nodes(tinygltf::Model &model, const fs::path &input, const fs:
 
 	scenefilepath.replace_extension(".pfb");
 
-	//save to disk
+	// save to disk
 	save_binaryfile(scenefilepath.string().c_str(), newFile);
 }
 std::string calculate_assimp_mesh_name(const aiScene *scene, int meshIndex)
 {
-	char buffer[50];
+	//char buffer[50];
+	//std::itoa(meshIndex, buffer, 10);
+	//std::string matname = "MESH_" + std::string{buffer} + "_" + std::string{scene->mMeshes[meshIndex]->mName.C_Str()};
 
-	itoa(meshIndex, buffer, 10);
-	std::string matname = "MESH_" + std::string{buffer} + "_" + std::string{scene->mMeshes[meshIndex]->mName.C_Str()};
+	std::string buffer = std::to_string(meshIndex);
+	std::string matname = "MESH_" + buffer + "_" + std::string{scene->mMeshes[meshIndex]->mName.C_Str()};
 	return matname;
 }
 std::string calculate_assimp_material_name(const aiScene *scene, int materialIndex)
 {
-	char buffer[50];
+	//char buffer[50];
+	//itoa(materialIndex, buffer, 10);
+	//std::string matname = "MAT_" + std::string{buffer} + "_" + std::string{scene->mMaterials[materialIndex]->GetName().C_Str()};
 
-	itoa(materialIndex, buffer, 10);
-	std::string matname = "MAT_" + std::string{buffer} + "_" + std::string{scene->mMaterials[materialIndex]->GetName().C_Str()};
+	std::string buffer = std::to_string(materialIndex);
+	std::string matname = "MAT_" + buffer + "_" + std::string{scene->mMaterials[materialIndex]->GetName().C_Str()};
 	return matname;
 }
 void extract_assimp_materials(const aiScene *scene, const fs::path &input, const fs::path &outputFolder, const ConverterState &convState)
@@ -862,7 +874,7 @@ void extract_assimp_materials(const aiScene *scene, const fs::path &input, const
 			}
 		}
 
-		//check opacity
+		// check opacity
 
 		std::string texPath = "";
 		if (material->GetTextureCount(aiTextureType_DIFFUSE))
@@ -871,7 +883,7 @@ void extract_assimp_materials(const aiScene *scene, const fs::path &input, const
 			material->GetTexture(aiTextureType_DIFFUSE, 0, &assimppath);
 
 			fs::path texturePath = &assimppath.data[0];
-			//unreal compat
+			// unreal compat
 			texturePath = texturePath.filename();
 			texPath = "T_" + texturePath.string();
 		}
@@ -881,11 +893,11 @@ void extract_assimp_materials(const aiScene *scene, const fs::path &input, const
 			material->GetTexture(aiTextureType_BASE_COLOR, 0, &assimppath);
 
 			fs::path texturePath = &assimppath.data[0];
-			//unreal compat
+			// unreal compat
 			texturePath = texturePath.filename();
 			texPath = "T_" + texturePath.string();
 		}
-		//force a default texture
+		// force a default texture
 		else
 		{
 			texPath = "Default";
@@ -902,7 +914,7 @@ void extract_assimp_materials(const aiScene *scene, const fs::path &input, const
 
 		assets::AssetFile newFile = assets::pack_material(&newMaterial);
 
-		//save to disk
+		// save to disk
 		save_binaryfile(materialPath.string().c_str(), newFile);
 	}
 }
@@ -965,7 +977,7 @@ void extract_assimp_meshes(const aiScene *scene, const fs::path &input, const fs
 			_indices[f * 3 + 1] = mesh->mFaces[f].mIndices[1];
 			_indices[f * 3 + 2] = mesh->mFaces[f].mIndices[2];
 
-			//assimp fbx creates bad normals, just regen them
+			// assimp fbx creates bad normals, just regen them
 			if (true)
 			{
 				int v0 = _indices[f * 3 + 0];
@@ -1002,7 +1014,7 @@ void extract_assimp_meshes(const aiScene *scene, const fs::path &input, const fs
 
 		fs::path meshpath = outputFolder / (meshname + ".mesh");
 
-		//save to disk
+		// save to disk
 		save_binaryfile(meshpath.string().c_str(), newFile);
 	}
 }
@@ -1045,7 +1057,7 @@ void extract_assimp_nodes(const aiScene *scene, const fs::path &input, const fs:
 		prefab.matrices.push_back(matrix);
 
 		std::string nodename = node->mName.C_Str();
-		//std::cout << nodename << std::endl;
+		// std::cout << nodename << std::endl;
 
 		if (nodename.size() > 0)
 		{
@@ -1057,7 +1069,7 @@ void extract_assimp_nodes(const aiScene *scene, const fs::path &input, const fs:
 			int mesh_index = node->mMeshes[msh];
 			std::string meshname = "Mesh: " + std::string{scene->mMeshes[mesh_index]->mName.C_Str()};
 
-			//std::cout << meshname << std::endl;
+			// std::cout << meshname << std::endl;
 
 			std::string matname = calculate_assimp_material_name(scene, scene->mMeshes[mesh_index]->mMaterialIndex);
 			meshname = calculate_assimp_mesh_name(scene, mesh_index);
@@ -1103,8 +1115,79 @@ void extract_assimp_nodes(const aiScene *scene, const fs::path &input, const fs:
 
 	scenefilepath.replace_extension(".pfb");
 
-	//save to disk
+	// save to disk
 	save_binaryfile(scenefilepath.string().c_str(), newFile);
+}
+
+void extract_assimp_bones(const aiScene *scene, const fs::path &input, const fs::path &outputFolder, const ConverterState &convState)
+{
+	for (int meshindex = 0; meshindex < scene->mNumMeshes; meshindex++)
+	{
+		std::vector<assets::BoneVerticesData> bones;
+		std::vector<assets::Bone> bonesInfo;
+
+		auto mesh = scene->mMeshes[meshindex];
+		std::string meshname = calculate_assimp_mesh_name(scene, meshindex);
+
+		std::unordered_map<std::string, uint32_t> boneMap;
+		uint32_t idBone = 0;
+		std::cout << "number of bones: " << mesh->mNumBones << std::endl;
+		for (uint i = 0; i < mesh->mNumBones; i++)
+		{
+			uint BoneIndex = 0;
+			std::string BoneName(mesh->mBones[i]->mName.data);
+			auto matrix(mesh->mBones[i]->mOffsetMatrix);
+
+			if (boneMap.find(BoneName) == boneMap.end())
+			{
+				BoneIndex = idBone++;
+				//BoneInfo bi;
+				//m_BoneInfo.push_back(bi);
+				bones.emplace_back();
+			}
+			else
+			{
+				BoneIndex = boneMap[BoneName];
+			}
+			boneMap[BoneName] = BoneIndex;
+			//m_BoneInfo[BoneIndex].BoneOffset = mesh->mBones[i]->mOffsetMatrix;
+			for (uint j = 0; j < mesh->mBones[i]->mNumWeights; j++)
+			{
+				//uint VertexID = m_Entries[MeshIndex].BaseVertex + mesh->mBones[i]->mWeights[j].mVertexId;
+				uint VertexID = mesh->mBones[i]->mWeights[j].mVertexId;
+				float Weight = mesh->mBones[i]->mWeights[j].mWeight;
+				//Bones[VertexID].AddBoneData(BoneIndex, Weight);
+				bones[BoneIndex].indices.push_back(VertexID);
+				bones[BoneIndex].weights.push_back(Weight);
+			}
+		}
+
+		assets::SkeletonInfo skeletonInfo;
+		skeletonInfo.originalFile = input.string();
+		skeletonInfo.numBones = boneMap.size(); 
+		std::vector<assets::VertexBoneData> vertexBoneDatas;
+		for(const auto & boneData : bones)
+		{
+			skeletonInfo.numBoneVertices.push_back(boneData.indices.size());	
+			for(uint32_t i = 0; i < boneData.indices.size(); ++i)
+			{
+				vertexBoneDatas.emplace_back();
+				vertexBoneDatas.back().index = boneData.indices[i];
+				vertexBoneDatas.back().weight = boneData.weights[i];
+			}
+		}
+
+		std::vector<char> buffer;
+		buffer.resize(vertexBoneDatas.size()* sizeof(assets::VertexBoneData));
+		memcpy(buffer.data(), vertexBoneDatas.data(), buffer.size());
+		skeletonInfo.fullsize = buffer.size();
+		assets::AssetFile newFile = assets::pack_skeleton(skeletonInfo, buffer);
+
+		fs::path bonepath = outputFolder / (meshname + ".bones");
+
+		// save to disk
+		save_binaryfile(bonepath.string().c_str(), newFile);
+	}
 }
 
 int main(int argc, char *argv[])
@@ -1121,7 +1204,7 @@ int main(int argc, char *argv[])
 
 		fs::path directory = path;
 
-		fs::path exported_dir = path.parent_path() / "..\\assets_export";
+		fs::path exported_dir = path.parent_path() / "assets_export";
 
 		std::cout << "loaded asset directory at " << directory << std::endl;
 
@@ -1200,10 +1283,10 @@ int main(int argc, char *argv[])
 			{
 				const aiScene *scene;
 				Assimp::Importer importer;
-				//ZoneScopedNC("Assimp load", tracy::Color::Magenta);
+				// ZoneScopedNC("Assimp load", tracy::Color::Magenta);
 				const char *path = p.path().string().c_str();
 				auto start1 = std::chrono::system_clock::now();
-				scene = importer.ReadFile(p.path().string(), aiProcess_OptimizeMeshes | aiProcess_GenNormals | aiProcess_FlipUVs); //aiProcess_Triangulate | aiProcess_OptimizeMeshes | aiProcess_FlipUVs | aiProcess_GenNormals | aiProcess_GenBoundingBoxes);
+				scene = importer.ReadFile(p.path().string(), aiProcess_OptimizeMeshes | aiProcess_GenNormals | aiProcess_FlipUVs); // aiProcess_Triangulate | aiProcess_OptimizeMeshes | aiProcess_FlipUVs | aiProcess_GenNormals | aiProcess_GenBoundingBoxes);
 				auto end = std::chrono::system_clock::now();
 				auto elapsed = end - start1;
 				std::cout << "Assimp load time " << elapsed.count() << '\n';
@@ -1212,6 +1295,7 @@ int main(int argc, char *argv[])
 				extract_assimp_materials(scene, p.path(), folder, convstate);
 				extract_assimp_meshes(scene, p.path(), folder, convstate);
 				extract_assimp_nodes(scene, p.path(), folder, convstate);
+				extract_assimp_bones(scene, p.path(), folder, convstate);
 
 				std::vector<aiMaterial *> materials;
 				std::vector<std::string> materialNames;

@@ -5,31 +5,51 @@ using namespace Eigen;
 using namespace Crane;
 using namespace CranePhysics;
 
-/*
 void CLOTH::createChessboard()
 {
 	LOGI("create chessboard");
 
-	string name = "chessboard";
-	loadMeshs[name] = make_shared<Crane::Chessboard>(11, 11);
-	loadMeshs[name]->setVertices([](uint32_t, Vertex& v) {v.position *= 100; });
-	chessboard.mesh = loadMeshs[name];
+	chessboard = make_shared<Actor>();
 
-	materials[name] = materialBuilderPhong.build();
-	chessboard.material = &materials[name];
-
-	renderables.emplace_back(chessboard.mesh.get(), chessboard.material, &chessboard.transform);
+    chessboardGP = make_shared<GraphicsPrimitive>();
+	{
+		string name = "chessboard";
+        if (meshRepository.find(name) == meshRepository.end())
+			meshRepository[name] = make_shared<Crane::Chessboard>(11, 11);
+        shared_ptr<Crane::Chessboard> mesh = dynamic_pointer_cast<Crane::Chessboard>(meshRepository[name]);
+		mesh->setVertices([](uint32_t, Vertex& v) {v.position *= 100; });
+		chessboardGP->mesh = mesh;
+	}
+	{
+		string name = "phongBlank";
+        if (materialRepository.find(name) == materialRepository.end())
+            materialRepository[name] = materialBuilderPhong.build();
+        chessboardGP->material = materialRepository[name];
+	}
+	{
+        Eigen::Vector3f pos{0.f, 0.f, 0.f};
+        chessboardGP->transformer.setPosition(pos);
+	}
+	chessboardGP->transformer.setTransformParent(&chessboard->transformer.getTransformWorld());
+	chessboard->primitives.push_back(chessboardGP);
+	chessboard->transformer.setTransformParent(&transformWorld);
+	scene.push_back(chessboard);
 
 	// physics
 	auto physicsCubeChessboard = std::make_shared<CranePhysics::Cube>();
 	physicsCubeChessboard->invMass = 0.f;
-	physicsCubeChessboard->position = chessboard.position;
+	Vector3f pos = chessboard->primitives[0]->transformer.getPosition();
+	Matrix4f trans = *(chessboard->primitives[0]->transformer.getTransformParent());
+	Vector4f posT =  trans* Vector4f{pos[0], pos[1], pos[2], 1.0f};
+
+	physicsCubeChessboard->position = Vector3f{posT[0], posT[1], posT[2]};
 	physicsCubeChessboard->width = 100.f;
 	physicsCubeChessboard->depth = 100.f;
 	physicsCubeChessboard->height = 0.1f;
 	pbd.rigidbodies.push_back(physicsCubeChessboard);
 }
 
+/*
 void CLOTH::createCloak()
 {
 	LOGI("create cloak");

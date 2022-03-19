@@ -3,6 +3,8 @@
 add_library (assetlib STATIC 
 "mesh_asset.h"
 "mesh_asset.cpp"
+"skeleton_asset.hpp"
+"skeleton_asset.cpp"
 "texture_asset.h"
 "texture_asset.cpp"
 "material_asset.h"

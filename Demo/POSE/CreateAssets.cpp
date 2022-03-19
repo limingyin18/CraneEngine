@@ -5,72 +5,9 @@ using namespace Eigen;
 using namespace CranePhysics;
 using namespace Crane;
 
-void POSE::createBones()
-{
-    string name = "bone";
-	loadMeshs[name] = make_shared<Crane::Cube>(2);
-    loadMeshs[name]->setVertices([](uint32_t i, Vertex&v){v.position*=0.1f;});
-	materials[name] = materialBuilderPhong.build();
-
-	for (auto &b : bones)
-	{
-	    b.mesh = loadMeshs[name];
-	    b.material = &materials[name];
-		renderables.emplace_back(b.mesh.get(), b.material, &b.transform);
-	}
-
-	Vector3f position = { 0.f, 4.5f, -20.f };
-    bones[0].setPosition(position);
-
-	float scale = 2.5f;
-    // left arms
-    bones[1].setPosition(bones[0].position + scale*Vector3f{-0.30f, -0.30f, 0.f});
-    bones[2].setPosition(bones[1].position + scale*Vector3f{-0.15f, -0.15f, 0.f});
-    bones[3].setPosition(bones[2].position + scale*Vector3f{-0.15f, -0.15f, 0.f});
-
-    // right arms
-    bones[4].setPosition(bones[0].position + scale*Vector3f{0.30f, -0.30f, 0.f});
-    bones[5].setPosition(bones[4].position + scale*Vector3f{0.15f, -0.15f, 0.f});
-    bones[6].setPosition(bones[5].position + scale*Vector3f{0.15f, -0.15f, 0.f});
-
-    // left legs
-    bones[7].setPosition(bones[0].position + scale*Vector3f{-0.15f, -0.80f, 0.f});
-    bones[8].setPosition(bones[7].position + scale*Vector3f{0.f, -0.40f, 0.f});
-    bones[9].setPosition(bones[8].position + scale*Vector3f{0.f, -0.40f, 0.f});
-
-    // right legs
-    bones[10].setPosition(bones[0].position + scale*Vector3f{0.15f, -0.80f, 0.f});
-    bones[11].setPosition(bones[10].position + scale*Vector3f{0.f, -0.40f, 0.f});
-    bones[12].setPosition(bones[11].position + scale*Vector3f{0.f, -0.40f, 0.f});
-}
-
-void POSE::createChessboard()
-{
-	LOGI("create chessboard");
-
-	string name = "chessboard";
-	loadMeshs[name] = make_shared<Crane::Chessboard>(11, 11);
-	loadMeshs[name]->setVertices([](uint32_t, Vertex& v) {v.position *= 100; });
-	chessboard.mesh = loadMeshs[name];
-
-	materialBuilderPhong.descriptorInfos[1][0].second = &descriptorImageInfoBlank;
-	materials[name] = materialBuilderPhong.build();
-	chessboard.material = &materials[name];
-
-	renderables.emplace_back(chessboard.mesh.get(), chessboard.material, &chessboard.transform);
-
-	// physics
-	auto cube0 = std::make_shared<CranePhysics::Cube>();
-	cube0->invMass = 0.f;
-	cube0->position = chessboard.position;
-	cube0->width = 100.f;
-	cube0->depth = 100.f;
-	cube0->height = 0.1f;
-	pbd.rigidbodies.push_back(cube0);
-}
-
 void POSE::createHuman()
 {
+	/*
 	LOGI("create human");
 
 	string name = "human";
@@ -128,7 +65,7 @@ void POSE::createHuman()
 	for(uint32_t i = 0; i < human.mesh->data.size(); ++i)
 	{
 		human.mesh->data[i].position = bones[bindCoffs[i].index].position + bindCoffs[i].diff;
-	}
+	}*/
 
 	// voxelize
 

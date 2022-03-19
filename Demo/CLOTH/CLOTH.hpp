@@ -5,7 +5,9 @@
 #include <fstream>
 
 #include "SDL2_IMGUI_BASE.hpp"
+#include "ChessboardActor.hpp"
 #include "ClothActor.hpp"
+#include "SoldierActor.hpp"
 
 class CLOTH : public SDL2_IMGUI_BASE
 {
@@ -36,6 +38,10 @@ private:
 	std::vector<Crane::Actor> boxs;
 	*/
 	std::shared_ptr<ClothActor> clothActor;
+	std::shared_ptr<SoldierActor> soldierActor;
+	std::shared_ptr<Crane::Actor> chessboard;
+    std::shared_ptr<Crane::GraphicsPrimitive> chessboardGP;
+	std::shared_ptr<Crane::ChessboardActor> chessboardActor;
 	CranePhysics::PositionBasedDynamics pbd;
 
 	void createAssetApp() override;
@@ -43,9 +49,9 @@ private:
 
 	void setImgui() override;
 
-/*
 	void createChessboard();
 
+/*
 	void createCloak();
 	void createFlagCloth();
 	void createCubeTest();

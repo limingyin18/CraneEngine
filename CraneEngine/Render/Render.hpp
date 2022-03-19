@@ -165,7 +165,7 @@ namespace Crane
 		vk::DescriptorImageInfo descriptorImageInfoBlank, descriptorImageInfoLilac;
 
 		// renderable
-		std::vector<GraphicsPrimitive> renderables;
+		std::vector<std::shared_ptr<GraphicsPrimitive>> renderables;
 		std::unordered_map<std::string, std::shared_ptr<MeshBase>> meshRepository;
 		std::unordered_map<std::string, Image> loadImages;
 		std::unordered_map<std::string, vk::UniqueImageView> loadImageViews;

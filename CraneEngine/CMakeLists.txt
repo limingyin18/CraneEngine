@@ -18,3 +18,4 @@ target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 # TODO: Add tests and install targets if needed.
 
 add_subdirectory(Module/OceanFFT)
+add_subdirectory(Module/BasicActor)

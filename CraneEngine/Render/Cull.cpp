@@ -8,14 +8,22 @@ using namespace Crane;
 void Render::updateCullData()
 {
 	drawCullData.view = camera.view;//get_view_matrix();
-
 	bufferDrawCullData.update(&drawCullData);
+
+	for (auto& d : draws)
+	{
+		for (uint32_t i = d.first; i < d.count; ++i)
+		{
+			cullObjCandidates[i].model = renderables[i]->transformer.getTransformWorld();
+		}
+	}
+	bufferCullObjCandidate.update(cullObjCandidates.data());
 }
 
 void Render::compactDraws()
 {
 	IndirectBatch firstDraw;
-	firstDraw.renderable = &renderables[0];
+	firstDraw.renderable = renderables[0];
 	firstDraw.first = 0;
 	firstDraw.count = 1;
 
@@ -25,8 +33,8 @@ void Render::compactDraws()
 	for (int i = 1; i < renderables.size(); i++)
 	{
 		//compare the mesh and material with the end of the vector of draws
-		bool sameMesh = renderables[i].mesh == draws.back().renderable->mesh;
-		bool sameMaterial = renderables[i].material == draws.back().renderable->material;
+		bool sameMesh = renderables[i]->mesh == draws.back().renderable->mesh;
+		bool sameMaterial = renderables[i]->material == draws.back().renderable->material;
 
 		if (sameMesh && sameMaterial)
 		{
@@ -37,7 +45,7 @@ void Render::compactDraws()
 		{
 			//add new draw
 			IndirectBatch newDraw;
-			newDraw.renderable = &renderables[i];
+			newDraw.renderable = renderables[i];
 			newDraw.first = i;
 			newDraw.count = 1;
 
@@ -56,10 +64,10 @@ void Render::compactDraws()
 	cullObjCandidates.resize(renderables.size());
 	for (auto& d : draws)
 	{
-		Vector4f spherebound = renderables[d.first].SphereBound();
+		Vector4f spherebound = renderables[d.first]->SphereBound();
 		for (uint32_t i = d.first; i < d.count; ++i)
 		{
-			cullObjCandidates[i].model = renderables[i].transformer.getTransformWorld();
+			cullObjCandidates[i].model = renderables[i]->transformer.getTransformWorld();
 			cullObjCandidates[i].spherebound = spherebound;
 			cullObjCandidates[i].cullFlag = true;
 		}
