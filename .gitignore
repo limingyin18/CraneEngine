@@ -363,6 +363,7 @@ MigrationBackup/
 FodyWeavers.xsd
 
 build
+asset-baker/build/
 
 .vscode
 html
