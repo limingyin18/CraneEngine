@@ -34,7 +34,7 @@ void Crane::Engine::initEngine()
 		materialCull = materialBuilderCull.build();
 	}
 
-	LOGI("创建冯氏着色模型管线")
+	LOGI("create phong pipeline");
 	{
 		pipelinePassPhong.device = device.get();
 
@@ -70,7 +70,7 @@ void Crane::Engine::initEngine()
 		pipelineBuilder.rs.polygonMode = vk::PolygonMode::eFill;
 	}
 
-	LOGI("创建冯氏着色材质构建工厂")
+	//LOGI("创建冯氏着色材质构建工厂")
 	{
 		materialBuilderPhong.descriptorPool = descriptorPool.get();
 		materialBuilderPhong.pipelinePass = &pipelinePassPhong;

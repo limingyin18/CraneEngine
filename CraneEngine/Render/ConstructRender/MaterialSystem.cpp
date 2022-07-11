@@ -66,7 +66,7 @@ vk::UniquePipeline PipelineBuilder::build(const std::vector<vk::PipelineShaderSt
 	.pColorBlendState = &cb,
 	.layout = pipelineLayout,
 	.renderPass = renderPass };
-	return device.createGraphicsPipelineUnique(pipelineCache, pipelineCreateInfo);
+	return device.createGraphicsPipelineUnique(pipelineCache, pipelineCreateInfo).value;
 }
 
 void PipelinePass::addShader(std::vector<char>& shaderCode, vk::ShaderStageFlagBits stage)
@@ -168,7 +168,7 @@ void Crane::PipelinePassCompute::buildPipeline(vk::PipelineCache pipelineCache)
 	.module = shaderModules[0].get(), .pName = "main" };
 	vk::ComputePipelineCreateInfo computePipelineCreateInfo{ .stage = computeShaderStageCreateInfo,
 		.layout = pipelineLayout.get(), };
-	pipeline = device.createComputePipelineUnique(pipelineCache, computePipelineCreateInfo);
+	pipeline = device.createComputePipelineUnique(pipelineCache, computePipelineCreateInfo).value;
 }
 
 void Crane::PipelinePassGraphics::buildPipeline(PipelineBuilder& pipelineBuilder)

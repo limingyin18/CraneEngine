@@ -8,7 +8,7 @@
 
 #include "spirv_reflect.h"
 
-#include "Logging.hpp"
+#include "../../third_party/Logging.hpp"
 #include "MeshBase.hpp"
 #include "Buffer.hpp"
 

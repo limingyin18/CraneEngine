@@ -19,7 +19,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
                       glslang
                       eigen
                       TracyClient
-                      tbb
+                      TBB::tbb
                       ConstructData
                       ConstructRender
                       )

@@ -18,7 +18,7 @@
 #include <Tracy.hpp>
 #include <TracyVulkan.hpp>
 
-#include "Logging.hpp"
+#include "../../third_party/Logging.hpp"
 #include "Buffer.hpp"
 #include "Image.hpp"
 #include "Camera.hpp"

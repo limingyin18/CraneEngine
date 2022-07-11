@@ -11,24 +11,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 SET(CMAKE_BUILD_TYPE "Debug")
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  # using Clang
-  add_compile_options (-fcolor-diagnostics -w)
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  # using GCC
-    #add_compile_options(-fdiagnostics-color=always -w -fcompare-debug-second)
-    add_compile_options(-fdiagnostics-color=always -w)
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-  # using Intel C++
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  # using Visual Studio C++
-endif()
-
 #SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g2 -ggdb")
 #SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
-
+set(ENV{VULKAN_SDK} "C:\\VulkanSDK\\1.3.216.0")
 find_package(Vulkan REQUIRED)
-find_package(SDL2 REQUIRED)
+find_package(SDL2 CONFIG REQUIRED)
+ find_package(TBB CONFIG REQUIRED)
 #find_package(glslang REQUIRED)
 
 # Include sub-projects.

@@ -34,7 +34,7 @@ target_include_directories(spirv_reflect PUBLIC "SPIRV-Reflect")
 # VkFFT
 add_library(VkFFT INTERFACE)
 target_include_directories(VkFFT INTERFACE "VkFFT/vkFFT")
-target_include_directories(VkFFT INTERFACE "/usr/include/glslang/Include/")
+target_include_directories(VkFFT INTERFACE "glslang/glslang/Include/")
 
 #tracy 
 add_subdirectory(tracy)

@@ -33,7 +33,7 @@ void Render::buildRenderable()
 
 	compactDraws();
 
-	modelMatrixOffset = padUniformBufferSize(sizeof(Eigen::Matrix4f), physicalDevice.getProperties());
+	modelMatrixOffset = padUniformBufferSize(sizeof(Eigen::Matrix4f), (VkPhysicalDeviceProperties)physicalDevice.getProperties());
 	const size_t modelMatrixBufferSize = renderables.size() * modelMatrixOffset;
 	modelMatrix.resize(modelMatrixBufferSize);
 	auto modelMatrixPtr = modelMatrix.data();
@@ -85,7 +85,7 @@ void Render::buildRenderable()
 		endSingleTimeCommands(cmdBuffVert);
 	}
 
-	LOGI("������������");
+	//LOGI("������������");
 	{
 		vk::CommandBuffer cmdBuffIndex = beginSingleTimeCommands();
 		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
@@ -101,7 +101,7 @@ void Render::buildRenderable()
 		endSingleTimeCommands(cmdBuffIndex);
 	}
 
-	LOGI("������ӻ��ƻ���");
+	//LOGI("������ӻ��ƻ���");
 	{
 		bufferIndirect.create(*vmaAllocator, draws.size() * sizeof(vk::DrawIndexedIndirectCommand),
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
@@ -215,7 +215,7 @@ void Crane::Render::update()
 {
 
 	device->waitForFences(inFlightFences[currentFrame].get(), true, UINT64_MAX);
-	currBuffIndex = device->acquireNextImageKHR(swapchain.get(), UINT64_MAX, imageAcquiredSemaphores[currentFrame].get());
+	currBuffIndex = device->acquireNextImageKHR(swapchain.get(), UINT64_MAX, imageAcquiredSemaphores[currentFrame].get()).value;
 	device->waitForFences(imagesInFlightFences[currBuffIndex], true, UINT64_MAX);
 	imagesInFlightFences[currBuffIndex] = inFlightFences[currentFrame].get();
 	device->resetFences(inFlightFences[currentFrame].get());
