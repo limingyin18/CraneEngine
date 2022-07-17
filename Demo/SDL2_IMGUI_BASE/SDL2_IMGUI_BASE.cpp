@@ -100,6 +100,8 @@ void SDL2_IMGUI_BASE::imguiInit()
 	//this initializes the core structures of imgui
 	imguiContext.reset(ImGui::CreateContext());
 	ImGui::SetCurrentContext(imguiContext.get());
+
+	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	/*
 	ImGui_ImplVulkan_LoadFunctions(
 		[](const char *function_name, void *)
@@ -133,7 +135,6 @@ void SDL2_IMGUI_BASE::drawGUI()
 	//imgui new frame
 	ImGui_ImplVulkan_NewFrame();
 	ImGui_ImplSDL2_NewFrame(window.get());
-
 	ImGui::NewFrame();
 
 	setImgui();

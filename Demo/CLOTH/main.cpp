@@ -1,6 +1,7 @@
 #include <iostream>
 #include <exception>
 #include <memory>
+#include <immintrin.h>
 
 #include <SDL2/SDL.h>
 #include <imgui.h>
@@ -9,10 +10,10 @@
 
 using namespace std;
 
-static const int WIDTH = 1280;
-static const int HEIGHT = 720;
+static const int WIDTH = 1600;
+static const int HEIGHT = 900;
 
-static const string TITLE = "SDL2 Testing";
+static const string TITLE = "Three Kingdoms";
 
 void processInputEvent(SDL_Event &event, Crane::Input &input);
 
@@ -36,7 +37,7 @@ int main(int argc, char **argv)
         SDL_Event event;
         do
         {
-            while (SDL_PollEvent(&event) != 0)
+            while (SDL_PollEvent(&event) != 0 && event.type != SDL_QUIT)
             {
                 processInputEvent(event, clothApp.input);
 
