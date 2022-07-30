@@ -109,11 +109,8 @@ void CLOTH::setImgui()
     */
 
     static bool opt_padding = false;
-    //static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoSplit 
-        //|ImGuiDockNodeFlags_NoResize ;
-
-    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode
-        ;
+    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoSplit 
+        |ImGuiDockNodeFlags_NoResize ;
 
 
     // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
@@ -197,9 +194,13 @@ void CLOTH::setImgui()
     ImGui::End();
     ImGui::SetNextWindowBgAlpha(0.001f);
     ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove);
-    if (ImGui::TreeNode("Basic"))
+    for (uint32_t i = 0; i < scene.size(); ++i)
     {
-        ImGui::TreePop();
+        string nodeName = typeid(*scene[i]).name();
+        if (ImGui::TreeNode(nodeName.c_str()))
+        {
+            ImGui::TreePop();
+        }
     }
     ImGui::End();
 
