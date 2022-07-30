@@ -46,3 +46,6 @@
 [submodule "third_party/glslang"]
 	path = third_party/glslang
 	url = https://github.com/KhronosGroup/glslang.git
+[submodule "third_party/openexr"]
+	path = third_party/openexr
+	url = git@github.com:AcademySoftwareFoundation/openexr.git
