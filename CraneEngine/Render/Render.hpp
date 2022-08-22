@@ -108,6 +108,9 @@ namespace Crane
 
 		std::tuple<Image, vk::UniqueImageView> createTextureImage(uint32_t texWidth, uint32_t texHeight,
 			uint32_t texChannels, void* pixels);
+
+		std::tuple<Image, vk::UniqueImageView> createCubeTextureImage(uint32_t texWidth, uint32_t texHeight,
+			uint32_t texChannels, void* pixels);
 		
 		uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 

@@ -41,6 +41,3 @@ add_subdirectory(tracy)
 
 #glslang
 add_subdirectory(glslang)
-
-#openexr
-add_subdirectory(openexr)

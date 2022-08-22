@@ -8,6 +8,7 @@
 #include "ChessboardActor.hpp"
 #include "ClothActor.hpp"
 #include "SoldierActor.hpp"
+#include "Skybox.hpp"
 
 class CLOTH : public SDL2_IMGUI_BASE
 {
@@ -43,6 +44,8 @@ private:
     std::shared_ptr<Crane::GraphicsPrimitive> chessboardGP;
 	std::shared_ptr<Crane::ChessboardActor> chessboardActor;
 	CranePhysics::PositionBasedDynamics pbd;
+
+	std::shared_ptr<SkyboxActor> skybox;
 
 	void createAssetApp() override;
 	void updateApp() override;

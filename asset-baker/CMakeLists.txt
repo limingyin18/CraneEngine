@@ -34,3 +34,5 @@ target_link_libraries(baker PUBLIC
                         assimp
                         tinygltf
                         )
+
+#target_link_libraries(baker INTERFACE tinygltf)

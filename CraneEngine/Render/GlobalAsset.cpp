@@ -9,24 +9,24 @@ void Render::createAsset()
     createCameraPushConstant();
     createSceneParametersUniformBuffer();
 
-    LOGI("����sampler")
-        vk::SamplerCreateInfo samplerInfo{
-        .magFilter = vk::Filter::eNearest,
-        .minFilter = vk::Filter::eNearest,
-        .mipmapMode = vk::SamplerMipmapMode::eNearest,
-        .addressModeU = vk::SamplerAddressMode::eRepeat,
-        .addressModeV = vk::SamplerAddressMode::eRepeat,
-        .addressModeW = vk::SamplerAddressMode::eRepeat,
-        .anisotropyEnable = VK_TRUE,
-        .maxAnisotropy = physicalDevice.getProperties().limits.maxSamplerAnisotropy,
-        .compareEnable = VK_FALSE,
-        .compareOp = vk::CompareOp::eAlways,
-        .borderColor = vk::BorderColor::eIntOpaqueBlack,
-        .unnormalizedCoordinates = VK_FALSE };
+    LOGI("create sampler");
+    vk::SamplerCreateInfo samplerInfo{
+    .magFilter = vk::Filter::eNearest,
+    .minFilter = vk::Filter::eNearest,
+    .mipmapMode = vk::SamplerMipmapMode::eNearest,
+    .addressModeU = vk::SamplerAddressMode::eRepeat,
+    .addressModeV = vk::SamplerAddressMode::eRepeat,
+    .addressModeW = vk::SamplerAddressMode::eRepeat,
+    .anisotropyEnable = VK_TRUE,
+    .maxAnisotropy = physicalDevice.getProperties().limits.maxSamplerAnisotropy,
+    .compareEnable = VK_FALSE,
+    .compareOp = vk::CompareOp::eAlways,
+    .borderColor = vk::BorderColor::eIntOpaqueBlack,
+    .unnormalizedCoordinates = VK_FALSE };
     textureSampler = device->createSamplerUnique(samplerInfo);
 
-    LOGI("������ɫ")
-        vector<uint8_t> blankPiexls{ 255, 255, 255, 255 };
+    LOGI("create basic color");
+    vector<uint8_t> blankPiexls{ 255, 255, 255, 255 };
     vector<uint8_t> lilacPiexls{ 179, 153, 255, 255 };
     std::tie(imageBlank, imageViewBlank) = createTextureImage(1, 1, 4, blankPiexls.data());
     std::tie(imageLilac, imageViewLilac) = createTextureImage(1, 1, 4, lilacPiexls.data());
@@ -68,7 +68,7 @@ void Render::createSceneParametersUniformBuffer()
     sceneParameters.fogColor = { 0.2f, 0.2f, 0.2f, 1.0f };
     sceneParameters.fogDistances = { 0.2f, 0.2f, 0.2f, 1.0f };
     sceneParameters.sunlightColor = { 0.9f, 0.9f, 0.9f, 1.0f };
-    Eigen::Vector3f sunDirection = {0.f, -1.f, -0.5f };
+    Eigen::Vector3f sunDirection = { 0.f, -1.f, -0.5f };
     sunDirection.normalize();
     sceneParameters.sunlightDirection = { sunDirection.x(), sunDirection.y(), sunDirection.z(), 1.0f };
 

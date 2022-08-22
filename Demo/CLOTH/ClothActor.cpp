@@ -149,7 +149,7 @@ void ClothActor::init(Crane::Engine *c, CranePhysics::PositionBasedDynamics *p)
     {
         string nameImage = "BannerHolyRoman";
         {
-            string imageName = "Banner_of_the_Holy_Roman_Emperor_with_haloes.tx";
+            string imageName = "StandardCubeMap.tx";
             assets::AssetFile textureFile;
             if (!load_binaryfile((string("assets/") + imageName).c_str(), textureFile))
                 throw runtime_error("load asset failed");

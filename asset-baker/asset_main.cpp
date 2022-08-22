@@ -1132,9 +1132,9 @@ void extract_assimp_bones(const aiScene *scene, const fs::path &input, const fs:
 		std::unordered_map<std::string, uint32_t> boneMap;
 		uint32_t idBone = 0;
 		std::cout << "number of bones: " << mesh->mNumBones << std::endl;
-		for (uint i = 0; i < mesh->mNumBones; i++)
+		for (uint32_t i = 0; i < mesh->mNumBones; i++)
 		{
-			uint BoneIndex = 0;
+			uint32_t BoneIndex = 0;
 			std::string BoneName(mesh->mBones[i]->mName.data);
 			auto matrix(mesh->mBones[i]->mOffsetMatrix);
 
@@ -1151,10 +1151,10 @@ void extract_assimp_bones(const aiScene *scene, const fs::path &input, const fs:
 			}
 			boneMap[BoneName] = BoneIndex;
 			//m_BoneInfo[BoneIndex].BoneOffset = mesh->mBones[i]->mOffsetMatrix;
-			for (uint j = 0; j < mesh->mBones[i]->mNumWeights; j++)
+			for (uint32_t j = 0; j < mesh->mBones[i]->mNumWeights; j++)
 			{
 				//uint VertexID = m_Entries[MeshIndex].BaseVertex + mesh->mBones[i]->mWeights[j].mVertexId;
-				uint VertexID = mesh->mBones[i]->mWeights[j].mVertexId;
+				uint32_t VertexID = mesh->mBones[i]->mWeights[j].mVertexId;
 				float Weight = mesh->mBones[i]->mWeights[j].mWeight;
 				//Bones[VertexID].AddBoneData(BoneIndex, Weight);
 				bones[BoneIndex].indices.push_back(VertexID);
@@ -1225,7 +1225,7 @@ int main(int argc, char *argv[])
 				fs::create_directory(export_path.parent_path());
 			}
 
-			if (p.path().extension() == ".png" || p.path().extension() == ".jpg" || p.path().extension() == ".TGA")
+			if (p.path().extension() == ".png" || p.path().extension() == ".jpg" || p.path().extension() == ".TGA" || ".hdr")
 			{
 				std::cout << "found a texture" << std::endl;
 
